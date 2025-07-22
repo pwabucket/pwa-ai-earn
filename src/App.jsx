@@ -4,6 +4,7 @@ import CalenderModal from "./components/CalendarModal";
 import DayView from "./components/DayView";
 import Header from "./components/Header";
 import WeeklyCalendar from "./components/WeeklyCalender";
+import { toLocalDateString } from "./utils/dateUtils";
 
 function App() {
   const [selectedDate, setSelectedDate] = useState(
@@ -23,9 +24,7 @@ function App() {
         {/* Weekly Calendar */}
         <WeeklyCalendar
           selectedDate={selectedDate}
-          onSelectDate={(date) =>
-            setSelectedDate(date.toISOString().split("T")[0])
-          }
+          onSelectDate={(date) => setSelectedDate(toLocalDateString(date))}
         />
 
         {/* Day View */}
@@ -36,7 +35,7 @@ function App() {
         <CalenderModal
           selectedDate={selectedDate}
           onSelectDate={(date) => {
-            setSelectedDate(date.toISOString().split("T")[0]);
+            setSelectedDate(toLocalDateString(date));
             setShowCalendar(false);
           }}
           onClose={() => setShowCalendar(false)}

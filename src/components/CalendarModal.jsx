@@ -88,13 +88,14 @@ export default function CalendarModal({ selectedDate, onSelectDate, onClose }) {
             {calendarDays.map((day, index) => (
               <button
                 key={index}
-                onClick={() => day.isCurrentMonth && handleDateSelect(day.date)}
+                onClick={() => handleDateSelect(day.date)}
                 className={cn(
                   "aspect-square flex items-center justify-center",
                   "text-sm rounded-lg transition-all cursor-pointer",
                   {
-                    "text-neutral-600 cursor-not-allowed": !day.isCurrentMonth,
-                    "hover:bg-neutral-800": day.isCurrentMonth,
+                    "text-neutral-600": !day.isCurrentMonth,
+                    "hover:bg-neutral-800":
+                      day.isCurrentMonth && !day.isSelected && !day.isToday,
                     "bg-pink-500 text-white font-medium": day.isSelected,
                     "bg-neutral-800 text-white font-medium":
                       day.isToday && !day.isSelected,
@@ -102,7 +103,6 @@ export default function CalendarModal({ selectedDate, onSelectDate, onClose }) {
                       day.isCurrentMonth && !day.isSelected && !day.isToday,
                   }
                 )}
-                disabled={!day.isCurrentMonth}
               >
                 {day.date.getDate()}
               </button>
