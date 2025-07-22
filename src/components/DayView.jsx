@@ -54,16 +54,32 @@ const ActionButton = ({
 }) => (
   <button
     className={cn(
-      "bg-neutral-800",
       "px-4 py-2 rounded-xl text-sm shrink-0 cursor-pointer",
-      variant === "primary" && "text-pink-500",
-      variant === "secondary" && " text-green-500",
+      variant === "primary" && "bg-neutral-800 text-pink-500",
+      variant === "secondary" && "bg-neutral-800 text-green-500",
       className
     )}
     onClick={onClick}
   >
     {children}
   </button>
+);
+
+const MetricCard = ({ title, value, valueColor = "text-green-500" }) => (
+  <div className="flex flex-col items-center bg-neutral-800 rounded-xl py-4">
+    <h3 className="text-sm font-semibold">{title}</h3>
+    <p className={cn("font-bold", valueColor)}>{formatCurrency(value)}</p>
+  </div>
+);
+
+const InputSection = ({ children }) => (
+  <div className="flex items-center gap-2">{children}</div>
+);
+
+const ButtonGroup = ({ children, columns = 2 }) => (
+  <div className={cn("grid gap-2", { 2: "grid-cols-2" }[columns])}>
+    {children}
+  </div>
 );
 
 const TransactionItem = ({ amount, type, onRemove }) => (
@@ -102,23 +118,42 @@ const TransactionsList = ({ title, transactions, type, onRemove }) => (
 );
 
 const MetricsDisplay = ({ result }) => (
-  <div className="flex flex-col">
-    <h1 className="text-center text-5xl font-bold">
-      {formatCurrency(result.activeInvestments)}
-    </h1>
-    <h2 className="text-center font-bold">
-      <span className="text-neutral-400">Daily Earn:</span>{" "}
-      {formatCurrency(result.currentDailyProfit)}{" "}
-      <span className="text-green-500">
-        (+
-        {result.currentDailyRate * 100}%)
-      </span>
-    </h2>
-    <p className="text-center">
-      <span className="text-green-500">Balance:</span>{" "}
-      {formatCurrency(result.totalBalance)}
-    </p>
-  </div>
+  <>
+    <div className="flex flex-col">
+      <h1 className="text-center text-5xl font-bold">
+        {formatCurrency(result.activeInvestments)}
+      </h1>
+      <h2 className="text-center font-bold">
+        <span className="text-neutral-400">Daily Earn:</span>{" "}
+        {formatCurrency(result.currentDailyProfit)}{" "}
+        <span className="text-green-500">
+          (+{(result.currentDailyRate * 100).toFixed(2)}%)
+        </span>
+      </h2>
+      <p className="text-center">
+        <span className="text-green-500">Balance:</span>{" "}
+        {formatCurrency(result.totalBalance)}
+      </p>
+    </div>
+
+    <div className="grid grid-cols-3 gap-2 px-2">
+      <MetricCard
+        title="Invested"
+        value={result.totalInvested}
+        valueColor="text-green-500"
+      />
+      <MetricCard
+        title="Profits"
+        value={result.totalProfits}
+        valueColor="text-green-500"
+      />
+      <MetricCard
+        title="Withdrawn"
+        value={result.totalWithdrawn}
+        valueColor="text-red-500"
+      />
+    </div>
+  </>
 );
 
 export default function DayView({ selectedDate }) {
@@ -202,13 +237,13 @@ export default function DayView({ selectedDate }) {
         </Tabs.List>
 
         <Tabs.Content value="investments" className="flex flex-col gap-2">
-          <div className="flex items-center gap-2">
+          <InputSection>
             <CurrencyInput
               value={investmentAmount}
               onChange={setInvestmentAmount}
             />
             <ActionButton onClick={handleInvest}>Invest</ActionButton>
-          </div>
+          </InputSection>
 
           <TransactionsList
             title="Today's investments"
@@ -219,20 +254,20 @@ export default function DayView({ selectedDate }) {
         </Tabs.Content>
 
         <Tabs.Content value="withdrawals" className="flex flex-col gap-2">
-          <div className="flex items-center gap-2">
+          <InputSection>
             <CurrencyInput
               value={withdrawalAmount}
               onChange={setWithdrawalAmount}
             />
             <ActionButton onClick={handleMaxWithdrawal}>Max</ActionButton>
-          </div>
+          </InputSection>
 
-          <div className="grid grid-cols-2 gap-2">
+          <ButtonGroup>
             <ActionButton onClick={handleWithdraw}>Withdraw</ActionButton>
             <ActionButton onClick={handleReInvest} variant="secondary">
               Re-Invest
             </ActionButton>
-          </div>
+          </ButtonGroup>
 
           <TransactionsList
             title="Today's withdrawals"
