@@ -7,6 +7,7 @@ import Input from "./Input";
 import InvestmentEngine from "../lib/InvestmentEngine";
 import useAppStore from "../store/useAppStore";
 import { cn } from "../lib/utils";
+import { formatHeaderDate } from "../utils/dateUtils";
 
 const formatCurrency = (amount) => {
   return Intl.NumberFormat("en-US", {
@@ -169,7 +170,7 @@ const MetricsDisplay = ({ result }) => (
   </>
 );
 
-export default function DayView({ selectedDate }) {
+export default function DayView({ selectedDate, onSelectDate }) {
   const investments = useAppStore((state) => state.investments);
   const withdrawals = useAppStore((state) => state.withdrawals);
   const addInvestment = useAppStore((state) => state.addInvestment);
@@ -188,6 +189,12 @@ export default function DayView({ selectedDate }) {
   const result = useMemo(() => {
     return InvestmentEngine.calculateTp(selectedDate, investments, withdrawals);
   }, [selectedDate, investments, withdrawals]);
+
+  const endDate = useMemo(() => {
+    const date = new Date(selectedDate);
+    date.setDate(date.getDate() + InvestmentEngine.INVESTMENT_DURATION);
+    return date;
+  }, [selectedDate]);
 
   const [investmentAmount, setInvestmentAmount] = useState("");
   const [withdrawalAmount, setWithdrawalAmount] = useState(
@@ -257,6 +264,16 @@ export default function DayView({ selectedDate }) {
             />
             <ActionButton onClick={handleInvest}>Invest</ActionButton>
           </InputSection>
+
+          <p className="text-center text-sm text-neutral-400">
+            Ends:{" "}
+            <button
+              onClick={() => onSelectDate(endDate)}
+              className="text-pink-500 cursor-pointer"
+            >
+              {formatHeaderDate(endDate)}
+            </button>
+          </p>
 
           <TransactionsList
             title="Today's investments"

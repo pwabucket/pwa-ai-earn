@@ -28,7 +28,11 @@ function App() {
         />
 
         {/* Day View */}
-        <DayView key={selectedDate} selectedDate={selectedDate} />
+        <DayView
+          key={selectedDate}
+          selectedDate={selectedDate}
+          onSelectDate={(date) => setSelectedDate(toLocalDateString(date))}
+        />
       </div>
 
       {showCalendar && (
