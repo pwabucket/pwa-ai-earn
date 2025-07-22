@@ -84,8 +84,15 @@ const ButtonGroup = ({ children, columns = 2 }) => (
 
 const TransactionItem = ({ amount, type, onRemove }) => (
   <div className="flex items-center justify-between">
-    <div className={type === "investment" ? "text-green-500" : "text-red-500"}>
-      {type === "investment" ? "+" : "-"}${amount}
+    <div>
+      <div className="text-xs text-neutral-400">
+        {type === "investment" ? "Investment" : "Withdraw"}
+      </div>
+      <div
+        className={type === "investment" ? "text-green-500" : "text-red-500"}
+      >
+        {type === "investment" ? "+" : "-"}${amount}
+      </div>
     </div>
     <button
       onClick={onRemove}
