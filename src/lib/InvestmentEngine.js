@@ -130,6 +130,8 @@ export default class InvestmentEngine {
         activeInvestments: 0,
         currentDailyProfit: 0,
         currentDailyRate: 0,
+        todaysProfit: 0,
+        currentActiveInvestments: [],
       };
     }
 
@@ -209,6 +211,20 @@ export default class InvestmentEngine {
       totalActiveAmount > 0 ? this.getPercentage(totalActiveAmount) : 0;
     const currentDailyProfit = totalActiveAmount * currentDailyRate;
 
+    // Calculate today's profit (profit earned on the selected date)
+    const todaysProfitGeneratingInvestments = this.getActiveInvestments(
+      priorInvestments,
+      endDate,
+      true
+    );
+    const todaysProfitAmount = todaysProfitGeneratingInvestments.reduce(
+      (sum, inv) => sum + inv.amount,
+      0
+    );
+    const todaysProfitRate =
+      todaysProfitAmount > 0 ? this.getPercentage(todaysProfitAmount) : 0;
+    const todaysProfit = todaysProfitAmount * todaysProfitRate;
+
     return {
       totalBalance: availableBalance,
       totalProfits,
@@ -217,6 +233,8 @@ export default class InvestmentEngine {
       activeInvestments: totalActiveAmount,
       currentDailyProfit,
       currentDailyRate,
+      todaysProfit,
+      currentActiveInvestments,
     };
   }
 }

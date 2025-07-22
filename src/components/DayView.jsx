@@ -137,6 +137,12 @@ const MetricsDisplay = ({ result }) => (
           (+{(result.currentDailyRate * 100).toFixed(2)}%)
         </span>
       </h2>
+      <h3 className="text-center font-bold">
+        <span className="text-neutral-400">Today:</span>{" "}
+        <span className="text-green-500">
+          +{formatCurrency(result.todaysProfit)}
+        </span>
+      </h3>
       <p className="text-center">
         <span className="text-green-500">Balance:</span>{" "}
         {formatCurrency(result.totalBalance)}
