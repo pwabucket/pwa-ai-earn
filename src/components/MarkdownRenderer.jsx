@@ -7,7 +7,7 @@ export default function MarkdownRender({ content }) {
     <div
       className={cn(
         "prose prose-neutral",
-        "dark:prose-invert",
+        "prose-invert",
         "prose-a:text-pink-400 prose-a:hover:text-pink-500"
       )}
     >
