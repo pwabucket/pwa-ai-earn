@@ -244,24 +244,26 @@ const InvestmentItem = ({ investment, onSelectDate }) => {
 const ActiveInvestments = ({ selectedDate, onSelectDate, investments }) => {
   const list = useMemo(
     () =>
-      investments.map((investment) => {
-        const startDate = new Date(investment.date);
-        const endDate = new Date(investment.date);
-        endDate.setDate(
-          endDate.getDate() + InvestmentEngine.INVESTMENT_DURATION
-        );
-        const duration = InvestmentEngine.getDaysDifference(
-          startDate,
-          selectedDate
-        );
+      investments
+        .map((investment) => {
+          const startDate = new Date(investment.date);
+          const endDate = new Date(investment.date);
+          endDate.setDate(
+            endDate.getDate() + InvestmentEngine.INVESTMENT_DURATION
+          );
+          const duration = InvestmentEngine.getDaysDifference(
+            startDate,
+            selectedDate
+          );
 
-        return {
-          ...investment,
-          startDate,
-          endDate,
-          duration,
-        };
-      }),
+          return {
+            ...investment,
+            startDate,
+            endDate,
+            duration,
+          };
+        })
+        .sort((a, b) => a.duration - b.duration),
     [investments, selectedDate]
   );
   return (
