@@ -1,3 +1,4 @@
+import { startOfDay } from "date-fns";
 import { useState } from "react";
 
 import CalendarModal from "../components/CalendarModal";
@@ -6,7 +7,9 @@ import Header from "../components/Header";
 import useLocationToggle from "../hooks/useLocationToggle";
 
 function Home() {
-  const [selectedDate, setSelectedDate] = useState(() => new Date());
+  const [selectedDate, setSelectedDate] = useState(() =>
+    startOfDay(new Date())
+  );
   const [showCalendar, toggleShowCalendar] = useLocationToggle("calendar");
 
   return (
@@ -27,7 +30,6 @@ function Home() {
           selectedDate={selectedDate}
           onSelectDate={(date) => {
             setSelectedDate(date);
-            toggleShowCalendar();
           }}
           onClose={() => toggleShowCalendar()}
         />
