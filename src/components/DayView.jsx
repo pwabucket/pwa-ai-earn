@@ -291,11 +291,17 @@ export default function DayView({ selectedDate, onSelectDate }) {
   const removeWithdrawal = useAppStore((state) => state.removeWithdrawal);
 
   const todayInvestments = useMemo(() => {
-    return investments.filter((investment) => investment.date === selectedDate);
+    return investments.filter(
+      (investment) =>
+        new Date(investment.date).toDateString() === selectedDate.toDateString()
+    );
   }, [selectedDate, investments]);
 
   const todayWithdrawals = useMemo(() => {
-    return withdrawals.filter((withdrawal) => withdrawal.date === selectedDate);
+    return withdrawals.filter(
+      (withdrawal) =>
+        new Date(withdrawal.date).toDateString() === selectedDate.toDateString()
+    );
   }, [selectedDate, withdrawals]);
 
   const result = useMemo(() => {
@@ -312,6 +318,19 @@ export default function DayView({ selectedDate, onSelectDate }) {
   const [withdrawalAmount, setWithdrawalAmount] = useState(
     result.totalBalance.toFixed(4)
   );
+
+  const reinvest = (amount) => {
+    addWithdrawal({
+      id: crypto.randomUUID(),
+      date: selectedDate,
+      amount: parseFloat(amount),
+    });
+    addInvestment({
+      id: crypto.randomUUID(),
+      date: selectedDate,
+      amount: parseFloat(amount),
+    });
+  };
 
   const handleInvest = () => {
     if (investmentAmount) {
@@ -337,16 +356,7 @@ export default function DayView({ selectedDate, onSelectDate }) {
 
   const handleReInvest = () => {
     if (withdrawalAmount) {
-      addWithdrawal({
-        id: crypto.randomUUID(),
-        date: selectedDate,
-        amount: parseFloat(withdrawalAmount),
-      });
-      addInvestment({
-        id: crypto.randomUUID(),
-        date: selectedDate,
-        amount: parseFloat(withdrawalAmount),
-      });
+      reinvest(withdrawalAmount);
       setWithdrawalAmount("");
     }
   };
@@ -358,6 +368,28 @@ export default function DayView({ selectedDate, onSelectDate }) {
   return (
     <>
       <MetricsDisplay result={result} />
+
+      {result.totalBalance > 0 && (
+        <div className="px-2">
+          <div className="flex flex-col items-start gap-2 p-4 bg-neutral-800 rounded-xl">
+            <p>
+              You have an available balance of{" "}
+              <span className="text-green-500 font-bold">
+                {formatCurrency(result.totalBalance)}
+              </span>
+            </p>
+            <button
+              className={cn(
+                "bg-pink-500 hover:bg-pink-600",
+                "px-4 py-2 rounded-xl text-sm font-bold cursor-pointer"
+              )}
+              onClick={() => reinvest(result.totalBalance)}
+            >
+              Quick Reinvest
+            </button>
+          </div>
+        </div>
+      )}
 
       <Tabs.Root
         defaultValue="investments"

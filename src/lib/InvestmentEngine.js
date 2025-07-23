@@ -17,12 +17,12 @@ export default class InvestmentEngine {
   }
 
   /**
-   * Converts date to YYYY-MM-DD string format
+   * Converts date to date string
    * @param {Date} date - Date to convert
-   * @returns {string} Date string in YYYY-MM-DD format
+   * @returns {string} Date string
    */
   static getDateString(date) {
-    return date.toISOString().split("T")[0];
+    return date.toDateString();
   }
 
   /**
