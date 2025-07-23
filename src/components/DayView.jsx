@@ -96,27 +96,38 @@ const TransactionItem = ({ amount, type, onRemove }) => (
   <div className="flex items-center justify-between">
     <div>
       <div className="text-xs text-neutral-400">
-        {type === "investment" ? "Investment" : "Withdraw"}
+        {type === "investment"
+          ? "Investment"
+          : type === "earnings"
+          ? "Earnings"
+          : "Withdraw"}
       </div>
       <div
-        className={type === "investment" ? "text-green-500" : "text-red-500"}
+        className={type === "withdrawal" ? "text-red-500" : "text-green-500"}
       >
-        {type === "investment" ? "+" : "-"}${amount}
+        {type === "withdrawal" ? "-" : "+"}${amount}
       </div>
     </div>
-    <button
-      onClick={onRemove}
-      className={cn(
-        "p-2 rounded-xl bg-neutral-700 hover:bg-neutral-600",
-        "transition-colors cursor-pointer"
-      )}
-    >
-      <LuX className="size-5" />
-    </button>
+    {type !== "earnings" && (
+      <button
+        onClick={onRemove}
+        className={cn(
+          "p-2 rounded-xl bg-neutral-700 hover:bg-neutral-600",
+          "transition-colors cursor-pointer"
+        )}
+      >
+        <LuX className="size-5" />
+      </button>
+    )}
   </div>
 );
 
-const TransactionsList = ({ title, transactions, type, onRemove }) => (
+const TransactionsList = ({
+  title,
+  transactions,
+  onRemoveInvestment,
+  onRemoveWithdrawal,
+}) => (
   <div className="flex flex-col gap-2 p-4 rounded-xl bg-neutral-800">
     <h1 className="font-bold">{title}</h1>
     {transactions.length > 0 ? (
@@ -124,8 +135,14 @@ const TransactionsList = ({ title, transactions, type, onRemove }) => (
         <TransactionItem
           key={index}
           amount={transaction.amount}
-          type={type}
-          onRemove={() => onRemove(transaction.id)}
+          type={transaction.type}
+          onRemove={() => {
+            if (transaction.type === "investment") {
+              onRemoveInvestment(transaction.id);
+            } else {
+              onRemoveWithdrawal(transaction.id);
+            }
+          }}
         />
       ))
     ) : (
@@ -301,23 +318,36 @@ export default function DayView({ selectedDate, onSelectDate }) {
   const removeInvestment = useAppStore((state) => state.removeInvestment);
   const removeWithdrawal = useAppStore((state) => state.removeWithdrawal);
 
-  const todayInvestments = useMemo(() => {
-    return investments.filter(
-      (investment) =>
-        new Date(investment.date).toDateString() === selectedDate.toDateString()
-    );
-  }, [selectedDate, investments]);
-
-  const todayWithdrawals = useMemo(() => {
-    return withdrawals.filter(
-      (withdrawal) =>
-        new Date(withdrawal.date).toDateString() === selectedDate.toDateString()
-    );
-  }, [selectedDate, withdrawals]);
-
   const result = useMemo(() => {
     return InvestmentEngine.calculateTp(selectedDate, investments, withdrawals);
   }, [selectedDate, investments, withdrawals]);
+
+  const todayTransactions = useMemo(() => {
+    return [
+      {
+        type: "earnings",
+        amount: result.currentDailyProfit,
+        date: selectedDate,
+      },
+      ...withdrawals
+        .filter(
+          (withdrawal) =>
+            new Date(withdrawal.date).toDateString() ===
+            selectedDate.toDateString()
+        )
+        .map((withdrawal) => ({ ...withdrawal, type: "withdrawal" })),
+      ...investments
+        .filter(
+          (investment) =>
+            new Date(investment.date).toDateString() ===
+            selectedDate.toDateString()
+        )
+        .map((investment) => ({
+          ...investment,
+          type: "investment",
+        })),
+    ];
+  }, [selectedDate, investments, withdrawals, result.currentDailyProfit]);
 
   const endDate = useMemo(() => {
     const date = new Date(selectedDate);
@@ -344,7 +374,7 @@ export default function DayView({ selectedDate, onSelectDate }) {
   };
 
   const handleInvest = () => {
-    if (investmentAmount) {
+    if (parseFloat(investmentAmount) >= 1) {
       addInvestment({
         id: crypto.randomUUID(),
         date: selectedDate,
@@ -380,7 +410,7 @@ export default function DayView({ selectedDate, onSelectDate }) {
     <PageContainer className="flex flex-col gap-4 px-2 py-4">
       <MetricsDisplay result={result} />
 
-      {result.totalBalance > 0 && (
+      {result.totalBalance >= 1 && (
         <div className="flex flex-col items-start gap-2 p-4 bg-neutral-800 rounded-xl">
           <p>
             You have an available balance of{" "}
@@ -430,19 +460,6 @@ export default function DayView({ selectedDate, onSelectDate }) {
               {formatHeaderDate(endDate)}
             </button>
           </p>
-
-          <TransactionsList
-            title="Today's investments"
-            transactions={todayInvestments}
-            type="investment"
-            onRemove={removeInvestment}
-          />
-
-          <ActiveInvestments
-            selectedDate={selectedDate}
-            onSelectDate={onSelectDate}
-            investments={result.currentActiveInvestments}
-          />
         </Tabs.Content>
 
         <Tabs.Content value="withdrawals" className="flex flex-col gap-2">
@@ -467,19 +484,25 @@ export default function DayView({ selectedDate, onSelectDate }) {
               Re-Invest
             </ActionButton>
           </ButtonGroup>
-
-          <TransactionsList
-            title="Today's withdrawals"
-            transactions={todayWithdrawals}
-            type="withdrawal"
-            onRemove={removeWithdrawal}
-          />
         </Tabs.Content>
 
         <Tabs.Content value="simulation" className="flex flex-col gap-2">
           <Simulation selectedDate={selectedDate} onSelectDate={onSelectDate} />
         </Tabs.Content>
       </Tabs.Root>
+
+      <TransactionsList
+        title="Today's transactions"
+        transactions={todayTransactions}
+        onRemoveInvestment={removeInvestment}
+        onRemoveWithdrawal={removeWithdrawal}
+      />
+
+      <ActiveInvestments
+        selectedDate={selectedDate}
+        onSelectDate={onSelectDate}
+        investments={result.currentActiveInvestments}
+      />
     </PageContainer>
   );
 }
