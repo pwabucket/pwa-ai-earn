@@ -1,4 +1,10 @@
-import { LuX } from "react-icons/lu";
+import {
+  LuMaximize2,
+  LuMinus,
+  LuRefreshCw,
+  LuTrendingUp,
+  LuX,
+} from "react-icons/lu";
 import { Tabs } from "radix-ui";
 import { useMemo } from "react";
 import { useState } from "react";
@@ -57,6 +63,7 @@ const ActionButton = ({
   <button
     className={cn(
       "px-4 py-2 rounded-xl text-sm shrink-0 cursor-pointer",
+      "flex items-center justify-center gap-2",
       variant === "primary" && "bg-neutral-800 text-pink-500",
       variant === "secondary" && "bg-neutral-800 text-green-500",
       className
@@ -383,10 +390,12 @@ export default function DayView({ selectedDate, onSelectDate }) {
           <button
             className={cn(
               "bg-pink-500 hover:bg-pink-600",
-              "px-4 py-2 rounded-xl text-sm font-bold cursor-pointer"
+              "px-4 py-2 rounded-xl text-sm font-bold cursor-pointer",
+              "flex items-center gap-2"
             )}
             onClick={() => reinvest(result.totalBalance)}
           >
+            <LuRefreshCw className="size-4" />
             Quick Reinvest
           </button>
         </div>
@@ -404,7 +413,10 @@ export default function DayView({ selectedDate, onSelectDate }) {
               value={investmentAmount}
               onChange={setInvestmentAmount}
             />
-            <ActionButton onClick={handleInvest}>Invest</ActionButton>
+            <ActionButton onClick={handleInvest}>
+              <LuTrendingUp className="size-4" />
+              Invest
+            </ActionButton>
           </InputSection>
 
           <p className="text-center text-sm text-neutral-400">
@@ -437,12 +449,19 @@ export default function DayView({ selectedDate, onSelectDate }) {
               value={withdrawalAmount}
               onChange={setWithdrawalAmount}
             />
-            <ActionButton onClick={handleMaxWithdrawal}>Max</ActionButton>
+            <ActionButton onClick={handleMaxWithdrawal}>
+              <LuMaximize2 className="size-4" />
+              Max
+            </ActionButton>
           </InputSection>
 
           <ButtonGroup>
-            <ActionButton onClick={handleWithdraw}>Withdraw</ActionButton>
+            <ActionButton onClick={handleWithdraw}>
+              <LuMinus className="size-4" />
+              Withdraw
+            </ActionButton>
             <ActionButton onClick={handleReInvest} variant="secondary">
+              <LuRefreshCw className="size-4" />
               Re-Invest
             </ActionButton>
           </ButtonGroup>
