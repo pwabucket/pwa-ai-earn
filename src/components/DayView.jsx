@@ -368,7 +368,7 @@ export default function DayView({ selectedDate, onSelectDate }) {
   };
 
   return (
-    <div className="flex flex-col gap-4 px-2 py-4">
+    <div className="flex flex-col gap-4 px-2 py-4 mx-auto max-w-sm">
       <MetricsDisplay result={result} />
 
       {result.totalBalance > 0 && (
