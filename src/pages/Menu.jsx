@@ -1,4 +1,6 @@
+import toast from "react-hot-toast";
 import { LuDatabaseBackup, LuRecycle } from "react-icons/lu";
+
 import GoogleBackupPrompt from "../components/GoogleBackupPrompt";
 import GoogleProfile from "../components/GoogleProfile";
 import PageContainer from "../components/PageContainer";
@@ -32,10 +34,15 @@ export default function Menu() {
   const resetTracker = () => {
     setInvestments([]);
     setWithdrawals([]);
+    toast.success("Tracker reset successfully!");
   };
 
   const handleGoogleApiLogout = () => {
-    googleApi.logout();
+    toast.promise(googleApi.logout(), {
+      loading: "Logging out...",
+      success: "Logged out successfully!",
+      error: (error) => `Logout failed: ${error.message}`,
+    });
   };
 
   const handleGoogleDriveConnect = async () => {

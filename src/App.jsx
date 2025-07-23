@@ -25,7 +25,12 @@ function App() {
           </Routes>
         </div>
       </AppContext.Provider>
-      <Toaster position="top-center" />
+      <Toaster
+        position="top-center"
+        toastOptions={{
+          className: "!bg-neutral-800 !text-neutral-100 !rounded-full",
+        }}
+      />
     </>
   );
 }

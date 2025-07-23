@@ -5,6 +5,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import useAppStore from "../store/useAppStore";
 import { loadScript } from "../lib/googleDrive";
 
+// Constants
 const DISCOVERY_DOCS = [
   "https://www.googleapis.com/discovery/v1/apis/drive/v3/rest",
 ];
@@ -15,13 +16,67 @@ const SCOPES = [
   "https://www.googleapis.com/auth/drive.appdata",
 ].join(" ");
 
+const GOOGLE_OAUTH_API_BASE = "https://oauth2.googleapis.com";
+const GOOGLE_API_BASE = "https://www.googleapis.com";
+const TOKEN_REFRESH_INTERVAL = 60_000; // 1 minute
+const TOKEN_REFRESH_BUFFER = 5 * 60 * 1000; // 5 minutes before expiry
+
+// API URLs
+const OAUTH_TOKEN_URL = `${GOOGLE_OAUTH_API_BASE}/token`;
+const OAUTH_REVOKE_URL = `${GOOGLE_OAUTH_API_BASE}/revoke`;
+const USERINFO_URL = `${GOOGLE_API_BASE}/oauth2/v2/userinfo`;
+
+/**
+ * Validates environment variables required for Google API
+ * @throws {Error} If required environment variables are missing
+ */
+const validateEnvironment = () => {
+  const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+  const clientSecret = import.meta.env.VITE_GOOGLE_CLIENT_SECRET;
+
+  if (!clientId || !clientSecret) {
+    throw new Error(
+      "Missing required Google API credentials in environment variables"
+    );
+  }
+
+  return { clientId, clientSecret };
+};
+
+/**
+ * Calculates token expiration timestamp
+ * @param {Object} token - Token object with expires_in property
+ * @returns {Object} Token with expires_at timestamp
+ */
+const parseTokenExpiration = (token) => ({
+  ...token,
+  expires_at: Date.now() + token.expires_in * 1000,
+});
+
+/**
+ * Checks if a token is valid and not expired
+ * @param {Object|null} token - Token object
+ * @returns {boolean} True if token is valid and not expired
+ */
+const isTokenValid = (token) => {
+  return Boolean(token?.expires_at && token.expires_at > Date.now());
+};
+
+/**
+ * Custom hook for managing Google API authentication and operations
+ * @returns {Object} Google API utilities and state
+ */
 export default function useGoogleApi() {
   const [gapiInitialized, setGapiInitialized] = useState(false);
   const [gisInitialized, setGisInitialized] = useState(false);
+  const [initializationError, setInitializationError] = useState(null);
   const loadingRef = useRef(false);
+  const refreshIntervalRef = useRef(null);
 
   /** @type {import("react").Ref<google.accounts.oauth2.CodeClient>} */
   const codeClientRef = useRef(null);
+
+  // Store selectors
   const googleDriveAuthToken = useAppStore(
     (state) => state.googleDriveAuthToken
   );
@@ -32,186 +87,339 @@ export default function useGoogleApi() {
     (state) => state.setGoogleDriveBackupFile
   );
 
-  const isValidToken = Boolean(
-    googleDriveAuthToken && googleDriveAuthToken["expires_at"] > Date.now()
+  // Computed values
+  const isValidToken = useMemo(
+    () => isTokenValid(googleDriveAuthToken),
+    [googleDriveAuthToken]
   );
-  const initialized = gapiInitialized && gisInitialized;
-  const authorized = initialized && isValidToken;
+  const initialized = useMemo(
+    () => gapiInitialized && gisInitialized,
+    [gapiInitialized, gisInitialized]
+  );
+  const authorized = useMemo(
+    () => initialized && isValidToken,
+    [initialized, isValidToken]
+  );
 
-  /** Callback to Initialize Gapi */
+  /**
+   * Initializes the Google API client
+   */
   const initializeGapi = useCallback(() => {
-    gapi.load("client", async () => {
-      await gapi.client.init({
-        discoveryDocs: DISCOVERY_DOCS,
+    try {
+      gapi.load("client", async () => {
+        try {
+          await gapi.client.init({
+            discoveryDocs: DISCOVERY_DOCS,
+          });
+          setGapiInitialized(true);
+          setInitializationError(null);
+        } catch (error) {
+          console.error("Failed to initialize GAPI client:", error);
+          setInitializationError(error);
+        }
       });
-      setGapiInitialized(true);
-    });
+    } catch (error) {
+      console.error("Failed to load GAPI:", error);
+      setInitializationError(error);
+    }
   }, []);
 
-  /** Callback to Initialize Gis */
+  /**
+   * Initializes the Google Identity Services client
+   */
   const initializeGis = useCallback(() => {
-    codeClientRef.current = google.accounts.oauth2.initCodeClient({
-      client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
-      scope: SCOPES,
-      ux_mode: "popup",
-      callback: "",
-    });
-    setGisInitialized(true);
+    try {
+      const { clientId } = validateEnvironment();
+
+      codeClientRef.current = google.accounts.oauth2.initCodeClient({
+        client_id: clientId,
+        scope: SCOPES,
+        ux_mode: "popup",
+        callback: "",
+      });
+
+      setGisInitialized(true);
+      setInitializationError(null);
+    } catch (error) {
+      console.error("Failed to initialize GIS client:", error);
+      setInitializationError(error);
+    }
   }, []);
 
-  const parseToken = useCallback(
-    (token) => ({
-      ...token,
-      ["expires_at"]: Date.now() + token["expires_in"] * 1000,
-    }),
-    []
-  );
-
-  /** Request Access Token */
+  /**
+   * Requests an access token from Google OAuth
+   * @returns {Promise<Object>} The parsed token object
+   * @throws {Error} If the authorization fails
+   */
   const requestAccessToken = useCallback(() => {
+    if (!codeClientRef.current) {
+      return Promise.reject(
+        new Error("Google Identity Services not initialized")
+      );
+    }
+
     return new Promise((resolve, reject) => {
+      const { clientId, clientSecret } = validateEnvironment();
+
       /** Success Callback */
       codeClientRef.current.callback = async (response) => {
         try {
-          const data = await axios
-            .post("https://oauth2.googleapis.com/token", {
-              code: response.code,
-              client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
-              client_secret: import.meta.env.VITE_GOOGLE_CLIENT_SECRET,
-              redirect_uri: location.origin,
-              grant_type: "authorization_code",
-            })
-            .then((res) => res.data);
+          const { data } = await axios.post(OAUTH_TOKEN_URL, {
+            code: response.code,
+            client_id: clientId,
+            client_secret: clientSecret,
+            redirect_uri: location.origin,
+            grant_type: "authorization_code",
+          });
 
-          resolve(parseToken(data));
-        } catch (e) {
-          reject(e);
+          resolve(parseTokenExpiration(data));
+        } catch (error) {
+          console.error("Failed to exchange authorization code:", error);
+          reject(new Error(`Token exchange failed: ${error.message}`));
         }
       };
 
       /** Error Callback */
-      codeClientRef.current["error_callback"] = (e) => {
-        reject(e);
+      codeClientRef.current.error_callback = (error) => {
+        console.error("Authorization error:", error);
+        reject(new Error(`Authorization failed: ${error.error || error}`));
       };
 
-      codeClientRef.current.requestCode();
+      try {
+        codeClientRef.current.requestCode();
+      } catch (error) {
+        reject(
+          new Error(`Failed to request authorization code: ${error.message}`)
+        );
+      }
     });
-  }, [parseToken]);
+  }, []);
 
-  /** Refetch Token */
+  /**
+   * Refreshes the access token using the refresh token
+   * @returns {Promise<Object>} The new token object
+   * @throws {Error} If the refresh fails
+   */
   const refetchToken = useCallback(async () => {
-    const data = await axios
-      .post("https://oauth2.googleapis.com/token", {
+    if (!googleDriveAuthToken?.refresh_token) {
+      throw new Error("No refresh token available");
+    }
+
+    try {
+      const { clientId, clientSecret } = validateEnvironment();
+
+      const { data } = await axios.post(OAUTH_TOKEN_URL, {
         grant_type: "refresh_token",
-        refresh_token: googleDriveAuthToken["refresh_token"],
-        client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
-        client_secret: import.meta.env.VITE_GOOGLE_CLIENT_SECRET,
-      })
-      .then((res) => res.data);
+        refresh_token: googleDriveAuthToken.refresh_token,
+        client_id: clientId,
+        client_secret: clientSecret,
+      });
 
-    /** Get New Token */
-    const newToken = parseToken({
-      ...googleDriveAuthToken,
-      ...data,
-    });
+      // Preserve the refresh token if not returned
+      const newToken = parseTokenExpiration({
+        ...googleDriveAuthToken,
+        ...data,
+        refresh_token: data.refresh_token || googleDriveAuthToken.refresh_token,
+      });
 
-    /** Set New Token */
-    setGoogleDriveAuthToken(newToken);
+      setGoogleDriveAuthToken(newToken);
+      return newToken;
+    } catch (error) {
+      console.error("Failed to refresh token:", error);
 
-    /** Return New Token */
-    return newToken;
-  }, [googleDriveAuthToken, setGoogleDriveAuthToken, parseToken]);
+      // If refresh fails, clear the token
+      setGoogleDriveAuthToken(null);
+      throw new Error(`Token refresh failed: ${error.message}`);
+    }
+  }, [googleDriveAuthToken, setGoogleDriveAuthToken]);
 
-  /** Get Valid Token */
+  /**
+   * Gets a valid access token, refreshing if necessary
+   * @returns {Promise<string>} Valid access token
+   * @throws {Error} If unable to get a valid token
+   */
   const getValidToken = useCallback(async () => {
-    if (googleDriveAuthToken && isValidToken) {
-      return googleDriveAuthToken["access_token"];
+    if (!googleDriveAuthToken) {
+      throw new Error("No authentication token available");
     }
 
-    return refetchToken();
-  }, [googleDriveAuthToken, isValidToken, refetchToken]);
+    if (isTokenValid(googleDriveAuthToken)) {
+      return googleDriveAuthToken.access_token;
+    }
 
-  /** Get User Info */
-  const getUserInfo = useCallback(
-    () =>
-      axios
-        .get(`https://www.googleapis.com/oauth2/v2/userinfo`, {
-          headers: {
-            Authorization: `Bearer ${gapi.client.getToken()["access_token"]}`,
-          },
-        })
-        .then((res) => res.data),
-    []
-  );
+    try {
+      const newToken = await refetchToken();
+      return newToken.access_token;
+    } catch (error) {
+      throw new Error(`Unable to get valid token: ${error.message}`);
+    }
+  }, [googleDriveAuthToken, refetchToken]);
 
-  /** Logout */
+  /**
+   * Gets user information from Google API
+   * @returns {Promise<Object>} User information object
+   * @throws {Error} If unable to fetch user info
+   */
+  const getUserInfo = useCallback(async () => {
+    try {
+      const token = gapi?.client?.getToken();
+      if (!token?.access_token) {
+        throw new Error("No access token available");
+      }
+
+      const { data } = await axios.get(USERINFO_URL, {
+        headers: {
+          Authorization: `Bearer ${token.access_token}`,
+        },
+      });
+
+      return data;
+    } catch (error) {
+      console.error("Failed to get user info:", error);
+      throw new Error(`Failed to get user info: ${error.message}`);
+    }
+  }, []);
+
+  /**
+   * Logs out the user and revokes tokens
+   * @returns {Promise<void>}
+   */
   const logout = useCallback(async () => {
-    if (googleDriveAuthToken) {
-      axios.post(
-        `https://oauth2.googleapis.com/revoke?token=${googleDriveAuthToken["access_token"]}`
-      );
+    try {
+      // Revoke the token if available
+      if (googleDriveAuthToken?.access_token) {
+        try {
+          await axios.post(
+            `${OAUTH_REVOKE_URL}?token=${googleDriveAuthToken.access_token}`
+          );
+        } catch (error) {
+          console.warn("Failed to revoke token:", error);
+          // Continue with logout even if revocation fails
+        }
+      }
+
+      // Clear GAPI token
+      if (typeof gapi !== "undefined" && gapi?.client) {
+        gapi.client.setToken(null);
+      }
+
+      // Clear stored tokens and data
+      setGoogleDriveAuthToken(null);
+      setGoogleDriveBackupFile(null);
+
+      // Clear refresh interval
+      if (refreshIntervalRef.current) {
+        clearInterval(refreshIntervalRef.current);
+        refreshIntervalRef.current = null;
+      }
+    } catch (error) {
+      console.error("Error during logout:", error);
+      // Still clear local state even if logout partially fails
+      setGoogleDriveAuthToken(null);
+      setGoogleDriveBackupFile(null);
     }
-    gapi?.client?.setToken(null);
-    setGoogleDriveAuthToken(null);
-    setGoogleDriveBackupFile(null);
   }, [googleDriveAuthToken, setGoogleDriveAuthToken, setGoogleDriveBackupFile]);
 
-  /** Initialize Google Scripts */
+  /**
+   * Initialize Google Scripts with error handling
+   */
   useEffect(() => {
-    if (loadingRef.current === false) {
-      loadingRef.current = true;
-      loadScript("https://apis.google.com/js/api.js").then(initializeGapi);
-      loadScript("https://accounts.google.com/gsi/client").then(initializeGis);
-    }
+    if (loadingRef.current) return;
+
+    loadingRef.current = true;
+
+    const initializeScripts = async () => {
+      try {
+        await Promise.all([
+          loadScript("https://apis.google.com/js/api.js").then(initializeGapi),
+          loadScript("https://accounts.google.com/gsi/client").then(
+            initializeGis
+          ),
+        ]);
+      } catch (error) {
+        console.error("Failed to initialize Google scripts:", error);
+        setInitializationError(error);
+        loadingRef.current = false; // Allow retry
+      }
+    };
+
+    initializeScripts();
   }, [initializeGapi, initializeGis]);
 
-  /** Restore Token */
+  /**
+   * Manage token lifecycle and refresh intervals
+   */
   useEffect(() => {
-    if (initialized && googleDriveAuthToken) {
-      /** Refetch Interval */
-      let interval;
+    if (!initialized || !googleDriveAuthToken) return;
 
-      /** Refetch if Expiring */
-      const refetchIfExpiring = () => {
-        if (googleDriveAuthToken["expires_at"] < Date.now() - 5 * 60 * 1000) {
-          refetchToken();
+    const setupTokenRefresh = () => {
+      // Clear existing interval
+      if (refreshIntervalRef.current) {
+        clearInterval(refreshIntervalRef.current);
+      }
+
+      // Check if token needs immediate refresh
+      if (googleDriveAuthToken.expires_at < Date.now()) {
+        refetchToken().catch(console.error);
+        return;
+      }
+
+      // Set GAPI token for immediate use
+      if (typeof gapi !== "undefined" && gapi?.client) {
+        gapi.client.setToken(googleDriveAuthToken);
+      }
+
+      // Setup periodic refresh check
+      const checkAndRefreshToken = () => {
+        if (
+          googleDriveAuthToken.expires_at <
+          Date.now() + TOKEN_REFRESH_BUFFER
+        ) {
+          refetchToken().catch(console.error);
         }
       };
 
-      if (googleDriveAuthToken["expires_at"] < Date.now()) {
-        refetchToken();
-      } else {
-        /** Set GAPI Token */
-        gapi.client.setToken(googleDriveAuthToken);
+      refreshIntervalRef.current = setInterval(
+        checkAndRefreshToken,
+        TOKEN_REFRESH_INTERVAL
+      );
+    };
 
-        /** Periodically Refetch Token */
-        interval = setInterval(refetchIfExpiring, 60_000);
+    setupTokenRefresh();
+
+    // Cleanup function
+    return () => {
+      if (refreshIntervalRef.current) {
+        clearInterval(refreshIntervalRef.current);
+        refreshIntervalRef.current = null;
       }
-
-      return () => {
-        clearInterval(interval);
-      };
-    }
+    };
   }, [initialized, googleDriveAuthToken, refetchToken]);
 
+  // Memoized return object to prevent unnecessary re-renders
   return useMemo(
     () => ({
-      getUserInfo,
-      refetchToken,
-      getValidToken,
-      requestAccessToken,
-      logout,
+      // State
       initialized,
       authorized,
+      initializationError,
+
+      // Methods
+      requestAccessToken,
+      refetchToken,
+      getValidToken,
+      getUserInfo,
+      logout,
     }),
     [
-      getUserInfo,
-      refetchToken,
-      getValidToken,
-      requestAccessToken,
-      logout,
       initialized,
       authorized,
+      initializationError,
+      requestAccessToken,
+      refetchToken,
+      getValidToken,
+      getUserInfo,
+      logout,
     ]
   );
 }
