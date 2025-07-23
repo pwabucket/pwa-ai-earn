@@ -15,7 +15,7 @@ export default function WeeklyCalendar({ selectedDate, onSelectDate }) {
   };
 
   return (
-    <div className="overflow-x-auto px-2">
+    <div className="overflow-x-auto">
       <div className="flex gap-1 min-w-max">
         {weekDates.map((dateInfo, index) => (
           <button

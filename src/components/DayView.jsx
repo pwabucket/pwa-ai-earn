@@ -150,7 +150,7 @@ const MetricsDisplay = ({ result }) => (
       </p>
     </div>
 
-    <div className="grid grid-cols-3 gap-2 px-2">
+    <div className="grid grid-cols-3 gap-2">
       <MetricCard
         title="Invested"
         value={result.totalInvested}
@@ -368,35 +368,30 @@ export default function DayView({ selectedDate, onSelectDate }) {
   };
 
   return (
-    <>
+    <div className="flex flex-col gap-4 px-2 py-4">
       <MetricsDisplay result={result} />
 
       {result.totalBalance > 0 && (
-        <div className="px-2">
-          <div className="flex flex-col items-start gap-2 p-4 bg-neutral-800 rounded-xl">
-            <p>
-              You have an available balance of{" "}
-              <span className="text-green-500 font-bold">
-                {formatCurrency(result.totalBalance)}
-              </span>
-            </p>
-            <button
-              className={cn(
-                "bg-pink-500 hover:bg-pink-600",
-                "px-4 py-2 rounded-xl text-sm font-bold cursor-pointer"
-              )}
-              onClick={() => reinvest(result.totalBalance)}
-            >
-              Quick Reinvest
-            </button>
-          </div>
+        <div className="flex flex-col items-start gap-2 p-4 bg-neutral-800 rounded-xl">
+          <p>
+            You have an available balance of{" "}
+            <span className="text-green-500 font-bold">
+              {formatCurrency(result.totalBalance)}
+            </span>
+          </p>
+          <button
+            className={cn(
+              "bg-pink-500 hover:bg-pink-600",
+              "px-4 py-2 rounded-xl text-sm font-bold cursor-pointer"
+            )}
+            onClick={() => reinvest(result.totalBalance)}
+          >
+            Quick Reinvest
+          </button>
         </div>
       )}
 
-      <Tabs.Root
-        defaultValue="investments"
-        className="px-2 flex flex-col gap-2"
-      >
+      <Tabs.Root defaultValue="investments" className="flex flex-col gap-2">
         <Tabs.List className="grid grid-cols-2 gap-2">
           <TabTriggerButton value="investments">Investments</TabTriggerButton>
           <TabTriggerButton value="withdrawals">Withdrawals</TabTriggerButton>
@@ -415,7 +410,7 @@ export default function DayView({ selectedDate, onSelectDate }) {
             Ends:{" "}
             <button
               onClick={() => onSelectDate(endDate)}
-              className="text-pink-500 cursor-pointer"
+              className="text-px-2pink-500 cursor-pointer"
             >
               {formatHeaderDate(endDate)}
             </button>
@@ -459,6 +454,6 @@ export default function DayView({ selectedDate, onSelectDate }) {
           />
         </Tabs.Content>
       </Tabs.Root>
-    </>
+    </div>
   );
 }
