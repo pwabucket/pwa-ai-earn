@@ -1,10 +1,19 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="overscroll-none">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>AiEarn Tracker</title>
+    <title><%= VITE_APP_NAME %></title>
+    <meta name="description" content="<%= VITE_APP_DESCRIPTION %>" />
+    <link rel="icon" href="/favicon.ico" sizes="48x48" />
+    <link rel="icon" href="/icon.svg" sizes="any" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon-180x180.png" />
+    <link rel="mask-icon" href="/maskable-icon-512x512.png" color="#FFFFFF" />
+    <meta property="og:title" content="<%= VITE_APP_NAME %>" />
+    <meta property="og:description" content="<%= VITE_APP_DESCRIPTION %>" />
+    <meta property="og:image" content="/maskable-icon-512x512.png" />
+    <meta name="theme-color" content="#262626" />
+    <link href="/src/index.css" rel="stylesheet" />
   </head>
   <body>
     <div id="root"></div>

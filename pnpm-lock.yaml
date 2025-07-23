@@ -35,6 +35,12 @@ importers:
       tailwindcss:
         specifier: ^4.1.11
         version: 4.1.11
+      vite-plugin-ejs:
+        specifier: ^1.7.0
+        version: 1.7.0(vite@7.0.5(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.43.1))
+      vite-plugin-package-version:
+        specifier: ^1.1.0
+        version: 1.1.0(vite@7.0.5(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.43.1))
       zustand:
         specifier: ^5.0.6
         version: 5.0.6(@types/react@19.1.8)(react@19.1.0)(use-sync-external-store@1.5.0(react@19.1.0))
@@ -3286,6 +3292,16 @@ packages:
     resolution: {integrity: sha512-Rb46I4cGGVBmjamjphe8L/UnvJD+uPPtTkNvX5mZgqdbavhI4EbgIWJiIHXJ8bc/i9EQGPRh4DwEURJ552Do0A==}
     peerDependencies:
       react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+
+  vite-plugin-ejs@1.7.0:
+    resolution: {integrity: sha512-JNP3zQDC4mSbfoJ3G73s5mmZITD8NGjUmLkq4swxyahy/W0xuokK9U9IJGXw7KCggq6UucT6hJ0p+tQrNtqTZw==}
+    peerDependencies:
+      vite: '>=5.0.0'
+
+  vite-plugin-package-version@1.1.0:
+    resolution: {integrity: sha512-TPoFZXNanzcaKCIrC3e2L/TVRkkRLB6l4RPN/S7KbG7rWfyLcCEGsnXvxn6qR7fyZwXalnnSN/I9d6pSFjHpEA==}
+    peerDependencies:
+      vite: '>=2.0.0-beta.69'
 
   vite-plugin-pwa@1.0.1:
     resolution: {integrity: sha512-STyUomQbydj7vGamtgQYIJI0YsUZ3T4pJLGBQDQPhzMse6aGSncmEN21OV35PrFsmCvmtiH+Nu1JS1ke4RqBjQ==}
@@ -6886,6 +6902,15 @@ snapshots:
   use-sync-external-store@1.5.0(react@19.1.0):
     dependencies:
       react: 19.1.0
+
+  vite-plugin-ejs@1.7.0(vite@7.0.5(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.43.1)):
+    dependencies:
+      ejs: 3.1.10
+      vite: 7.0.5(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.43.1)
+
+  vite-plugin-package-version@1.1.0(vite@7.0.5(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.43.1)):
+    dependencies:
+      vite: 7.0.5(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.43.1)
 
   vite-plugin-pwa@1.0.1(@vite-pwa/assets-generator@1.0.0)(vite@7.0.5(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.43.1))(workbox-build@7.3.0)(workbox-window@7.3.0):
     dependencies:
