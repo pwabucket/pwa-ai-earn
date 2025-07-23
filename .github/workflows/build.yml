@@ -41,6 +41,9 @@ jobs:
           echo "homepage_url=$url" >> $GITHUB_OUTPUT
 
       - name: Build
+        env:
+          VITE_GOOGLE_CLIENT_ID: ${{ secrets.VITE_GOOGLE_CLIENT_ID }}
+          VITE_GOOGLE_CLIENT_SECRET: ${{ secrets.VITE_GOOGLE_CLIENT_SECRET }}
         run: pnpm run build --base="${{ steps.pages_url.outputs.homepage_url }}"
 
       - name: Setup 404 page
