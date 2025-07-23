@@ -4,6 +4,8 @@ import { Toaster } from "react-hot-toast";
 import AppContext from "./contexts/AppContext";
 import Home from "./pages/Home";
 import Menu from "./pages/Menu";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import TermsOfService from "./pages/TermsOfService";
 import useGoogleApi from "./hooks/useGoogleApi";
 import useGoogleDriveBackup from "./hooks/useGoogleDriveBackup";
 
@@ -20,8 +22,17 @@ function App() {
       >
         <div className="min-h-dvh flex flex-col bg-neutral-900 text-white">
           <Routes>
+            {/* Home */}
             <Route index element={<Home />} />
+
+            {/* Menu */}
             <Route path="/menu" element={<Menu />} />
+
+            {/* Privacy Policy */}
+            <Route path="privacy-policy" element={<PrivacyPolicy />} />
+
+            {/* Terms */}
+            <Route path="terms-of-service" element={<TermsOfService />} />
           </Routes>
         </div>
       </AppContext.Provider>
