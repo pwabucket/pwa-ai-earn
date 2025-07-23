@@ -31,7 +31,7 @@ export default function WeeklyCalendar({ selectedDate, onSelectDate }) {
               }
             )}
           >
-            <span className="text-xs font-medium mb-1">{dateInfo.dayName}</span>
+            <span className="text-xs font-medium">{dateInfo.dayName}</span>
             <span className="text-lg font-semibold">
               {dateInfo.date.getDate()}
             </span>
