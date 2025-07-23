@@ -12,6 +12,7 @@ import { useState } from "react";
 import Input from "./Input";
 import InvestmentEngine from "../lib/InvestmentEngine";
 import PageContainer from "./PageContainer";
+import Simulation from "./Simulation";
 import useAppStore from "../store/useAppStore";
 import { cn } from "../lib/utils";
 import { formatHeaderDate } from "../utils/dateUtils";
@@ -27,7 +28,7 @@ const TabTriggerButton = (props) => (
   <Tabs.Trigger
     {...props}
     className={cn(
-      "px-4 py-2 bg-neutral-800 rounded-xl",
+      "py-2 bg-neutral-800 rounded-xl",
       "text-white font-bold text-sm",
       "cursor-pointer",
       "data-[state=active]:text-pink-500"
@@ -158,7 +159,7 @@ const MetricsDisplay = ({ result }) => (
       </p>
     </div>
 
-    <div className="grid grid-cols-3 gap-2">
+    <div className="grid grid-cols-3 gap-1">
       <MetricCard
         title="Invested"
         value={result.totalInvested}
@@ -402,9 +403,10 @@ export default function DayView({ selectedDate, onSelectDate }) {
       )}
 
       <Tabs.Root defaultValue="investments" className="flex flex-col gap-2">
-        <Tabs.List className="grid grid-cols-2 gap-2">
+        <Tabs.List className="grid grid-cols-3 gap-1">
           <TabTriggerButton value="investments">Investments</TabTriggerButton>
           <TabTriggerButton value="withdrawals">Withdrawals</TabTriggerButton>
+          <TabTriggerButton value="simulation">Simulate</TabTriggerButton>
         </Tabs.List>
 
         <Tabs.Content value="investments" className="flex flex-col gap-2">
@@ -472,6 +474,10 @@ export default function DayView({ selectedDate, onSelectDate }) {
             type="withdrawal"
             onRemove={removeWithdrawal}
           />
+        </Tabs.Content>
+
+        <Tabs.Content value="simulation" className="flex flex-col gap-2">
+          <Simulation selectedDate={selectedDate} onSelectDate={onSelectDate} />
         </Tabs.Content>
       </Tabs.Root>
     </PageContainer>
