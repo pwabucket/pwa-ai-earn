@@ -271,8 +271,6 @@ export default class InvestmentEngine {
     startOfDay(currentDate);
 
     while (currentDate <= startOfDay(targetDate)) {
-      console.log(currentDate);
-
       const dayState = this.calculateTp(
         currentDate,
         simulatedInvestments,
