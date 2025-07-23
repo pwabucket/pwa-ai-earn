@@ -6,7 +6,6 @@ import DayView from "./components/DayView";
 import Header from "./components/Header";
 import WeeklyCalendar from "./components/WeeklyCalendar";
 import { cn } from "./lib/utils";
-import { toLocalDateString } from "./utils/dateUtils";
 
 const NavigationButton = ({ onClick, children, className = "" }) => (
   <button
@@ -25,7 +24,7 @@ const DayNavigator = ({ selectedDate, onDateChange }) => {
   const navigateDay = (direction) => {
     const currentDate = new Date(selectedDate);
     currentDate.setDate(currentDate.getDate() + direction);
-    onDateChange(toLocalDateString(currentDate));
+    onDateChange(currentDate);
   };
 
   return (
@@ -41,17 +40,8 @@ const DayNavigator = ({ selectedDate, onDateChange }) => {
 };
 
 function App() {
-  const [selectedDate, setSelectedDate] = useState(
-    () => new Date().toISOString().split("T")[0]
-  );
-
+  const [selectedDate, setSelectedDate] = useState(() => new Date());
   const [showCalendar, setShowCalendar] = useState(false);
-
-  const handleDateSelect = (date) => {
-    const dateString =
-      typeof date === "string" ? date : toLocalDateString(date);
-    setSelectedDate(dateString);
-  };
 
   return (
     <div className="min-h-dvh bg-neutral-900 text-white">
@@ -63,7 +53,7 @@ function App() {
       <div className="flex flex-col gap-4">
         <WeeklyCalendar
           selectedDate={selectedDate}
-          onSelectDate={handleDateSelect}
+          onSelectDate={setSelectedDate}
         />
 
         <DayNavigator
@@ -72,17 +62,17 @@ function App() {
         />
 
         <DayView
-          key={selectedDate}
+          key={selectedDate.toISOString()}
           selectedDate={selectedDate}
-          onSelectDate={handleDateSelect}
+          onSelectDate={setSelectedDate}
         />
       </div>
 
       {showCalendar && (
         <CalendarModal
           selectedDate={selectedDate}
-          onSelectDate={(dateString) => {
-            setSelectedDate(dateString);
+          onSelectDate={(date) => {
+            setSelectedDate(date);
             setShowCalendar(false);
           }}
           onClose={() => setShowCalendar(false)}

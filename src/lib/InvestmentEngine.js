@@ -187,6 +187,7 @@ export default class InvestmentEngine {
       }
 
       const todayWithdrawals = withdrawalsByDate.get(currentDateString) || 0;
+
       if (todayWithdrawals > 0) {
         availableBalance -= todayWithdrawals;
         if (availableBalance < 0) {
