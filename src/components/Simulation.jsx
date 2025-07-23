@@ -74,8 +74,8 @@ const SimulationResult = ({ selectedDate, targetDate, onChangeTargetDate }) => {
           </span>
         </ResultInfo>
 
-        {/* Last Investment Date */}
-        <ResultInfo label={"Last Investment Date"}>
+        {/* Last Withdrawal Date */}
+        <ResultInfo label={"Last Withdrawal Date"}>
           <span className="text-pink-500">
             {formatDate(result.allInvestmentsExpireDate)}
           </span>
