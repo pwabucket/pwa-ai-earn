@@ -31,10 +31,10 @@ export default function CalendarModal({ selectedDate, onSelectDate, onClose }) {
   return (
     <Dialog.Root open={true} onOpenChange={onClose}>
       <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 bg-black/60" />
+        <Dialog.Overlay className="fixed inset-0 bg-black/60 z-40" />
         <Dialog.Content
           className={cn(
-            "fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2",
+            "fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50",
             "bg-neutral-900 text-white rounded-2xl p-6",
             "w-full max-w-sm shadow-2xl border border-neutral-800"
           )}
