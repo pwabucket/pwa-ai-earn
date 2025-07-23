@@ -1,35 +1,15 @@
-import { useState } from "react";
-import CalendarModal from "./components/CalendarModal";
-import DayView from "./components/DayView";
-import Header from "./components/Header";
+import { Route, Routes } from "react-router";
+
+import Home from "./pages/Home";
+import Menu from "./pages/Menu";
 
 function App() {
-  const [selectedDate, setSelectedDate] = useState(() => new Date());
-  const [showCalendar, setShowCalendar] = useState(false);
-
   return (
-    <div className="min-h-dvh bg-neutral-900 text-white">
-      <Header
-        selectedDate={selectedDate}
-        onSelectDate={setSelectedDate}
-        onCalendarClick={() => setShowCalendar(!showCalendar)}
-      />
-      <DayView
-        key={selectedDate.toISOString()}
-        selectedDate={selectedDate}
-        onSelectDate={setSelectedDate}
-      />
-
-      {showCalendar && (
-        <CalendarModal
-          selectedDate={selectedDate}
-          onSelectDate={(date) => {
-            setSelectedDate(date);
-            setShowCalendar(false);
-          }}
-          onClose={() => setShowCalendar(false)}
-        />
-      )}
+    <div className="min-h-dvh flex flex-col bg-neutral-900 text-white">
+      <Routes>
+        <Route index element={<Home />} />
+        <Route path="/menu" element={<Menu />} />
+      </Routes>
     </div>
   );
 }
