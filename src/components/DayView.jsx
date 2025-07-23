@@ -411,7 +411,7 @@ export default function DayView({ selectedDate, onSelectDate }) {
             Ends:{" "}
             <button
               onClick={() => onSelectDate(endDate)}
-              className="text-px-2pink-500 cursor-pointer"
+              className="text-pink-500 cursor-pointer"
             >
               {formatHeaderDate(endDate)}
             </button>
