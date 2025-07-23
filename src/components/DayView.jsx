@@ -21,6 +21,8 @@ const formatCurrency = (amount) => {
   return Intl.NumberFormat("en-US", {
     style: "currency",
     currency: "USD",
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 4,
   }).format(amount);
 };
 
@@ -105,7 +107,8 @@ const TransactionItem = ({ amount, type, onRemove }) => (
       <div
         className={type === "withdrawal" ? "text-red-500" : "text-green-500"}
       >
-        {type === "withdrawal" ? "-" : "+"}${amount}
+        {type === "withdrawal" ? "-" : "+"}
+        {formatCurrency(amount)}
       </div>
     </div>
     {type !== "earnings" && (
@@ -157,22 +160,24 @@ const MetricsDisplay = ({ result }) => (
       <h1 className="text-center text-5xl font-bold">
         {formatCurrency(result.activeInvestments)}
       </h1>
-      <h2 className="text-center font-bold">
+      <h2 className="text-center">
         <span className="text-neutral-400">Daily Earn:</span>{" "}
-        {formatCurrency(result.currentDailyProfit)}{" "}
-        <span className="text-green-500">
+        <span className="font-bold">
+          {formatCurrency(result.currentDailyProfit)}
+        </span>{" "}
+        <span className="text-green-500 font-bold">
           (+{(result.currentDailyRate * 100).toFixed(2)}%)
         </span>
       </h2>
-      <h3 className="text-center font-bold">
+      <h3 className="text-center">
         <span className="text-neutral-400">Today:</span>{" "}
-        <span className="text-green-500">
+        <span className="text-green-500 font-bold">
           +{formatCurrency(result.todaysProfit)}
         </span>
       </h3>
       <p className="text-center">
         <span className="text-green-500">Balance:</span>{" "}
-        {formatCurrency(result.totalBalance)}
+        <span className="font-bold">{formatCurrency(result.totalBalance)}</span>
       </p>
     </div>
 
@@ -326,7 +331,7 @@ export default function DayView({ selectedDate, onSelectDate }) {
     return [
       {
         type: "earnings",
-        amount: result.currentDailyProfit,
+        amount: result.todaysProfit,
         date: selectedDate,
       },
       ...withdrawals
@@ -347,7 +352,7 @@ export default function DayView({ selectedDate, onSelectDate }) {
           type: "investment",
         })),
     ];
-  }, [selectedDate, investments, withdrawals, result.currentDailyProfit]);
+  }, [selectedDate, investments, withdrawals, result.todaysProfit]);
 
   const endDate = useMemo(() => {
     const date = new Date(selectedDate);
