@@ -2,6 +2,7 @@ import { Link } from "react-router";
 import { LuCalendar, LuMenu } from "react-icons/lu";
 import { LuChevronLeft, LuChevronRight } from "react-icons/lu";
 
+import PageContainer from "./PageContainer";
 import WeeklyCalendar from "./WeeklyCalendar";
 import useNavigateBack from "../hooks/useNavigateBack";
 import { cn } from "../lib/utils";
@@ -52,7 +53,7 @@ const HeaderContainer = ({ children }) => (
       "sticky top-0 z-10 bg-neutral-900 border-b border-neutral-800"
     )}
   >
-    <div className="mx-auto max-w-sm p-2 flex flex-col gap-2">{children}</div>
+    <PageContainer className="flex flex-col gap-2">{children}</PageContainer>
   </header>
 );
 

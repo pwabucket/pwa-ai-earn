@@ -5,6 +5,7 @@ import { useState } from "react";
 
 import Input from "./Input";
 import InvestmentEngine from "../lib/InvestmentEngine";
+import PageContainer from "./PageContainer";
 import useAppStore from "../store/useAppStore";
 import { cn } from "../lib/utils";
 import { formatHeaderDate } from "../utils/dateUtils";
@@ -368,7 +369,7 @@ export default function DayView({ selectedDate, onSelectDate }) {
   };
 
   return (
-    <div className="flex flex-col gap-4 px-2 py-4 mx-auto max-w-sm">
+    <PageContainer className="flex flex-col gap-4 px-2 py-4">
       <MetricsDisplay result={result} />
 
       {result.totalBalance > 0 && (
@@ -454,6 +455,6 @@ export default function DayView({ selectedDate, onSelectDate }) {
           />
         </Tabs.Content>
       </Tabs.Root>
-    </div>
+    </PageContainer>
   );
 }
