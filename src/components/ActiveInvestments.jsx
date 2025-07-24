@@ -1,7 +1,8 @@
 import { useMemo } from "react";
 
+import Currency from "./Currency";
 import InvestmentEngine from "../lib/InvestmentEngine";
-import { cn, formatCurrency } from "../lib/utils";
+import { cn } from "../lib/utils";
 import { formatDate } from "../utils/dateUtils";
 
 export const ActiveInvestments = ({
@@ -96,7 +97,7 @@ export const InvestmentItem = ({ investment, onSelectDate }) => {
 
       <div className="text-xs grow min-w-0">
         <p className="text-neutral-300 flex justify-between">
-          Started:{" "}
+          Starts:{" "}
           <button
             className="text-pink-500 cursor-pointer hover:underline"
             onClick={() => onSelectDate(investment.startDate)}
@@ -115,7 +116,7 @@ export const InvestmentItem = ({ investment, onSelectDate }) => {
         </p>
       </div>
       <div className="text-sm font-bold text-green-500">
-        {formatCurrency(investment.amount)}
+        <Currency value={investment.amount} />
       </div>
     </div>
   );

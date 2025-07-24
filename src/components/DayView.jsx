@@ -9,13 +9,14 @@ import { Tabs } from "radix-ui";
 import { useMemo } from "react";
 import { useState } from "react";
 
+import Currency from "./Currency";
 import Input from "./Input";
 import InvestmentEngine from "../lib/InvestmentEngine";
 import PageContainer from "./PageContainer";
 import Simulation from "./Simulation";
 import useAppStore from "../store/useAppStore";
 import { ActiveInvestments } from "./ActiveInvestments";
-import { cn, formatCurrency } from "../lib/utils";
+import { cn } from "../lib/utils";
 import { formatDate } from "../utils/dateUtils";
 
 const TabTriggerButton = (props) => (
@@ -72,7 +73,9 @@ const ActionButton = ({
 const MetricCard = ({ title, value, valueColor = "text-green-500" }) => (
   <div className="flex flex-col items-center bg-neutral-800 rounded-xl py-4">
     <h3 className="text-sm font-semibold">{title}</h3>
-    <p className={cn("font-bold", valueColor)}>{formatCurrency(value)}</p>
+    <p className={cn("font-bold", valueColor)}>
+      <Currency value={value} />
+    </p>
   </div>
 );
 
@@ -99,8 +102,7 @@ const TransactionItem = ({ amount, type, onRemove }) => (
       <div
         className={type === "withdrawal" ? "text-red-500" : "text-green-500"}
       >
-        {type === "withdrawal" ? "-" : "+"}
-        {formatCurrency(amount)}
+        <Currency prefix={type === "withdrawal" ? "-" : "+"} value={amount} />
       </div>
     </div>
     {type !== "earnings" && (
@@ -150,26 +152,26 @@ const MetricsDisplay = ({ result }) => (
   <>
     <div className="flex flex-col">
       <h1 className="text-center text-5xl font-bold">
-        {formatCurrency(result.activeInvestments)}
+        <Currency value={result.activeInvestments} />
       </h1>
       <h2 className="text-center">
         <span className="text-neutral-400">Daily Earn:</span>{" "}
-        <span className="font-bold">
-          {formatCurrency(result.currentDailyProfit)}
-        </span>{" "}
+        <Currency className="font-bold" value={result.currentDailyProfit} />{" "}
         <span className="text-green-500 font-bold">
           (+{(result.currentDailyRate * 100).toFixed(2)}%)
         </span>
       </h2>
       <h3 className="text-center">
         <span className="text-neutral-400">Today:</span>{" "}
-        <span className="text-green-500 font-bold">
-          +{formatCurrency(result.todaysProfit)}
-        </span>
+        <Currency
+          prefix={"+"}
+          value={result.todaysProfit}
+          className="font-bold text-green-500"
+        />
       </h3>
       <p className="text-center">
         <span className="text-green-500">Balance:</span>{" "}
-        <span className="font-bold">{formatCurrency(result.totalBalance)}</span>
+        <Currency value={result.totalBalance} className="font-bold" />
       </p>
     </div>
 
@@ -297,9 +299,10 @@ export default function DayView({ selectedDate, onSelectDate }) {
         <div className="flex flex-col items-start gap-2 p-4 bg-neutral-800 rounded-xl">
           <p>
             You have an available balance of{" "}
-            <span className="text-green-500 font-bold">
-              {formatCurrency(result.totalBalance)}
-            </span>
+            <Currency
+              className="text-green-500 font-bold"
+              value={result.totalBalance}
+            />
           </p>
           <button
             className={cn(

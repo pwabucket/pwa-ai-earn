@@ -5,6 +5,7 @@ import { useMemo } from "react";
 import { useState } from "react";
 
 import CalendarModal from "./CalendarModal";
+import Currency from "./Currency";
 import InvestmentEngine from "../lib/InvestmentEngine";
 import Modal from "./Modal";
 import useAppStore from "../store/useAppStore";
@@ -12,7 +13,7 @@ import useLocationToggle from "../hooks/useLocationToggle";
 import { ActiveInvestments } from "./ActiveInvestments";
 import { DayNavigator } from "./DayNavigator";
 import { HeaderButton } from "./HeaderButton";
-import { cn, formatCurrency } from "../lib/utils";
+import { cn } from "../lib/utils";
 import { formatDate } from "../utils/dateUtils";
 
 const ResultInfo = ({ label, children }) => (
@@ -68,16 +69,18 @@ const SimulationResult = ({
 
         {/* Withdrawable Amount */}
         <ResultInfo label={"Withdrawable Amount"}>
-          <span className="text-green-500">
-            {formatCurrency(result.totalWithdrawableAfterExpiry)}
-          </span>
+          <Currency
+            className="text-green-500"
+            value={result.totalWithdrawableAfterExpiry}
+          />
         </ResultInfo>
 
         {/* Amount Invested */}
         <ResultInfo label={"Amount Invested"}>
-          <span className="text-green-500">
-            {formatCurrency(result.finalState.totalInvested)}
-          </span>
+          <Currency
+            className="text-green-500"
+            value={result.finalState.totalInvested}
+          />
         </ResultInfo>
 
         {/* Last Withdrawal Date */}
