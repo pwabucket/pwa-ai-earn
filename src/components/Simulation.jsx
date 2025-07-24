@@ -157,9 +157,8 @@ export default function Simulation({ selectedDate }) {
 
       {showCalendar && (
         <CalendarModal
-          onSelectDate={(date) => {
-            setTargetDate(date);
-          }}
+          selectedDate={targetDate}
+          onSelectDate={setTargetDate}
           onClose={() => toggleShowCalendar(false)}
         />
       )}
