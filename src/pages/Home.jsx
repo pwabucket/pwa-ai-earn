@@ -17,7 +17,7 @@ function Home() {
       <Header
         selectedDate={selectedDate}
         onSelectDate={setSelectedDate}
-        onCalendarClick={toggleShowCalendar}
+        onCalendarClick={() => toggleShowCalendar(true)}
       />
       <DayView
         key={selectedDate.toISOString()}
@@ -31,7 +31,7 @@ function Home() {
           onSelectDate={(date) => {
             setSelectedDate(date);
           }}
-          onClose={() => toggleShowCalendar()}
+          onClose={() => toggleShowCalendar(false)}
         />
       )}
     </>

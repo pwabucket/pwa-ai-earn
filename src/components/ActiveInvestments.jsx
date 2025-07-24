@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+
 import InvestmentEngine from "../lib/InvestmentEngine";
 import { cn, formatCurrency } from "../lib/utils";
 import { formatDate } from "../utils/dateUtils";
@@ -59,7 +60,7 @@ export const InvestmentItem = ({ investment, onSelectDate }) => {
   const offset = circumference - (progress / max) * circumference;
 
   return (
-    <div className="flex items-center gap-4">
+    <div className="flex items-center gap-2">
       <div className="relative size-10 shrink-0">
         <svg height="40" width="40">
           <circle
@@ -93,11 +94,11 @@ export const InvestmentItem = ({ investment, onSelectDate }) => {
         </span>
       </div>
 
-      <div className="text-sm grow min-w-0">
+      <div className="text-xs grow min-w-0">
         <p className="text-neutral-300 flex justify-between">
           Started:{" "}
           <button
-            className="text-pink-500 cursor-pointer"
+            className="text-pink-500 cursor-pointer hover:underline"
             onClick={() => onSelectDate(investment.startDate)}
           >
             {formatDate(investment.startDate)}
@@ -106,14 +107,14 @@ export const InvestmentItem = ({ investment, onSelectDate }) => {
         <p className="text-neutral-300 flex justify-between">
           Ends:{" "}
           <button
-            className="text-pink-500 cursor-pointer"
+            className="text-pink-500 cursor-pointer hover:underline"
             onClick={() => onSelectDate(investment.endDate)}
           >
             {formatDate(investment.endDate)}
           </button>
         </p>
       </div>
-      <div className="font-bold text-green-500">
+      <div className="text-sm font-bold text-green-500">
         {formatCurrency(investment.amount)}
       </div>
     </div>

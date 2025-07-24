@@ -1,5 +1,6 @@
 import { Dialog } from "radix-ui";
-import { LuX } from "react-icons/lu";
+import { LuCalendar, LuPlay, LuX } from "react-icons/lu";
+import { startOfDay } from "date-fns";
 import { useMemo } from "react";
 import { useState } from "react";
 
@@ -11,7 +12,7 @@ import useLocationToggle from "../hooks/useLocationToggle";
 import { ActiveInvestments } from "./ActiveInvestments";
 import { DayNavigator } from "./DayNavigator";
 import { HeaderButton } from "./HeaderButton";
-import { formatCurrency } from "../lib/utils";
+import { cn, formatCurrency } from "../lib/utils";
 import { formatDate } from "../utils/dateUtils";
 
 const ResultInfo = ({ label, children }) => (
@@ -21,7 +22,12 @@ const ResultInfo = ({ label, children }) => (
   </div>
 );
 
-const SimulationResult = ({ selectedDate, targetDate, onChangeTargetDate }) => {
+const SimulationResult = ({
+  selectedDate,
+  targetDate,
+  onChangeTargetDate,
+  onClose,
+}) => {
   const investments = useAppStore((state) => state.investments);
   const withdrawals = useAppStore((state) => state.withdrawals);
 
@@ -34,10 +40,8 @@ const SimulationResult = ({ selectedDate, targetDate, onChangeTargetDate }) => {
     );
   }, [selectedDate, targetDate, investments, withdrawals]);
 
-  console.log(result);
-
   return (
-    <Modal onOpenChange={() => onChangeTargetDate(null)}>
+    <Modal onOpenChange={onClose}>
       <div className="flex items-center justify-between gap-1">
         <div className="flex flex-col grow min-w-0">
           <Dialog.Title className="font-bold">Result</Dialog.Title>
@@ -99,10 +103,14 @@ const SimulationResult = ({ selectedDate, targetDate, onChangeTargetDate }) => {
 };
 
 export default function Simulation({ selectedDate }) {
-  const [targetDate, setTargetDate] = useState(null);
+  const [targetDate, setTargetDate] = useState(() => startOfDay(selectedDate));
   const [showCalendar, toggleShowCalendar] = useLocationToggle(
     "simulation-calendar"
   );
+
+  const [showResults, toggleShowResults] =
+    useLocationToggle("simulation-results");
+
   return (
     <>
       <div className="flex flex-col gap-2 p-4 bg-neutral-800 rounded-xl">
@@ -112,10 +120,35 @@ export default function Simulation({ selectedDate }) {
           current investments and withdrawals.
         </p>
         <button
-          onClick={toggleShowCalendar}
-          className="font-bold text-pink-500 text-sm cursor-pointer hover:underline"
+          onClick={() => toggleShowCalendar(true)}
+          className={cn(
+            "font-bold  text-sm cursor-pointer text-neutral-100",
+            "p-2 rounded-xl bg-neutral-700 hover:bg-neutral-600",
+            "flex items-center justify-center gap-2"
+          )}
         >
-          Select Target Date
+          <LuCalendar className="size-5" />
+
+          {targetDate ? (
+            <>
+              Select Date:{" "}
+              <span className="text-pink-500">{formatDate(targetDate)}</span>
+            </>
+          ) : (
+            "Select Date"
+          )}
+        </button>
+
+        <button
+          onClick={() => targetDate && toggleShowResults(true)}
+          className={cn(
+            "cursor-pointer font-bold text-purple-500 text-sm",
+            "p-2 rounded-xl bg-neutral-700 hover:bg-neutral-600",
+            "flex items-center justify-center gap-2"
+          )}
+        >
+          <LuPlay className="size-5" />
+          Simulate
         </button>
       </div>
 
@@ -124,15 +157,16 @@ export default function Simulation({ selectedDate }) {
           onSelectDate={(date) => {
             setTargetDate(date);
           }}
-          onClose={() => toggleShowCalendar()}
+          onClose={() => toggleShowCalendar(false)}
         />
       )}
 
-      {targetDate && (
+      {targetDate && showResults && (
         <SimulationResult
           selectedDate={selectedDate}
           targetDate={targetDate}
           onChangeTargetDate={setTargetDate}
+          onClose={() => toggleShowResults(false)}
         />
       )}
     </>

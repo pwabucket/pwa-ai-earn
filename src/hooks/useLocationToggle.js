@@ -17,10 +17,10 @@ export default function useLocationToggle(key) {
           },
         });
       } else {
-        navigate(-1, { replace: true });
+        navigate(location.key !== "default" ? -1 : "/", { replace: true });
       }
     },
-    [key, navigate, location.state]
+    [key, navigate, location]
   );
 
   return useMemo(() => [show, toggle], [show, toggle]);
