@@ -148,47 +148,75 @@ const TransactionsList = ({
   </div>
 );
 
-const MetricsDisplay = ({ result }) => (
+const MetricsDisplay = ({ result, onSelectDate }) => (
   <>
     <div className="flex flex-col">
+      {/* Target */}
+      <button
+        title={`Target: ${formatDate(result.allInvestmentsExpireDate)}`}
+        onClick={() => onSelectDate(result.allInvestmentsExpireDate)}
+        className={cn(
+          "text-center text-purple-500 hover:underline cursor-pointer"
+        )}
+      >
+        <span>Target:</span>{" "}
+        <Currency
+          value={result.expiredState.totalBalance}
+          className="font-bold"
+        />
+      </button>
+
+      {/* Active Investments */}
       <h1 className="text-center text-5xl font-bold">
-        <Currency value={result.activeInvestments} />
+        <Currency value={result.currentState.activeInvestments} />
       </h1>
+
+      {/* Daily Earnings */}
       <h2 className="text-center">
         <span className="text-neutral-400">Daily Earn:</span>{" "}
-        <Currency className="font-bold" value={result.currentDailyProfit} />{" "}
+        <Currency
+          className="font-bold"
+          value={result.currentState.currentDailyProfit}
+        />{" "}
         <span className="text-green-500 font-bold">
-          (+{(result.currentDailyRate * 100).toFixed(2)}%)
+          (+{(result.currentState.currentDailyRate * 100).toFixed(2)}%)
         </span>
       </h2>
+
+      {/* Today's Profit */}
       <h3 className="text-center">
         <span className="text-neutral-400">Today:</span>{" "}
         <Currency
           prefix={"+"}
-          value={result.todaysProfit}
+          value={result.currentState.todaysProfit}
           className="font-bold text-green-500"
         />
       </h3>
+
+      {/* Available Balance */}
       <p className="text-center">
         <span className="text-green-500">Balance:</span>{" "}
-        <Currency value={result.totalBalance} className="font-bold" />
+        <Currency
+          value={result.currentState.totalBalance}
+          className="font-bold"
+        />
       </p>
     </div>
 
     <div className="grid grid-cols-3 gap-1">
       <MetricCard
         title="Invested"
-        value={result.totalInvested}
+        value={result.currentState.totalInvested}
         valueColor="text-green-500"
       />
       <MetricCard
         title="Profits"
-        value={result.totalProfits}
+        value={result.currentState.totalProfits}
         valueColor="text-green-500"
       />
       <MetricCard
         title="Withdrawn"
-        value={result.totalWithdrawn}
+        value={result.currentState.totalWithdrawn}
         valueColor="text-red-500"
       />
     </div>
@@ -204,14 +232,18 @@ export default function DayView({ selectedDate, onSelectDate }) {
   const removeWithdrawal = useAppStore((state) => state.removeWithdrawal);
 
   const result = useMemo(() => {
-    return InvestmentEngine.calculateTp(selectedDate, investments, withdrawals);
+    return InvestmentEngine.calculateInvestments(
+      selectedDate,
+      investments,
+      withdrawals
+    );
   }, [selectedDate, investments, withdrawals]);
 
   const todayTransactions = useMemo(() => {
     return [
       {
         type: "earnings",
-        amount: result.todaysProfit,
+        amount: result.currentState.todaysProfit,
         date: selectedDate,
       },
       ...withdrawals
@@ -232,7 +264,12 @@ export default function DayView({ selectedDate, onSelectDate }) {
           type: "investment",
         })),
     ];
-  }, [selectedDate, investments, withdrawals, result.todaysProfit]);
+  }, [
+    selectedDate,
+    investments,
+    withdrawals,
+    result.currentState.todaysProfit,
+  ]);
 
   const endDate = useMemo(() => {
     const date = new Date(selectedDate);
@@ -242,7 +279,7 @@ export default function DayView({ selectedDate, onSelectDate }) {
 
   const [investmentAmount, setInvestmentAmount] = useState("");
   const [withdrawalAmount, setWithdrawalAmount] = useState(
-    result.totalBalance.toFixed(4)
+    result.currentState.totalBalance.toFixed(4)
   );
 
   const reinvest = (amount) => {
@@ -288,20 +325,20 @@ export default function DayView({ selectedDate, onSelectDate }) {
   };
 
   const handleMaxWithdrawal = () => {
-    setWithdrawalAmount(result.totalBalance.toFixed(4));
+    setWithdrawalAmount(result.currentState.totalBalance.toFixed(4));
   };
 
   return (
     <PageContainer className="flex flex-col gap-4 px-2 py-4">
-      <MetricsDisplay result={result} />
+      <MetricsDisplay result={result} onSelectDate={onSelectDate} />
 
-      {result.totalBalance >= 1 && (
+      {result.currentState.totalBalance >= 1 && (
         <div className="flex flex-col items-start gap-2 p-4 bg-neutral-800 rounded-xl">
           <p>
             You have an available balance of{" "}
             <Currency
               className="text-green-500 font-bold"
-              value={result.totalBalance}
+              value={result.currentState.totalBalance}
             />
           </p>
           <button
@@ -310,7 +347,7 @@ export default function DayView({ selectedDate, onSelectDate }) {
               "px-4 py-2 rounded-xl text-sm font-bold cursor-pointer",
               "flex items-center gap-2"
             )}
-            onClick={() => reinvest(result.totalBalance)}
+            onClick={() => reinvest(result.currentState.totalBalance)}
           >
             <LuRefreshCw className="size-4" />
             Quick Reinvest
@@ -387,7 +424,7 @@ export default function DayView({ selectedDate, onSelectDate }) {
       <ActiveInvestments
         selectedDate={selectedDate}
         onSelectDate={onSelectDate}
-        investments={result.currentActiveInvestments}
+        investments={result.currentState.currentActiveInvestments}
       />
     </PageContainer>
   );

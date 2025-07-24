@@ -107,7 +107,11 @@ export default function Menu() {
           Terms of Service
         </MenuButton>
 
-        <MenuButton as={Link} to={import.meta.env.VITE_APP_REPOSITORY}>
+        <MenuButton
+          as={Link}
+          to={import.meta.env.VITE_APP_REPOSITORY}
+          target="_blank"
+        >
           <LuGithub className="size-5" />
           Repository
         </MenuButton>

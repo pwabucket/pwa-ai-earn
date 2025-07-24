@@ -244,6 +244,55 @@ export default class InvestmentEngine {
   }
 
   /**
+   * Calculate the state of investments and withdrawals after all investments have expired.
+   * @param {array} investments
+   * @param {array} withdrawals
+   * @returns {Object} Object containing the expiration date and the result of the calculation
+   */
+  static calculateExpiredState(investments, withdrawals) {
+    const latestInvestmentDate = startOfDay(
+      Math.max(...investments.map((inv) => startOfDay(inv.date)))
+    );
+    const allInvestmentsExpireDate = startOfDay(latestInvestmentDate);
+    allInvestmentsExpireDate.setDate(
+      allInvestmentsExpireDate.getDate() + this.INVESTMENT_DURATION
+    );
+
+    return {
+      date: allInvestmentsExpireDate,
+      result: this.calculateTp(
+        allInvestmentsExpireDate,
+        investments,
+        withdrawals
+      ),
+    };
+  }
+
+  /**
+   * Calculate the current state of investments and withdrawals.
+   * @param {Date} selectedDate - The date for which to calculate the state.
+   * @param {Array} investments - The list of investment objects.
+   * @param {Array} withdrawals - The list of withdrawal objects.
+   * @returns {Object} The calculated state of investments and withdrawals.
+   */
+  static calculateInvestments(selectedDate, investments, withdrawals) {
+    const currentState = this.calculateTp(
+      selectedDate,
+      investments,
+      withdrawals
+    );
+
+    const { date: allInvestmentsExpireDate, result: expiredState } =
+      this.calculateExpiredState(investments, withdrawals);
+
+    return {
+      currentState,
+      expiredState,
+      allInvestmentsExpireDate,
+    };
+  }
+
+  /**
    * Simulates daily compounding by withdrawing daily balance and reinvesting it
    * @param {Date} selectedDate - Starting date for simulation
    * @param {Date} targetDate - End date for simulation
@@ -346,19 +395,8 @@ export default class InvestmentEngine {
       simulatedWithdrawals
     );
 
-    const latestInvestmentDate = startOfDay(
-      Math.max(...simulatedInvestments.map((inv) => startOfDay(inv.date)))
-    );
-    const allInvestmentsExpireDate = startOfDay(latestInvestmentDate);
-    allInvestmentsExpireDate.setDate(
-      allInvestmentsExpireDate.getDate() + this.INVESTMENT_DURATION
-    );
-
-    const expiredState = this.calculateTp(
-      allInvestmentsExpireDate,
-      simulatedInvestments,
-      simulatedWithdrawals
-    );
+    const { date: allInvestmentsExpireDate, result: expiredState } =
+      this.calculateExpiredState(simulatedInvestments, simulatedWithdrawals);
 
     return {
       initialState,
