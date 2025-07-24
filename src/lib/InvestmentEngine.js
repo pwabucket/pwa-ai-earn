@@ -19,12 +19,12 @@ export default class InvestmentEngine {
   }
 
   /**
-   * Converts date to date string
+   * Get date key for a given date
    * @param {Date} date - Date to convert
-   * @returns {string} Date string
+   * @returns {int} Date key
    */
-  static getDateString(date) {
-    return date.toDateString();
+  static getDateKey(date) {
+    return date.getTime();
   }
 
   /**
@@ -81,7 +81,7 @@ export default class InvestmentEngine {
     const eventGroups = new Map();
 
     investments.forEach((investment) => {
-      const dateKey = this.getDateString(startOfDay(investment.date));
+      const dateKey = this.getDateKey(startOfDay(investment.date));
       if (!eventGroups.has(dateKey)) {
         eventGroups.set(dateKey, {
           date: startOfDay(investment.date),
@@ -93,7 +93,7 @@ export default class InvestmentEngine {
     });
 
     withdrawals.forEach((withdrawal) => {
-      const dateKey = this.getDateString(startOfDay(withdrawal.date));
+      const dateKey = this.getDateKey(startOfDay(withdrawal.date));
       if (!eventGroups.has(dateKey)) {
         eventGroups.set(dateKey, {
           date: startOfDay(withdrawal.date),
@@ -105,6 +105,18 @@ export default class InvestmentEngine {
     });
 
     return Array.from(eventGroups.values()).sort((a, b) => a.date - b.date);
+  }
+
+  /**
+   * Sums the amounts of an array of transaction objects.
+   * @param {Array} transactions - Array of transaction objects
+   * @returns {number} Total sum of transaction amounts
+   */
+  static sumTransactions(transactions) {
+    return transactions.reduce(
+      (sum, transaction) => sum + transaction.amount,
+      0
+    );
   }
 
   /**
@@ -145,18 +157,12 @@ export default class InvestmentEngine {
 
     let availableBalance = 0;
     let totalProfits = 0;
-    let totalInvested = priorInvestments.reduce(
-      (sum, inv) => sum + inv.amount,
-      0
-    );
-    let totalWithdrawn = priorWithdrawals.reduce(
-      (sum, withdrawal) => sum + withdrawal.amount,
-      0
-    );
+    let totalInvested = this.sumTransactions(priorInvestments);
+    let totalWithdrawn = this.sumTransactions(priorWithdrawals);
 
     const withdrawalsByDate = new Map();
     priorWithdrawals.forEach((withdrawal) => {
-      const dateKey = this.getDateString(startOfDay(withdrawal.date));
+      const dateKey = this.getDateKey(startOfDay(withdrawal.date));
       if (!withdrawalsByDate.has(dateKey)) {
         withdrawalsByDate.set(dateKey, 0);
       }
@@ -168,7 +174,7 @@ export default class InvestmentEngine {
 
     const currentDate = startOfDay(earliestDate);
     while (currentDate <= endDate) {
-      const currentDateString = this.getDateString(currentDate);
+      const currentDateString = this.getDateKey(currentDate);
 
       const profitGeneratingInvestments = this.getActiveInvestments(
         priorInvestments,
@@ -176,9 +182,8 @@ export default class InvestmentEngine {
         true
       );
 
-      const totalActiveAmount = profitGeneratingInvestments.reduce(
-        (sum, inv) => sum + inv.amount,
-        0
+      const totalActiveAmount = this.sumTransactions(
+        profitGeneratingInvestments
       );
 
       let dailyProfit = 0;
@@ -207,10 +212,7 @@ export default class InvestmentEngine {
       endDate,
       false
     );
-    const totalActiveAmount = currentActiveInvestments.reduce(
-      (sum, inv) => sum + inv.amount,
-      0
-    );
+    const totalActiveAmount = this.sumTransactions(currentActiveInvestments);
 
     const currentDailyRate =
       totalActiveAmount > 0 ? this.getPercentage(totalActiveAmount) : 0;
@@ -221,9 +223,8 @@ export default class InvestmentEngine {
       endDate,
       true
     );
-    const todaysProfitAmount = todaysProfitGeneratingInvestments.reduce(
-      (sum, inv) => sum + inv.amount,
-      0
+    const todaysProfitAmount = this.sumTransactions(
+      todaysProfitGeneratingInvestments
     );
     const todaysProfitRate =
       todaysProfitAmount > 0 ? this.getPercentage(todaysProfitAmount) : 0;
@@ -266,47 +267,73 @@ export default class InvestmentEngine {
     const simulatedWithdrawals = [...withdrawals];
     const timeline = [];
 
+    const createInvestment = (date, amount) => {
+      simulatedWithdrawals.push({
+        id: `sim_withdrawal_${date.getTime()}`,
+        date: startOfDay(date),
+        amount,
+        isSimulated: true,
+      });
+      simulatedInvestments.push({
+        id: `sim_investment_${date.getTime()}`,
+        date: startOfDay(date),
+        amount,
+        isSimulated: true,
+      });
+
+      totalInvested += amount;
+      availableBalance = 0;
+    };
+
+    let availableBalance = initialState.totalBalance;
+    let totalInvested = initialState.totalInvested;
+
+    if (availableBalance >= 1) {
+      createInvestment(selectedDate, availableBalance);
+    }
+
     const currentDate = startOfDay(selectedDate);
     currentDate.setDate(currentDate.getDate() + 1);
     startOfDay(currentDate);
 
     while (currentDate <= startOfDay(targetDate)) {
-      const dayState = this.calculateTp(
-        currentDate,
+      const profitGeneratingInvestments = this.getActiveInvestments(
         simulatedInvestments,
-        simulatedWithdrawals
+        currentDate,
+        true
       );
 
-      if (dayState.totalBalance >= 1) {
-        const balanceToReinvest = dayState.totalBalance;
+      const totalActiveAmount = this.sumTransactions(
+        profitGeneratingInvestments
+      );
 
-        simulatedWithdrawals.push({
-          id: `sim_withdrawal_${currentDate.getTime()}`,
-          date: startOfDay(currentDate),
-          amount: balanceToReinvest,
-          isSimulated: true,
-        });
+      let dailyProfit = 0;
+      let balanceReinvested = 0;
 
-        simulatedInvestments.push({
-          id: `sim_investment_${currentDate.getTime()}`,
-          date: startOfDay(currentDate),
-          amount: balanceToReinvest,
-          isSimulated: true,
-        });
+      if (totalActiveAmount > 0) {
+        const dailyRate = this.getPercentage(totalActiveAmount);
+        dailyProfit = totalActiveAmount * dailyRate;
+        availableBalance += dailyProfit;
       }
 
-      const endOfDayState = this.calculateTp(
-        currentDate,
+      if (availableBalance >= 1) {
+        balanceReinvested = availableBalance;
+        createInvestment(currentDate, balanceReinvested);
+      }
+
+      const currentActiveInvestments = this.getActiveInvestments(
         simulatedInvestments,
-        simulatedWithdrawals
+        currentDate,
+        false
       );
+      const activeInvestments = this.sumTransactions(currentActiveInvestments);
 
       timeline.push({
         date: startOfDay(currentDate),
-        balanceReinvested: dayState.totalBalance,
-        totalInvested: endOfDayState.totalInvested,
-        activeInvestments: endOfDayState.activeInvestments,
-        currentDailyProfit: endOfDayState.currentDailyProfit,
+        balanceReinvested,
+        totalInvested,
+        activeInvestments,
+        currentDailyProfit: dailyProfit,
       });
 
       currentDate.setDate(currentDate.getDate() + 1);

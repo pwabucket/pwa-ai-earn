@@ -34,6 +34,8 @@ const SimulationResult = ({ selectedDate, targetDate, onChangeTargetDate }) => {
     );
   }, [selectedDate, targetDate, investments, withdrawals]);
 
+  console.log(result);
+
   return (
     <Modal onOpenChange={() => onChangeTargetDate(null)}>
       <div className="flex items-center justify-between gap-1">
