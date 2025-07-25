@@ -242,7 +242,7 @@ const MetricsGrid = ({ result }) => (
     />
     <MetricCard
       title="Withdrawn"
-      value={result.currentState.totalWithdrawn}
+      value={result.currentState.totalKept}
       valueColor="text-red-500"
     />
   </div>

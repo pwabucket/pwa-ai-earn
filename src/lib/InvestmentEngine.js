@@ -167,8 +167,21 @@ export default class InvestmentEngine {
 
     let availableBalance = 0;
     let totalProfits = 0;
+    let totalKept = 0;
     let totalInvested = this.sumTransactions(priorInvestments);
     let totalWithdrawn = this.sumTransactions(priorWithdrawals);
+
+    const investmentsByDate = new Map();
+    priorInvestments.forEach((investment) => {
+      const dateKey = this.getDateKey(startOfDay(investment.date));
+      if (!investmentsByDate.has(dateKey)) {
+        investmentsByDate.set(dateKey, 0);
+      }
+      investmentsByDate.set(
+        dateKey,
+        investmentsByDate.get(dateKey) + investment.amount
+      );
+    });
 
     const withdrawalsByDate = new Map();
     priorWithdrawals.forEach((withdrawal) => {
@@ -204,7 +217,10 @@ export default class InvestmentEngine {
         availableBalance += dailyProfit;
       }
 
+      const todayInvestments = investmentsByDate.get(currentDateString) || 0;
       const todayWithdrawals = withdrawalsByDate.get(currentDateString) || 0;
+
+      totalKept += Math.max(0, todayWithdrawals - todayInvestments);
 
       if (todayWithdrawals > 0) {
         availableBalance -= todayWithdrawals;
@@ -252,6 +268,7 @@ export default class InvestmentEngine {
       currentDailyProfit,
       currentDailyRate,
       todaysProfit,
+      totalKept,
       currentActiveInvestments,
     };
   }
