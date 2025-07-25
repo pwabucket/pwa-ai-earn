@@ -120,6 +120,16 @@ export default class InvestmentEngine {
   }
 
   /**
+   * Calculates the floating profit for a given amount and rate.
+   * @param {number} amount - The investment amount.
+   * @param {number} rate - The profit rate.
+   * @returns {number} The calculated floating profit.
+   */
+  static floatProfit(amount, rate) {
+    return parseFloat((amount * rate).toFixed(3));
+  }
+
+  /**
    * Calculates total portfolio metrics for a given date
    * @param {Date} selectedDate - Date to calculate metrics for
    * @param {Array} investments - Array of investment objects
@@ -189,7 +199,7 @@ export default class InvestmentEngine {
       let dailyProfit = 0;
       if (totalActiveAmount > 0) {
         const dailyRate = this.getPercentage(totalActiveAmount);
-        dailyProfit = totalActiveAmount * dailyRate;
+        dailyProfit = this.floatProfit(totalActiveAmount, dailyRate);
         totalProfits += dailyProfit;
         availableBalance += dailyProfit;
       }
@@ -216,7 +226,10 @@ export default class InvestmentEngine {
 
     const currentDailyRate =
       totalActiveAmount > 0 ? this.getPercentage(totalActiveAmount) : 0;
-    const currentDailyProfit = totalActiveAmount * currentDailyRate;
+    const currentDailyProfit = this.floatProfit(
+      totalActiveAmount,
+      currentDailyRate
+    );
 
     const todaysProfitGeneratingInvestments = this.getActiveInvestments(
       priorInvestments,
@@ -228,7 +241,7 @@ export default class InvestmentEngine {
     );
     const todaysProfitRate =
       todaysProfitAmount > 0 ? this.getPercentage(todaysProfitAmount) : 0;
-    const todaysProfit = todaysProfitAmount * todaysProfitRate;
+    const todaysProfit = this.floatProfit(todaysProfitAmount, todaysProfitRate);
 
     return {
       totalBalance: availableBalance,
@@ -361,7 +374,7 @@ export default class InvestmentEngine {
 
       if (totalActiveAmount > 0) {
         const dailyRate = this.getPercentage(totalActiveAmount);
-        dailyProfit = totalActiveAmount * dailyRate;
+        dailyProfit = this.floatProfit(totalActiveAmount, dailyRate);
         availableBalance += dailyProfit;
       }
 
