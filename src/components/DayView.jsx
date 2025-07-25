@@ -339,13 +339,13 @@ const WithdrawTab = ({
     </InputSection>
 
     <ButtonGroup>
-      <ActionButton onClick={handleWithdraw}>
-        <LuMinus className="size-4" />
-        Withdraw
-      </ActionButton>
       <ActionButton onClick={handleReInvest} variant="secondary">
         <LuRefreshCw className="size-4" />
         Re-Invest
+      </ActionButton>
+      <ActionButton onClick={handleWithdraw}>
+        <LuMinus className="size-4" />
+        Withdraw
       </ActionButton>
     </ButtonGroup>
   </Tabs.Content>
