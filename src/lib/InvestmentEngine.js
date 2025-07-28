@@ -120,13 +120,13 @@ export default class InvestmentEngine {
   }
 
   /**
-   * Calculates the floating profit for a given amount and rate.
+   * Calculates the profit for a given amount and rate.
    * @param {number} amount - The investment amount.
    * @param {number} rate - The profit rate.
-   * @returns {number} The calculated floating profit.
+   * @returns {number} The calculated profit.
    */
-  static floatProfit(amount, rate) {
-    return parseFloat((amount * rate).toFixed(3));
+  static calculateProfit(amount, rate) {
+    return amount * rate;
   }
 
   /**
@@ -151,6 +151,7 @@ export default class InvestmentEngine {
         totalBalance: 0,
         totalProfits: 0,
         totalInvested: 0,
+        totalKept: 0,
         totalWithdrawn: 0,
         activeInvestments: 0,
         currentDailyProfit: 0,
@@ -212,7 +213,7 @@ export default class InvestmentEngine {
       let dailyProfit = 0;
       if (totalActiveAmount > 0) {
         const dailyRate = this.getPercentage(totalActiveAmount);
-        dailyProfit = this.floatProfit(totalActiveAmount, dailyRate);
+        dailyProfit = this.calculateProfit(totalActiveAmount, dailyRate);
         totalProfits += dailyProfit;
         availableBalance += dailyProfit;
       }
@@ -242,7 +243,7 @@ export default class InvestmentEngine {
 
     const currentDailyRate =
       totalActiveAmount > 0 ? this.getPercentage(totalActiveAmount) : 0;
-    const currentDailyProfit = this.floatProfit(
+    const currentDailyProfit = this.calculateProfit(
       totalActiveAmount,
       currentDailyRate
     );
@@ -257,7 +258,10 @@ export default class InvestmentEngine {
     );
     const todaysProfitRate =
       todaysProfitAmount > 0 ? this.getPercentage(todaysProfitAmount) : 0;
-    const todaysProfit = this.floatProfit(todaysProfitAmount, todaysProfitRate);
+    const todaysProfit = this.calculateProfit(
+      todaysProfitAmount,
+      todaysProfitRate
+    );
 
     return {
       totalBalance: availableBalance,
@@ -275,14 +279,18 @@ export default class InvestmentEngine {
 
   /**
    * Calculate the state of investments and withdrawals after all investments have expired.
+   * @param {Date} targetDate - The date to calculate the state for.
    * @param {array} investments
    * @param {array} withdrawals
    * @returns {Object} Object containing the expiration date and the result of the calculation
    */
-  static calculateExpiredState(investments, withdrawals) {
+  static calculateExpiredState(targetDate, investments, withdrawals) {
     const latestInvestmentDate = startOfDay(
-      Math.max(...investments.map((inv) => startOfDay(inv.date)))
+      investments.length > 0
+        ? Math.max(...investments.map((inv) => startOfDay(inv.date)))
+        : targetDate
     );
+
     const allInvestmentsExpireDate = startOfDay(latestInvestmentDate);
     allInvestmentsExpireDate.setDate(
       allInvestmentsExpireDate.getDate() + this.INVESTMENT_DURATION
@@ -313,7 +321,7 @@ export default class InvestmentEngine {
     );
 
     const { date: allInvestmentsExpireDate, result: expiredState } =
-      this.calculateExpiredState(investments, withdrawals);
+      this.calculateExpiredState(selectedDate, investments, withdrawals);
 
     return {
       currentState,
@@ -391,7 +399,7 @@ export default class InvestmentEngine {
 
       if (totalActiveAmount > 0) {
         const dailyRate = this.getPercentage(totalActiveAmount);
-        dailyProfit = this.floatProfit(totalActiveAmount, dailyRate);
+        dailyProfit = this.calculateProfit(totalActiveAmount, dailyRate);
         availableBalance += dailyProfit;
       }
 
@@ -426,7 +434,11 @@ export default class InvestmentEngine {
     );
 
     const { date: allInvestmentsExpireDate, result: expiredState } =
-      this.calculateExpiredState(simulatedInvestments, simulatedWithdrawals);
+      this.calculateExpiredState(
+        targetDate,
+        simulatedInvestments,
+        simulatedWithdrawals
+      );
 
     return {
       initialState,
