@@ -3,21 +3,23 @@ import {
   LuMinus,
   LuRefreshCw,
   LuTrendingUp,
-  LuX,
 } from "react-icons/lu";
 import { Tabs } from "radix-ui";
 import { useMemo, useState } from "react";
 
 import Currency from "./Currency";
-import Input from "./Input";
 import InvestmentEngine from "../lib/InvestmentEngine";
 import PageContainer from "./PageContainer";
 import Simulation from "./Simulation";
 import useAppStore from "../store/useAppStore";
 import { ActiveInvestments } from "./ActiveInvestments";
-import type { Investment, Withdrawal } from "../types/app";
+import { DayViewCurrencyInput } from "./DayViewCurrencyInput";
+import { DayViewQuickReinvestCard } from "./DayViewQuickReinvestCard";
+import { DayViewTransactionsList } from "./DayViewTransactionsList";
 import { cn } from "../lib/utils";
 import { formatDate } from "../utils/dateUtils";
+import { useInvestmentCalculations } from "../hooks/useInvestmentCalculations";
+import { useTodayTransactions } from "../hooks/useTodayTransactions";
 
 // =============================================================================
 // UI COMPONENTS
@@ -71,37 +73,6 @@ const MetricCard = ({
   </div>
 );
 
-// =============================================================================
-// FORM COMPONENTS
-// =============================================================================
-
-const CurrencyInput = ({
-  value,
-  onChange,
-  placeholder = "1.00",
-}: {
-  value: string | number;
-  onChange: (value: string) => void;
-  placeholder?: string;
-}) => (
-  <div className="relative grow min-w-0">
-    <span
-      className={cn(
-        "absolute text-neutral-400 h-full left-0 px-4",
-        "flex items-center justify-center"
-      )}
-    >
-      $
-    </span>
-    <Input
-      placeholder={placeholder}
-      className="pl-8"
-      value={value}
-      onChange={(e) => onChange(e.target.value)}
-    />
-  </div>
-);
-
 const InputSection = ({ children }: { children: React.ReactNode }) => (
   <div className="flex items-center gap-2">{children}</div>
 );
@@ -115,82 +86,6 @@ const ButtonGroup = ({
 }) => (
   <div className={cn("grid gap-2", { 2: "grid-cols-2" }[columns])}>
     {children}
-  </div>
-);
-
-// =============================================================================
-// TRANSACTION COMPONENTS
-// =============================================================================
-
-const TransactionItem = ({
-  amount,
-  type,
-  onRemove,
-}: {
-  amount: number;
-  type: "investment" | "earnings" | "withdrawal";
-  onRemove: () => void;
-}) => (
-  <div className="flex items-center justify-between">
-    <div>
-      <div className="text-xs text-neutral-400">
-        {type === "investment"
-          ? "Investment"
-          : type === "earnings"
-          ? "Earnings"
-          : "Withdraw"}
-      </div>
-      <div
-        className={type === "withdrawal" ? "text-red-500" : "text-green-500"}
-      >
-        <Currency prefix={type === "withdrawal" ? "-" : "+"} value={amount} />
-      </div>
-    </div>
-    {type !== "earnings" && (
-      <button
-        onClick={onRemove}
-        className={cn(
-          "p-2 rounded-xl bg-neutral-700 hover:bg-neutral-600",
-          "transition-colors cursor-pointer"
-        )}
-      >
-        <LuX className="size-5" />
-      </button>
-    )}
-  </div>
-);
-
-const TransactionsList = ({
-  title,
-  transactions,
-  onRemoveInvestment,
-  onRemoveWithdrawal,
-}: {
-  title: string;
-  transactions: ReturnType<typeof useTodayTransactions>;
-  onRemoveInvestment: (id: string) => void;
-  onRemoveWithdrawal: (id: string) => void;
-}) => (
-  <div className="flex flex-col gap-2 p-4 rounded-xl bg-neutral-800">
-    <h1 className="font-bold">{title}</h1>
-    {transactions.length > 0 ? (
-      transactions.map((transaction, index) => (
-        <TransactionItem
-          key={index}
-          amount={transaction.amount}
-          type={transaction.type as "investment" | "earnings" | "withdrawal"}
-          onRemove={() => {
-            if (transaction.type === "investment") {
-              onRemoveInvestment((transaction as Investment).id);
-            } else {
-              onRemoveWithdrawal((transaction as Withdrawal).id);
-            }
-          }}
-        />
-      ))
-    ) : (
-      <div className="text-neutral-400">No transactions found</div>
-    )}
   </div>
 );
 
@@ -322,40 +217,6 @@ const MetricsDisplay = ({
 );
 
 // =============================================================================
-// QUICK REINVEST COMPONENT
-// =============================================================================
-
-const QuickReinvestCard = ({
-  totalBalance,
-  onReinvest,
-}: {
-  totalBalance: number;
-  onReinvest: (amount: string | number) => void;
-}) => {
-  if (totalBalance < 1) return null;
-
-  return (
-    <div className="flex flex-col items-start gap-2 p-4 bg-neutral-800 rounded-xl">
-      <p>
-        You have an available balance of{" "}
-        <Currency className="text-green-500 font-bold" value={totalBalance} />
-      </p>
-      <button
-        className={cn(
-          "bg-pink-500 hover:bg-pink-600",
-          "px-4 py-2 rounded-xl text-sm font-bold cursor-pointer",
-          "flex items-center gap-2"
-        )}
-        onClick={() => onReinvest(totalBalance)}
-      >
-        <LuRefreshCw className="size-4" />
-        Quick Reinvest
-      </button>
-    </div>
-  );
-};
-
-// =============================================================================
 // TAB CONTENT COMPONENTS
 // =============================================================================
 
@@ -374,7 +235,7 @@ const InvestTab = ({
 }) => (
   <Tabs.Content value="invest" className="flex flex-col gap-2">
     <InputSection>
-      <CurrencyInput
+      <DayViewCurrencyInput
         value={investmentAmount}
         onChange={(value) => setInvestmentAmount(value)}
       />
@@ -411,7 +272,10 @@ const WithdrawTab = ({
 }) => (
   <Tabs.Content value="withdraw" className="flex flex-col gap-2">
     <InputSection>
-      <CurrencyInput value={withdrawalAmount} onChange={setWithdrawalAmount} />
+      <DayViewCurrencyInput
+        value={withdrawalAmount}
+        onChange={setWithdrawalAmount}
+      />
       <ActionButton onClick={handleMaxWithdrawal}>
         <LuMaximize2 className="size-4" />
         Max
@@ -436,58 +300,6 @@ const SimulateTab = ({ selectedDate }: { selectedDate: Date }) => (
     <Simulation selectedDate={selectedDate} />
   </Tabs.Content>
 );
-
-// =============================================================================
-// CUSTOM HOOKS
-// =============================================================================
-
-const useInvestmentCalculations = (
-  selectedDate: Date,
-  investments: Investment[],
-  withdrawals: Withdrawal[]
-) => {
-  return useMemo(() => {
-    return InvestmentEngine.calculateInvestments(
-      selectedDate,
-      investments,
-      withdrawals
-    );
-  }, [selectedDate, investments, withdrawals]);
-};
-
-const useTodayTransactions = (
-  selectedDate: Date,
-  investments: Investment[],
-  withdrawals: Withdrawal[],
-  todaysProfit: number
-) => {
-  return useMemo(() => {
-    return [
-      {
-        type: "earnings",
-        amount: todaysProfit,
-        date: selectedDate,
-      },
-      ...withdrawals
-        .filter(
-          (withdrawal) =>
-            new Date(withdrawal.date).toDateString() ===
-            selectedDate.toDateString()
-        )
-        .map((withdrawal) => ({ ...withdrawal, type: "withdrawal" })),
-      ...investments
-        .filter(
-          (investment) =>
-            new Date(investment.date).toDateString() ===
-            selectedDate.toDateString()
-        )
-        .map((investment) => ({
-          ...investment,
-          type: "investment",
-        })),
-    ];
-  }, [selectedDate, investments, withdrawals, todaysProfit]);
-};
 
 const useInvestmentEndDate = (selectedDate: Date) => {
   return useMemo(() => {
@@ -593,7 +405,7 @@ export default function DayView({
       />
 
       {/* Quick Reinvest Card */}
-      <QuickReinvestCard
+      <DayViewQuickReinvestCard
         totalBalance={result.currentState.totalBalance}
         onReinvest={reinvest}
       />
@@ -626,7 +438,7 @@ export default function DayView({
       </Tabs.Root>
 
       {/* Today's Transactions */}
-      <TransactionsList
+      <DayViewTransactionsList
         title="Today's transactions"
         transactions={todayTransactions}
         onRemoveInvestment={removeInvestment}
