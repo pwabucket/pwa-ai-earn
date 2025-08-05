@@ -143,7 +143,7 @@ export default class InvestmentEngine {
    * @returns The calculated profit.
    */
   static calculateProfit(amount: number, rate: number): number {
-    return amount * rate;
+    return this.floatAmount(amount * rate);
   }
 
   /**
