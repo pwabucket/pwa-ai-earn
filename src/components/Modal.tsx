@@ -10,8 +10,8 @@ export default function Modal({
 }: {
   onOpenChange: (open: boolean) => void;
   children: React.ReactNode;
-  overlayRef: React.RefObject<HTMLDivElement>;
-  contentRef: React.RefObject<HTMLDivElement>;
+  overlayRef?: React.RefObject<HTMLDivElement>;
+  contentRef?: React.RefObject<HTMLDivElement>;
 }) {
   return (
     <Dialog.Root open={true} onOpenChange={onOpenChange}>
