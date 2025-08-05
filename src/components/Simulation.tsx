@@ -1,4 +1,4 @@
-import { Dialog } from "radix-ui";
+import { Dialog, Tabs } from "radix-ui";
 import { LuCalendar, LuPlay, LuX } from "react-icons/lu";
 import { startOfDay } from "date-fns";
 import { useMemo } from "react";
@@ -8,11 +8,13 @@ import CalendarModal from "./CalendarModal";
 import Currency from "./Currency";
 import InvestmentEngine from "../lib/InvestmentEngine";
 import Modal from "./Modal";
+import Timeline from "./Timeline";
 import useAppStore from "../store/useAppStore";
 import useLocationToggle from "../hooks/useLocationToggle";
 import { ActiveInvestments } from "./ActiveInvestments";
 import { DayNavigator } from "./DayNavigator";
 import { HeaderButton } from "./HeaderButton";
+import { TabTriggerButton } from "./TabTriggerButton";
 import { cn } from "../lib/utils";
 import { formatDate } from "../utils/dateUtils";
 
@@ -106,11 +108,29 @@ const SimulationResult = ({
           <span className="text-pink-500">{result.simulationDays} days</span>
         </ResultInfo>
 
-        <ActiveInvestments
-          selectedDate={targetDate}
-          investments={result.finalState.currentActiveInvestments}
-          onSelectDate={onChangeTargetDate}
-        />
+        <Tabs.Root
+          defaultValue="active-investments"
+          className="flex flex-col gap-2"
+        >
+          <Tabs.List className="grid grid-cols-2 gap-1">
+            <TabTriggerButton value="active-investments">
+              Active Investments
+            </TabTriggerButton>
+            <TabTriggerButton value="timeline">Timeline</TabTriggerButton>
+          </Tabs.List>
+
+          <Tabs.Content value="active-investments">
+            <ActiveInvestments
+              selectedDate={targetDate}
+              investments={result.finalState.currentActiveInvestments}
+              onSelectDate={onChangeTargetDate}
+            />
+          </Tabs.Content>
+
+          <Tabs.Content value="timeline">
+            <Timeline timeline={result.timeline} />
+          </Tabs.Content>
+        </Tabs.Root>
       </div>
     </Modal>
   );

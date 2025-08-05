@@ -360,6 +360,15 @@ export default class InvestmentEngine {
   }
 
   /**
+   * Floats a number to fixed decimal places.
+   * @param amount - The amount to float
+   * @returns The floated amount
+   */
+  static floatAmount(amount: number) {
+    return parseFloat(amount.toFixed(4));
+  }
+
+  /**
    * Simulates daily compounding by withdrawing daily balance and reinvesting it
    * @param selectedDate - Starting date for simulation
    * @param targetDate - End date for simulation
@@ -401,6 +410,11 @@ export default class InvestmentEngine {
       availableBalance = 0;
     };
 
+    const simulationDays = this.getDaysDifference(
+      startOfDay(selectedDate),
+      startOfDay(targetDate)
+    );
+    let dayIndex = 0;
     let availableBalance = initialState.totalBalance;
     let totalInvested = initialState.totalInvested;
 
@@ -445,10 +459,51 @@ export default class InvestmentEngine {
       const activeInvestments = this.sumTransactions(currentActiveInvestments);
 
       timeline.push({
+        index: ++dayIndex,
         date: startOfDay(currentDate),
+        compound: true,
         balanceReinvested,
         totalInvested,
         activeInvestments,
+        availableBalance,
+        currentDailyProfit: dailyProfit,
+      });
+
+      currentDate.setDate(currentDate.getDate() + 1);
+      startOfDay(currentDate);
+    }
+
+    while (true) {
+      const profitGeneratingInvestments = this.getActiveInvestments(
+        simulatedInvestments,
+        currentDate,
+        true
+      );
+
+      if (profitGeneratingInvestments.length === 0) {
+        break;
+      }
+
+      const totalActiveAmount = this.sumTransactions(
+        profitGeneratingInvestments
+      );
+
+      let dailyProfit = 0;
+
+      if (totalActiveAmount > 0) {
+        const dailyRate = this.getPercentage(totalActiveAmount);
+        dailyProfit = this.calculateProfit(totalActiveAmount, dailyRate);
+        availableBalance += dailyProfit;
+      }
+
+      timeline.push({
+        index: ++dayIndex,
+        date: startOfDay(currentDate),
+        compound: false,
+        availableBalance,
+        totalInvested,
+        activeInvestments: totalActiveAmount,
+        balanceReinvested: 0,
         currentDailyProfit: dailyProfit,
       });
 
@@ -473,8 +528,8 @@ export default class InvestmentEngine {
       initialState,
       finalState,
       timeline,
+      simulationDays,
       totalGrowth: finalState.totalInvested - initialState.totalInvested,
-      simulationDays: timeline.length,
       allInvestmentsExpireDate,
       expiredState,
       totalWithdrawableAfterExpiry: expiredState.totalBalance,

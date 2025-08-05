@@ -16,27 +16,11 @@ import { ActiveInvestments } from "./ActiveInvestments";
 import { DayViewCurrencyInput } from "./DayViewCurrencyInput";
 import { DayViewQuickReinvestCard } from "./DayViewQuickReinvestCard";
 import { DayViewTransactionsList } from "./DayViewTransactionsList";
+import { TabTriggerButton } from "./TabTriggerButton";
 import { cn } from "../lib/utils";
 import { formatDate } from "../utils/dateUtils";
 import { useInvestmentCalculations } from "../hooks/useInvestmentCalculations";
 import { useTodayTransactions } from "../hooks/useTodayTransactions";
-
-// =============================================================================
-// UI COMPONENTS
-// =============================================================================
-
-const TabTriggerButton = (props: React.ComponentProps<typeof Tabs.Trigger>) => (
-  <Tabs.Trigger
-    {...props}
-    className={cn(
-      "py-2 bg-neutral-800 rounded-xl",
-      "text-white font-bold text-sm",
-      "cursor-pointer",
-      "data-[state=active]:text-pink-500",
-      props.className
-    )}
-  />
-);
 
 const ActionButton = ({
   variant = "primary",
