@@ -16,3 +16,16 @@
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, "SF Mono",
     Consolas, "Liberation Mono", Menlo, monospace;
 }
+
+@layer base {
+  /* Override scrollbar styles */
+  *,
+  ::after,
+  ::before {
+    @apply /* Applied Styles */
+    [&::-webkit-scrollbar]:w-2
+    [&::-webkit-scrollbar]:h-2
+    [&::-webkit-scrollbar-track]:bg-neutral-700
+    [&::-webkit-scrollbar-thumb]:bg-neutral-500;
+  }
+}
