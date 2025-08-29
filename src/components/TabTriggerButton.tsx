@@ -11,10 +11,12 @@ export const TabTriggerButton = (
   <Tabs.Trigger
     {...props}
     className={cn(
-      "py-2 bg-neutral-800 rounded-xl",
-      "text-white font-bold text-sm",
-      "cursor-pointer",
+      "py-2",
+      "text-neutral-400 font-bold text-sm",
+      "cursor-pointer uppercase",
+      "border-b-2 border-transparent",
       "data-[state=active]:text-pink-500",
+      "data-[state=active]:border-pink-500",
       props.className
     )}
   />
