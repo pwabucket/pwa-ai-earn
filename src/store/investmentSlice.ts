@@ -1,6 +1,7 @@
 import type { StateCreator } from "zustand/vanilla";
-import type { Investment } from "../types/app";
+
 import InvestmentEngine from "../lib/InvestmentEngine";
+import type { Investment } from "../types/app";
 
 export interface InvestmentSlice {
   investments: Investment[];
@@ -34,11 +35,15 @@ export const createInvestmentSlice: StateCreator<InvestmentSlice> = (set) => ({
     })),
   removeOldInvestments: () =>
     set((state) => ({
-      investments: state.investments.filter(
-        (inv) =>
-          InvestmentEngine.getDaysDifference(inv.date, new Date()) >
-          InvestmentEngine.INVESTMENT_DURATION
-      ),
+      investments: state.investments.filter((inv) => {
+        const duration = InvestmentEngine.getDaysDifference(
+          inv.date,
+          new Date()
+        );
+        const hasExpired = duration > InvestmentEngine.INVESTMENT_DURATION;
+
+        return !hasExpired;
+      }),
     })),
   clearInvestments: () => set({ investments: [] }),
 });

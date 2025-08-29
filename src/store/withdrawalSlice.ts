@@ -1,6 +1,7 @@
 import type { StateCreator } from "zustand";
-import type { Withdrawal } from "../types/app";
+
 import InvestmentEngine from "../lib/InvestmentEngine";
+import type { Withdrawal } from "../types/app";
 
 export interface WithdrawalSlice {
   withdrawals: Withdrawal[];
@@ -37,11 +38,15 @@ export const createWithdrawalSlice: StateCreator<WithdrawalSlice> = (set) => ({
 
   removeOldWithdrawals: () =>
     set((state) => ({
-      withdrawals: state.withdrawals.filter(
-        (withdrawal) =>
-          InvestmentEngine.getDaysDifference(withdrawal.date, new Date()) >
-          InvestmentEngine.INVESTMENT_DURATION
-      ),
+      withdrawals: state.withdrawals.filter((withdrawal) => {
+        const duration = InvestmentEngine.getDaysDifference(
+          withdrawal.date,
+          new Date()
+        );
+        const hasExpired = duration > InvestmentEngine.INVESTMENT_DURATION;
+
+        return !hasExpired;
+      }),
     })),
   clearWithdrawals: () => set({ withdrawals: [] }),
 });
