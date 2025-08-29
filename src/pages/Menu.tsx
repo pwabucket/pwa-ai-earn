@@ -92,6 +92,9 @@ export default function Menu() {
           <p className="text-neutral-400 text-center">
             {import.meta.env.VITE_APP_DESCRIPTION}
           </p>
+          <p className="text-center text-neutral-400">
+            v{import.meta.env.PACKAGE_VERSION}
+          </p>
         </div>
 
         <GoogleProfile />
