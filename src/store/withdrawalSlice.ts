@@ -1,4 +1,5 @@
 import type { StateCreator } from "zustand";
+import { startOfDay } from "date-fns";
 
 import type { Withdrawal } from "../types/app";
 
@@ -11,6 +12,7 @@ export interface WithdrawalSlice {
     withdrawalId: string,
     updatedWithdrawal: Withdrawal
   ) => void;
+  removeOldWithdrawals: () => void;
   clearWithdrawals: () => void;
 }
 
@@ -31,6 +33,13 @@ export const createWithdrawalSlice: StateCreator<WithdrawalSlice> = (set) => ({
     set((state) => ({
       withdrawals: state.withdrawals.map((withdrawal) =>
         withdrawal.id === withdrawalId ? updatedWithdrawal : withdrawal
+      ),
+    })),
+
+  removeOldWithdrawals: () =>
+    set((state) => ({
+      withdrawals: state.withdrawals.filter(
+        (withdrawal) => startOfDay(withdrawal.date) >= startOfDay(new Date())
       ),
     })),
   clearWithdrawals: () => set({ withdrawals: [] }),
