@@ -301,20 +301,26 @@ export default class InvestmentEngine {
   /**
    * Calculate the state of investments and withdrawals after all investments have expired.
    * @param targetDate - The date to calculate the state for.
-   * @param investments
-   * @param withdrawals
+   * @param investments - The investments
+   * @param withdrawals - The withdrawals
+   * @param onlyTarget - Should limit to the target date
    * @returns Object containing the expiration date and the result of the calculation
    */
   static calculateExpiredState(
     targetDate: Date,
     investments: Investment[],
-    withdrawals: Withdrawal[]
+    withdrawals: Withdrawal[],
+    onlyTarget = false
   ) {
-    const latestInvestmentDate = startOfDay(
-      investments.length > 0
-        ? Math.max(...investments.map((inv) => startOfDay(inv.date).getTime()))
-        : targetDate
-    );
+    const latestInvestmentDate = onlyTarget
+      ? startOfDay(targetDate)
+      : startOfDay(
+          investments.length > 0
+            ? Math.max(
+                ...investments.map((inv) => startOfDay(inv.date).getTime())
+              )
+            : targetDate
+        );
 
     const allInvestmentsExpireDate = startOfDay(latestInvestmentDate);
     allInvestmentsExpireDate.setDate(
@@ -352,10 +358,22 @@ export default class InvestmentEngine {
     const { date: allInvestmentsExpireDate, result: expiredState } =
       this.calculateExpiredState(selectedDate, investments, withdrawals);
 
+    const {
+      date: selectedInvestmentsExpireDate,
+      result: selectedExpiredState,
+    } = this.calculateExpiredState(
+      selectedDate,
+      investments,
+      withdrawals,
+      true
+    );
+
     return {
       currentState,
       expiredState,
       allInvestmentsExpireDate,
+      selectedInvestmentsExpireDate,
+      selectedExpiredState,
     };
   }
 
