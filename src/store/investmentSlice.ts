@@ -1,4 +1,5 @@
 import type { StateCreator } from "zustand/vanilla";
+import { startOfDay } from "date-fns";
 
 import type { Investment } from "../types/app";
 
@@ -11,6 +12,7 @@ export interface InvestmentSlice {
     investmentId: string,
     updatedInvestment: Investment
   ) => void;
+  removeOldInvestments: () => void;
   clearInvestments: () => void;
 }
 
@@ -29,6 +31,12 @@ export const createInvestmentSlice: StateCreator<InvestmentSlice> = (set) => ({
     set((state) => ({
       investments: state.investments.map((inv) =>
         inv.id === investmentId ? updatedInvestment : inv
+      ),
+    })),
+  removeOldInvestments: () =>
+    set((state) => ({
+      investments: state.investments.filter(
+        (inv) => startOfDay(inv.date) >= startOfDay(new Date())
       ),
     })),
   clearInvestments: () => set({ investments: [] }),
