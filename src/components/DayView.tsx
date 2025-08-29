@@ -51,7 +51,7 @@ const MetricCard = ({
 }) => (
   <div className="flex flex-col items-center bg-neutral-800 rounded-xl py-4">
     <h3 className="text-sm font-semibold">{title}</h3>
-    <p className={cn("font-bold", valueColor)}>
+    <p className={cn("font-bold text-sm", valueColor)}>
       <Currency value={value} />
     </p>
   </div>
@@ -101,10 +101,43 @@ const TargetButton = ({
       title={`Target: ${formatDate(targetDate)}`}
       onClick={() => onSelectDate(targetDate)}
       className={cn(
-        "text-center text-purple-500 hover:underline cursor-pointer"
+        "text-center text-sm text-purple-500 hover:underline cursor-pointer"
       )}
     >
       <span>Target:</span>{" "}
+      <Currency value={targetValue} className="font-bold" />
+    </button>
+  );
+};
+
+const CurrentProgressButton = ({
+  result,
+  selectedDate,
+  onSelectDate,
+}: {
+  result: ReturnType<typeof useInvestmentCalculations>;
+  selectedDate: Date;
+  onSelectDate: (date: Date) => void;
+}) => {
+  const targetDate =
+    selectedDate <= result.selectedInvestmentsExpireDate
+      ? result.selectedInvestmentsExpireDate
+      : selectedDate;
+
+  const targetValue =
+    selectedDate <= result.selectedInvestmentsExpireDate
+      ? result.selectedExpiredState.totalBalance
+      : 0;
+
+  return (
+    <button
+      title={`Progress: ${formatDate(targetDate)}`}
+      onClick={() => onSelectDate(targetDate)}
+      className={cn(
+        "text-center text-sm text-blue-500 hover:underline cursor-pointer"
+      )}
+    >
+      <span>Progress:</span>{" "}
       <Currency value={targetValue} className="font-bold" />
     </button>
   );
@@ -117,12 +150,12 @@ const MainMetrics = ({
 }) => (
   <>
     {/* Active Investments */}
-    <h1 className="text-center text-5xl font-bold">
+    <h1 className="text-center text-5xl font-bold my-2">
       <Currency value={result.currentState.activeInvestments} />
     </h1>
 
     {/* Daily Earnings */}
-    <h2 className="text-center">
+    <h2 className="text-center text-sm">
       <span className="text-neutral-400">Daily Earn:</span>{" "}
       <Currency
         className="font-bold"
@@ -134,7 +167,7 @@ const MainMetrics = ({
     </h2>
 
     {/* Today's Profit */}
-    <h3 className="text-center">
+    <h3 className="text-center text-sm">
       <span className="text-neutral-400">Today:</span>{" "}
       <Currency
         prefix={"+"}
@@ -144,7 +177,7 @@ const MainMetrics = ({
     </h3>
 
     {/* Available Balance */}
-    <p className="text-center">
+    <p className="text-center text-sm">
       <span className="text-green-500">Balance:</span>{" "}
       <Currency
         value={result.currentState.totalBalance}
@@ -190,6 +223,12 @@ const MetricsDisplay = ({
   <>
     <div className="flex flex-col">
       <TargetButton
+        result={result}
+        selectedDate={selectedDate}
+        onSelectDate={onSelectDate}
+      />
+
+      <CurrentProgressButton
         result={result}
         selectedDate={selectedDate}
         onSelectDate={onSelectDate}
