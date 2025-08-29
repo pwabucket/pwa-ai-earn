@@ -2,7 +2,7 @@ import type { Investment, Withdrawal } from "../types/app";
 import { startOfDay } from "../utils/dateUtils";
 
 export default class InvestmentEngine {
-  static INVESTMENT_DURATION = 20;
+  static INVESTMENT_DURATION = 20 as const;
 
   /**
    * Gets daily percentage rate based on investment amount
