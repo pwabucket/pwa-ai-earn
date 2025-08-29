@@ -3,6 +3,7 @@ import type { GoogleDriveBackupContent } from "../types/app";
 
 // Constants
 export const BACKUP_FILENAME = "backup.json";
+export const CONFIG_FILENAME = "config.json";
 const GOOGLE_DRIVE_API_BASE = "https://www.googleapis.com/drive/v3";
 const GOOGLE_DRIVE_UPLOAD_BASE = "https://www.googleapis.com/upload/drive/v3";
 const APP_DATA_FOLDER = "appDataFolder";
@@ -35,15 +36,15 @@ const createAuthHeaders = () => ({
 });
 
 /**
- * Finds the backup file in Google Drive's appDataFolder
- * @returns The backup file object or null if not found
+ * Finds the remote file in Google Drive's appDataFolder
+ * @returns The remote file object or null if not found
  * @throws If the API request fails
  */
-export const findBackupFile = async () => {
+export const findRemoteFile = async (fileName: string) => {
   try {
     const response = await gapi.client.drive.files.list({
       spaces: APP_DATA_FOLDER,
-      q: `name = '${BACKUP_FILENAME}' and trashed = false`,
+      q: `name = '${fileName}' and trashed = false`,
       fields: "files(id, name, modifiedTime)",
     });
 
@@ -51,9 +52,27 @@ export const findBackupFile = async () => {
 
     return file;
   } catch (error) {
-    console.error("Failed to find backup file:", error);
-    throw new Error(`Failed to find backup file: ${(error as Error).message}`);
+    console.error("Failed to find remote file:", error);
+    throw new Error(`Failed to find remote file: ${(error as Error).message}`);
   }
+};
+
+/**
+ * Finds the backup file in Google Drive's appDataFolder
+ * @returns The backup file object or null if not found
+ * @throws If the API request fails
+ */
+export const findBackupFile = async () => {
+  return findRemoteFile(BACKUP_FILENAME);
+};
+
+/**
+ * Finds the config file in Google Drive's appDataFolder
+ * @returns The config file object or null if not found
+ * @throws If the API request fails
+ */
+export const findConfigFile = async () => {
+  return findRemoteFile(CONFIG_FILENAME);
 };
 
 /**
