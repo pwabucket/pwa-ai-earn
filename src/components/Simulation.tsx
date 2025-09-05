@@ -77,7 +77,7 @@ const SimulationResult = ({
 
       <div className="flex flex-col gap-2 py-4">
         <p className="text-sm text-neutral-400">
-          The following are the results if you compound your investments:
+          The following are the results if you reinvest your earnings:
         </p>
 
         {/* Withdrawable Amount */}
