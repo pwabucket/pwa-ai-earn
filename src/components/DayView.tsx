@@ -148,7 +148,7 @@ const MainMetrics = ({
       <span className="text-green-500">Balance:</span>{" "}
       <Currency
         value={result.currentState.totalBalance}
-        className="font-bold"
+        className="font-bold text-lime-500"
       />
     </p>
   </>
