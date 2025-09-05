@@ -1,6 +1,6 @@
 # Terms of Service for AiEarn Tracker
 
-**Effective Date:** July 23, 2025
+**Effective Date:** September 5, 2025
 
 By using **AiEarn Tracker**, you agree to the following terms:
 
@@ -22,7 +22,7 @@ We are **not liable** for any data loss, errors in tracking, or decisions made b
 ## 4. Open Source Project
 
 AiEarn Tracker is open source. You can view or contribute to the project at:  
-👉 [https://github.com/pwabucket/pwa-ai-earn](https://github.com/pwabucket/pwa-ai-earn)
+ [https://github.com/pwabucket/pwa-ai-earn](https://github.com/pwabucket/pwa-ai-earn)
 
 ## 5. Terms May Change
 
