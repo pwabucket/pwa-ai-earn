@@ -3,16 +3,49 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
     <title><%= VITE_APP_NAME %></title>
-    <meta name="description" content="<%= VITE_APP_DESCRIPTION %>" />
+    <meta
+      name="description"
+      content="<%= VITE_APP_NAME %> is a simple PWA log book for your AiEarn investments. Record deposits and withdrawals, set targets, and even simulate reinvestments—all offline-ready."
+    />
+
+    <!-- Icons -->
     <link rel="icon" href="/favicon.ico" sizes="48x48" />
-    <link rel="icon" href="/icon.svg" sizes="any" type="image/svg+xml" />
+    <link rel="icon" href="/icon.png" sizes="any" type="image/png" />
     <link rel="apple-touch-icon" href="/apple-touch-icon-180x180.png" />
     <link rel="mask-icon" href="/maskable-icon-512x512.png" color="#FFFFFF" />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
     <meta property="og:title" content="<%= VITE_APP_NAME %>" />
-    <meta property="og:description" content="<%= VITE_APP_DESCRIPTION %>" />
-    <meta property="og:image" content="/maskable-icon-512x512.png" />
+    <meta
+      property="og:description"
+      content="Log your AiEarn journey: track investments, record withdrawals, set growth targets, and simulate reinvestments—all in one offline-ready PWA."
+    />
+    <meta property="og:image" content="/social-preview.png" />
+    <meta property="og:site_name" content="<%= VITE_APP_NAME %>" />
+    <meta property="og:locale" content="en_US" />
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="<%= VITE_APP_NAME %>" />
+    <meta
+      name="twitter:description"
+      content="Your personal AiEarn log book. Record deposits and withdrawals, track progress toward targets, and simulate reinvestments—all offline-ready."
+    />
+    <meta name="twitter:image" content="/social-preview.png" />
+
+    <!-- Extra metadata -->
+    <meta name="application-name" content="<%= VITE_APP_NAME %>" />
     <meta name="theme-color" content="#262626" />
+    <link
+      rel="author"
+      href="https://github.com/pwabucket/pwa-ai-earn"
+      title="GitHub Repository"
+    />
+
+    <!-- Styles -->
     <link href="/src/index.css" rel="stylesheet" />
   </head>
   <body>
