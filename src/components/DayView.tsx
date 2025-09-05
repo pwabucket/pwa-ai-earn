@@ -110,39 +110,6 @@ const TargetButton = ({
   );
 };
 
-const CurrentProgressButton = ({
-  result,
-  selectedDate,
-  onSelectDate,
-}: {
-  result: ReturnType<typeof useInvestmentCalculations>;
-  selectedDate: Date;
-  onSelectDate: (date: Date) => void;
-}) => {
-  const targetDate =
-    selectedDate <= result.selectedInvestmentsExpireDate
-      ? result.selectedInvestmentsExpireDate
-      : selectedDate;
-
-  const targetValue =
-    selectedDate <= result.selectedInvestmentsExpireDate
-      ? result.selectedExpiredState.totalBalance
-      : 0;
-
-  return (
-    <button
-      title={`Progress: ${formatDate(targetDate)}`}
-      onClick={() => onSelectDate(targetDate)}
-      className={cn(
-        "text-center text-sm text-blue-500 hover:underline cursor-pointer"
-      )}
-    >
-      <span>Progress:</span>{" "}
-      <Currency value={targetValue} className="font-bold" />
-    </button>
-  );
-};
-
 const MainMetrics = ({
   result,
 }: {
@@ -228,11 +195,6 @@ const MetricsDisplay = ({
         onSelectDate={onSelectDate}
       />
 
-      <CurrentProgressButton
-        result={result}
-        selectedDate={selectedDate}
-        onSelectDate={onSelectDate}
-      />
       <MainMetrics result={result} />
     </div>
     <MetricsGrid result={result} />
