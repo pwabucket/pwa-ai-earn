@@ -231,7 +231,7 @@ export default function useGoogleDriveBackup(
         backupToDrive();
       }
     },
-    500,
+    1000,
     [authorized, backupToDrive]
   );
 
