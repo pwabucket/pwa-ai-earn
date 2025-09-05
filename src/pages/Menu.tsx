@@ -1,7 +1,6 @@
 import toast from "react-hot-toast";
 import { Link } from "react-router";
 import {
-  LuCircleMinus,
   LuDatabaseBackup,
   LuFileText,
   LuGithub,
@@ -37,12 +36,7 @@ const MenuButton: DynamicComponent<"button"> = ({ as, ...props }) => {
 
 export default function Menu() {
   const { googleApi, googleDriveBackup } = useAppContext();
-  const removeOldInvestments = useAppStore(
-    (state) => state.removeOldInvestments
-  );
-  const removeOldWithdrawals = useAppStore(
-    (state) => state.removeOldWithdrawals
-  );
+
   const setInvestments = useAppStore((state) => state.setInvestments);
   const setWithdrawals = useAppStore((state) => state.setWithdrawals);
 
@@ -56,12 +50,6 @@ export default function Menu() {
     setInvestments([]);
     setWithdrawals([]);
     toast.success("Tracker reset successfully!");
-  };
-
-  const cleanUpOldData = () => {
-    removeOldInvestments();
-    removeOldWithdrawals();
-    toast.success("Old data removed successfully!");
   };
 
   const handleGoogleApiLogout = () => {
@@ -113,11 +101,6 @@ export default function Menu() {
         </MenuButton>
 
         <hr className="border-neutral-700" />
-
-        <MenuButton onClick={cleanUpOldData}>
-          <LuCircleMinus className="size-5" />
-          Clean-up old investments and withdrawals
-        </MenuButton>
 
         <MenuButton onClick={resetTracker}>
           <LuRotateCcw className="size-5" />
