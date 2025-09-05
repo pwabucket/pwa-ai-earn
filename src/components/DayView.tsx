@@ -117,7 +117,7 @@ const MainMetrics = ({
 }) => (
   <>
     {/* Active Investments */}
-    <h1 className="text-center text-5xl font-bold my-2">
+    <h1 className="text-center text-4xl md:text-5xl font-bold my-2">
       <Currency value={result.currentState.activeInvestments} />
     </h1>
 
