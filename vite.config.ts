@@ -67,6 +67,11 @@ export default defineConfig(({ mode }) => {
               sizes: "1080x1920",
               type: "image/jpg",
             },
+            {
+              src: "screenshot-mobile-4.jpg",
+              sizes: "1080x1920",
+              type: "image/jpg",
+            },
           ],
         },
       }),
