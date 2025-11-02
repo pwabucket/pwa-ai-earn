@@ -10,7 +10,7 @@ interface ExtendedCodeClient extends google.accounts.oauth2.CodeClient {
   error_callback?: (error: { error: string }) => void;
 }
 
-// Constants
+/* Constants */
 const DISCOVERY_DOCS = [
   "https://www.googleapis.com/discovery/v1/apis/drive/v3/rest",
 ];
@@ -23,10 +23,10 @@ const SCOPES = [
 
 const GOOGLE_OAUTH_API_BASE = "https://oauth2.googleapis.com";
 const GOOGLE_API_BASE = "https://www.googleapis.com";
-const TOKEN_REFRESH_INTERVAL = 60_000; // 1 minute
-const TOKEN_REFRESH_BUFFER = 5 * 60 * 1000; // 5 minutes before expiry
+const TOKEN_REFRESH_INTERVAL = 60_000; /* 1 minute */
+const TOKEN_REFRESH_BUFFER = 5 * 60 * 1000; /* 5 minutes before expiry */
 
-// API URLs
+/* API URLs */
 const OAUTH_TOKEN_URL = `${GOOGLE_OAUTH_API_BASE}/token`;
 const OAUTH_REVOKE_URL = `${GOOGLE_OAUTH_API_BASE}/revoke`;
 const USERINFO_URL = `${GOOGLE_API_BASE}/oauth2/v2/userinfo`;
@@ -86,7 +86,7 @@ export default function useGoogleApi() {
 
   const codeClientRef = useRef<ExtendedCodeClient | null>(null);
 
-  // Store selectors
+  /* Store selectors */
   const googleDriveAuthToken = useAppStore(
     (state) => state.googleDriveAuthToken
   );
@@ -97,7 +97,7 @@ export default function useGoogleApi() {
     (state) => state.setGoogleDriveBackupFile
   );
 
-  // Computed values
+  /* Computed values */
   const isValidToken = useMemo(
     () => isTokenValid(googleDriveAuthToken),
     [googleDriveAuthToken]
@@ -233,7 +233,7 @@ export default function useGoogleApi() {
         client_secret: clientSecret,
       });
 
-      // Preserve the refresh token if not returned
+      /* Preserve the refresh token if not returned */
       const newToken = parseTokenExpiration({
         ...googleDriveAuthToken,
         ...data,
@@ -245,10 +245,9 @@ export default function useGoogleApi() {
     } catch (error: unknown) {
       console.error("Failed to refresh token:", error);
 
-      // If refresh fails, clear the token
-      if (
-        [400, 401, 403].includes((error as AxiosError).response?.status || 0)
-      ) {
+      /* If refresh fails, clear the token */
+      const status = (error as AxiosError).response?.status || 0;
+      if (status >= 400 && status < 500) {
         setGoogleDriveAuthToken(null);
       }
       throw new Error(`Token refresh failed: ${(error as Error).message}`);
@@ -308,7 +307,7 @@ export default function useGoogleApi() {
    */
   const logout = useCallback(async () => {
     try {
-      // Revoke the token if available
+      /* Revoke the token if available */
       if (googleDriveAuthToken?.access_token) {
         try {
           await axios.post(
@@ -316,27 +315,27 @@ export default function useGoogleApi() {
           );
         } catch (error) {
           console.warn("Failed to revoke token:", error);
-          // Continue with logout even if revocation fails
+          /* Continue with logout even if revocation fails */
         }
       }
 
-      // Clear GAPI token
+      /* Clear GAPI token */
       if (typeof gapi !== "undefined" && gapi?.client) {
         gapi.client.setToken(null);
       }
 
-      // Clear stored tokens and data
+      /* Clear stored tokens and data */
       setGoogleDriveAuthToken(null);
       setGoogleDriveBackupFile(null);
 
-      // Clear refresh interval
+      /* Clear refresh interval */
       if (refreshIntervalRef.current) {
         clearInterval(refreshIntervalRef.current);
         refreshIntervalRef.current = null;
       }
     } catch (error) {
       console.error("Error during logout:", error);
-      // Still clear local state even if logout partially fails
+      /* Still clear local state even if logout partially fails */
       setGoogleDriveAuthToken(null);
       setGoogleDriveBackupFile(null);
     }
@@ -361,7 +360,7 @@ export default function useGoogleApi() {
       } catch (error) {
         console.error("Failed to initialize Google scripts:", error);
         setInitializationError(error as Error);
-        loadingRef.current = false; // Allow retry
+        loadingRef.current = false; /* Allow retry */
       }
     };
 
@@ -375,23 +374,23 @@ export default function useGoogleApi() {
     if (!initialized || !googleDriveAuthToken) return;
 
     const setupTokenRefresh = () => {
-      // Clear existing interval
+      /* Clear existing interval */
       if (refreshIntervalRef.current) {
         clearInterval(refreshIntervalRef.current);
       }
 
-      // Check if token needs immediate refresh
+      /* Check if token needs immediate refresh */
       if (googleDriveAuthToken.expires_at < Date.now()) {
         refetchToken().catch(console.error);
         return;
       }
 
-      // Set GAPI token for immediate use
+      /* Set GAPI token for immediate use */
       if (typeof gapi !== "undefined" && gapi?.client) {
         gapi.client.setToken(googleDriveAuthToken);
       }
 
-      // Setup periodic refresh check
+      /* Setup periodic refresh check */
       const checkAndRefreshToken = () => {
         if (
           googleDriveAuthToken.expires_at <
@@ -409,7 +408,7 @@ export default function useGoogleApi() {
 
     setupTokenRefresh();
 
-    // Cleanup function
+    /* Cleanup function */
     return () => {
       if (refreshIntervalRef.current) {
         clearInterval(refreshIntervalRef.current);
@@ -418,15 +417,15 @@ export default function useGoogleApi() {
     };
   }, [initialized, googleDriveAuthToken, refetchToken]);
 
-  // Memoized return object to prevent unnecessary re-renders
+  /* Memoized return object to prevent unnecessary re-renders */
   return useMemo(
     () => ({
-      // State
+      /* State */
       initialized,
       authorized,
       initializationError,
 
-      // Methods
+      /* Methods */
       requestAccessToken,
       refetchToken,
       getValidToken,
