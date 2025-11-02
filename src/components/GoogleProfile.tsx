@@ -1,13 +1,13 @@
 import { formatDate } from "date-fns";
 
-import useAppContext from "../hooks/useAppContext";
 import useAppStore from "../store/useAppStore";
 import useGoogleProfileQuery from "../hooks/useGoogleProfileQuery";
 import { cn } from "../lib/utils";
 
 export default function GoogleProfile() {
-  const { googleApi } = useAppContext();
-  const authorized = googleApi!.authorized;
+  const googleDriveAuthToken = useAppStore(
+    (state) => state.googleDriveAuthToken
+  );
   const googleDriveBackupFile = useAppStore(
     (state) => state.googleDriveBackupFile
   );
@@ -16,7 +16,7 @@ export default function GoogleProfile() {
 
   return (
     <>
-      {authorized ? (
+      {googleDriveAuthToken ? (
         <>
           {profile ? (
             <div
