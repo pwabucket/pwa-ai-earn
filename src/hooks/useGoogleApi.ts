@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import useAppStore from "../store/useAppStore";
@@ -242,11 +242,15 @@ export default function useGoogleApi() {
 
       setGoogleDriveAuthToken(newToken);
       return newToken;
-    } catch (error) {
+    } catch (error: unknown) {
       console.error("Failed to refresh token:", error);
 
       // If refresh fails, clear the token
-      setGoogleDriveAuthToken(null);
+      if (
+        [400, 401, 403].includes((error as AxiosError).response?.status || 0)
+      ) {
+        setGoogleDriveAuthToken(null);
+      }
       throw new Error(`Token refresh failed: ${(error as Error).message}`);
     }
   }, [googleDriveAuthToken, setGoogleDriveAuthToken]);
