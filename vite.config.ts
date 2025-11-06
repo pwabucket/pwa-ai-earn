@@ -20,6 +20,7 @@ export default defineConfig(({ mode }) => {
         registerType: "autoUpdate",
         workbox: {
           globPatterns: ["**/*.*"],
+          globIgnores: ["**/screenshot-*.jpg", "**/social-preview.png"],
           maximumFileSizeToCacheInBytes: 5 * 1024 ** 2,
         },
         manifest: {
@@ -27,7 +28,7 @@ export default defineConfig(({ mode }) => {
           short_name: env.VITE_APP_NAME,
           description: env.VITE_APP_DESCRIPTION,
           theme_color: "#171717",
-          background_color: "#ffffff",
+          background_color: "#171717",
           icons: [
             {
               src: "pwa-64x64.png",
