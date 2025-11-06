@@ -23,6 +23,8 @@ export const DayViewCurrencyInput = ({
       $
     </span>
     <Input
+      type="number"
+      inputMode="decimal"
       placeholder={placeholder}
       className="pl-8"
       value={value}
