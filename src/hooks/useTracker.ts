@@ -14,6 +14,7 @@ export const useTracker = () => {
     enabled,
     queryKey: ["transactions"],
     queryFn: () => tracker!.getTransactions(),
+    refetchInterval: 60_000,
   });
 
   const data = transactionsQuery.data;
