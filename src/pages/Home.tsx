@@ -6,7 +6,6 @@ import DayView from "../components/DayView";
 import Header from "../components/Header";
 import useLocationToggle from "../hooks/useLocationToggle";
 import WebviewModal from "../components/WebviewModal";
-import { useDataUpdate } from "../hooks/useDataUpdate";
 
 function Home() {
   const [selectedDate, setSelectedDate] = useState(() =>
@@ -14,9 +13,6 @@ function Home() {
   );
   const [showCalendar, toggleShowCalendar] = useLocationToggle("calendar");
   const [showWebview, setShowWebview] = useLocationToggle("show-webview");
-
-  /** Update data from transactions */
-  useDataUpdate();
 
   return (
     <>

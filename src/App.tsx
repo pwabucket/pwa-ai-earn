@@ -11,9 +11,10 @@ import useGoogleDriveBackup from "./hooks/useGoogleDriveBackup";
 import { useTracker } from "./hooks/useTracker";
 
 function App() {
+  const tracker = useTracker();
   const googleApi = useGoogleApi();
   const googleDriveBackup = useGoogleDriveBackup(googleApi);
-  const tracker = useTracker();
+
   return (
     <>
       <AppContext.Provider
