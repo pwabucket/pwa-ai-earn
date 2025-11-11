@@ -6,6 +6,8 @@ import Modal from "./Modal";
 import { DAY_NAMES, MONTH_NAMES } from "../constants/calendar";
 import { cn } from "../lib/utils";
 import { generateCalendarDays } from "../utils/dateUtils";
+import useAppStore from "../store/useAppStore";
+import { startOfDay } from "date-fns";
 
 export default function CalendarModal({
   selectedDate,
@@ -20,10 +22,26 @@ export default function CalendarModal({
     selectedDate ? new Date(selectedDate) : new Date()
   );
 
+  const investments = useAppStore((state) => state.investments);
+  const withdrawals = useAppStore((state) => state.withdrawals);
+
+  const activityDates = useMemo(() => {
+    const datesSet = new Set<number>();
+    investments.forEach((inv) => {
+      const dateTime = startOfDay(inv.date).getTime();
+      datesSet.add(dateTime);
+    });
+    withdrawals.forEach((withd) => {
+      const dateTime = startOfDay(withd.date).getTime();
+      datesSet.add(dateTime);
+    });
+    return datesSet;
+  }, [investments, withdrawals]);
+
   // Generate calendar days
   const calendarDays = useMemo(() => {
-    return generateCalendarDays(currentMonth, selectedDate);
-  }, [currentMonth, selectedDate]);
+    return generateCalendarDays(currentMonth, selectedDate, activityDates);
+  }, [currentMonth, selectedDate, activityDates]);
 
   const navigateMonth = (direction: number) => {
     setCurrentMonth((prev) => {
@@ -92,6 +110,7 @@ export default function CalendarModal({
             className={cn(
               "aspect-square flex items-center justify-center",
               "text-sm rounded-lg transition-all cursor-pointer",
+              "relative",
               {
                 "text-neutral-600": !day.isCurrentMonth,
                 "hover:bg-neutral-800":
@@ -105,6 +124,16 @@ export default function CalendarModal({
             )}
           >
             {day.date.getDate()}
+
+            {/* Activity indicator */}
+            {day.hasActivity && (
+              <span
+                className={cn(
+                  "absolute bottom-2 size-1.5 rounded-full bg-pink-500/30",
+                  "left-1/2 transform -translate-x-1/2"
+                )}
+              />
+            )}
           </Dialog.Close>
         ))}
       </div>
