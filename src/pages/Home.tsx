@@ -5,12 +5,14 @@ import CalendarModal from "../components/CalendarModal";
 import DayView from "../components/DayView";
 import Header from "../components/Header";
 import useLocationToggle from "../hooks/useLocationToggle";
+import WebviewModal from "../components/WebviewModal";
 
 function Home() {
   const [selectedDate, setSelectedDate] = useState(() =>
     startOfDay(new Date())
   );
   const [showCalendar, toggleShowCalendar] = useLocationToggle("calendar");
+  const [showWebview, setShowWebview] = useLocationToggle("show-webview");
 
   return (
     <>
@@ -18,6 +20,7 @@ function Home() {
         selectedDate={selectedDate}
         onSelectDate={setSelectedDate}
         onCalendarClick={() => toggleShowCalendar(true)}
+        onWebviewClick={() => setShowWebview(true)}
       />
       <DayView
         key={selectedDate.toISOString()}
@@ -33,6 +36,10 @@ function Home() {
           }}
           onClose={() => toggleShowCalendar(false)}
         />
+      )}
+
+      {showWebview && (
+        <WebviewModal onOpenChange={(open) => setShowWebview(open)} />
       )}
     </>
   );

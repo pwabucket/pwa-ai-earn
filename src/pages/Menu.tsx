@@ -1,9 +1,11 @@
 import toast from "react-hot-toast";
 import { Link } from "react-router";
 import {
+  LuCheck,
   LuDatabaseBackup,
   LuFileText,
   LuGithub,
+  LuLink,
   LuRotateCcw,
   LuShield,
 } from "react-icons/lu";
@@ -18,6 +20,9 @@ import type { DynamicComponent } from "../types/types";
 import type { GoogleDriveBackupFile } from "../types/app";
 import { SecondaryHeader } from "../components/Header";
 import { cn } from "../lib/utils";
+import useLocationToggle from "../hooks/useLocationToggle";
+import URLModal from "../components/URLModal";
+import { useUser } from "../hooks/useUser";
 
 const MenuButton: DynamicComponent<"button"> = ({ as, ...props }) => {
   const Component = as || "button";
@@ -27,7 +32,7 @@ const MenuButton: DynamicComponent<"button"> = ({ as, ...props }) => {
       className={cn(
         "px-4 py-2 text-sm font-medium cursor-pointer",
         "text-neutral-100 bg-neutral-800 rounded-xl hover:bg-neutral-700",
-        "flex items-center gap-2",
+        "flex items-center gap-2 text-left",
         props.className
       )}
     />
@@ -35,7 +40,9 @@ const MenuButton: DynamicComponent<"button"> = ({ as, ...props }) => {
 };
 
 export default function Menu() {
+  const [showURLModal, setShowURLModal] = useLocationToggle("menu-url-modal");
   const { googleApi, googleDriveBackup } = useAppContext();
+  const url = useAppStore((state) => state.url);
 
   const setInvestments = useAppStore((state) => state.setInvestments);
   const setWithdrawals = useAppStore((state) => state.setWithdrawals);
@@ -64,6 +71,8 @@ export default function Menu() {
     googleDriveBackup!.authorize({ prompt });
   };
 
+  const user = useUser();
+
   return (
     <>
       <SecondaryHeader title="Menu" />
@@ -83,6 +92,24 @@ export default function Menu() {
           <p className="text-center text-neutral-400">
             v{import.meta.env.PACKAGE_VERSION}
           </p>
+
+          {user && (
+            <div className="flex items-center gap-2 bg-neutral-800 rounded-full mx-auto max-w-5/6 p-2">
+              <img
+                src={user["photo_url"]}
+                alt={user["first_name"]}
+                className="size-10 rounded-full object-cover shrink-0"
+              />
+              <div className="flex flex-col pr-2 min-w-0">
+                <span className="font-medium truncate">{`${
+                  user["first_name"]
+                } ${user["last_name"] || ""}`}</span>
+                <span className="text-sm text-neutral-400 truncate">
+                  @{user["username"] || "Telegram User"}
+                </span>
+              </div>
+            </div>
+          )}
         </div>
 
         <GoogleProfile />
@@ -101,6 +128,14 @@ export default function Menu() {
         </MenuButton>
 
         <hr className="border-neutral-700" />
+
+        <MenuButton onClick={() => setShowURLModal(true)}>
+          <LuLink className="size-5" />
+          <span className="grow">Set URL</span>
+          {url && <LuCheck className="text-green-500 text-xs" />}
+        </MenuButton>
+
+        {showURLModal && <URLModal onOpenChange={setShowURLModal} />}
 
         <MenuButton onClick={resetTracker}>
           <LuRotateCcw className="size-5" />

@@ -1,5 +1,5 @@
 import { Link } from "react-router";
-import { LuCalendar, LuMenu } from "react-icons/lu";
+import { LuCalendar, LuGlobe, LuMenu } from "react-icons/lu";
 import { LuChevronLeft } from "react-icons/lu";
 
 import PageContainer from "./PageContainer";
@@ -9,6 +9,7 @@ import { DayNavigator } from "./DayNavigator";
 import { HeaderButton } from "./HeaderButton";
 import { cn } from "../lib/utils";
 import { formatHeaderDate } from "../utils/dateUtils";
+import useAppStore from "../store/useAppStore";
 
 const HeaderContainer = ({ children }: { children: React.ReactNode }) => (
   <header
@@ -38,17 +39,29 @@ export default function Header({
   selectedDate,
   onSelectDate,
   onCalendarClick,
+  onWebviewClick,
 }: {
   selectedDate: Date;
   onSelectDate: (date: Date) => void;
   onCalendarClick: () => void;
+  onWebviewClick: () => void;
 }) {
+  const url = useAppStore((state) => state.url);
+
   return (
     <HeaderContainer>
       <div className={cn("flex items-center justify-between gap-4")}>
-        <HeaderButton as={Link} to="/menu">
-          <LuMenu className="size-5" />
-        </HeaderButton>
+        <div className="flex items-center gap-1">
+          <HeaderButton as={Link} to="/menu">
+            <LuMenu className="size-5" />
+          </HeaderButton>
+
+          {url && (
+            <HeaderButton onClick={onWebviewClick}>
+              <LuGlobe className="size-5" />
+            </HeaderButton>
+          )}
+        </div>
         <h3
           className={cn(
             "font-bold grow min-w-0 truncate",

@@ -7,10 +7,12 @@ import {
 } from "./googleDriveSlice";
 import { createInvestmentSlice, type InvestmentSlice } from "./investmentSlice";
 import { createWithdrawalSlice, type WithdrawalSlice } from "./withdrawalSlice";
+import { createAppSlice, type AppSlice } from "./appSlice";
 
 const useAppStore = create(
-  persist<WithdrawalSlice & InvestmentSlice & GoogleDriveSlice>(
+  persist<AppSlice & InvestmentSlice & WithdrawalSlice & GoogleDriveSlice>(
     (...a) => ({
+      ...createAppSlice(...a),
       ...createInvestmentSlice(...a),
       ...createWithdrawalSlice(...a),
       ...createGoogleDriveSlice(...a),
