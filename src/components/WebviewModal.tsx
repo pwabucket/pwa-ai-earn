@@ -53,7 +53,7 @@ export default function WebviewModal({
       </div>
       <iframe
         src={url}
-        className="grow border-0 bg-neutral-800"
+        className="grow border-0 bg-neutral-800/50"
         referrerPolicy="no-referrer"
       />
     </Modal>
