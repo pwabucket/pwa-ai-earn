@@ -29,6 +29,7 @@ class Tracker {
   private url: URL;
   protected api: AxiosInstance;
   protected telegramWebApp: TelegramWebAppData;
+  protected initialized: boolean = false;
 
   /* Static Map to Cache Custom Code per Origin */
   static customCodeMap = new Map<string, string>();
@@ -72,7 +73,11 @@ class Tracker {
     });
   }
 
+  /* Initialize Tracker */
   async initialize() {
+    /* If Already Initialized, Return Early */
+    if (this.initialized) return;
+
     /* Check if Custom Code is Cached */
     if (Tracker.customCodeMap.has(this.url.origin)) {
       this.api.defaults.headers.common["custom"] =
@@ -121,6 +126,9 @@ class Tracker {
         Tracker.customCodeMap.set(this.url.origin, customHeader[1]);
       }
     }
+
+    /* Mark as Initialized */
+    this.initialized = true;
   }
 
   /* Validate User */
@@ -155,6 +163,88 @@ class Tracker {
   /* Get Init Data */
   getInitData() {
     return this.telegramWebApp.initData || "";
+  }
+
+  async getInterests() {
+    /* Ensure Initialization */
+    await this.initialize();
+
+    const results: {
+      ["id"]: number;
+      ["tg"]: number;
+      ["tp"]: string;
+      ["type"]: number;
+      ["create_time"]: string;
+      ["status"]: number;
+      ["hashId"]: string;
+      ["day"]: number;
+      ["period"]: number;
+    }[] = [];
+    let page = 1;
+    while (true) {
+      const { data } = await this.api
+        .post("/api/interest", {
+          page,
+          pageSize: 5,
+          tg_id: this.getTgId(),
+        })
+        .then((res) => res.data.data);
+
+      results.push(...data.list);
+      if (data.lastPage === page) {
+        break;
+      } else {
+        page++;
+      }
+    }
+    return results.map((item) => {
+      return {
+        ...item,
+        ["create_time"]: new Date(item["create_time"]),
+      };
+    });
+  }
+
+  async getTransactions(pageSize = 1000) {
+    /* Ensure Initialization */
+    await this.initialize();
+
+    const results: {
+      ["id"]: number;
+      ["tg"]: number;
+      ["tp"]: string;
+      ["type"]: string;
+      ["create_time"]: string;
+      ["status"]: string;
+      ["hashId"]: string;
+    }[] = [];
+    let page = 1;
+
+    while (true) {
+      const { data } = await this.api
+        .get(
+          `/api/transactions?${new URLSearchParams({
+            ["tg_id"]: this.getTgId(),
+            ["page"]: page.toString(),
+            ["pageSize"]: pageSize.toString(),
+          }).toString()}
+        }`
+        )
+        .then((res) => res.data.data);
+
+      results.push(...data.list);
+      if (data.lastPage === page) {
+        break;
+      } else {
+        page++;
+      }
+    }
+    return results.map((item) => {
+      return {
+        ...item,
+        ["create_time"]: new Date(item["create_time"]),
+      };
+    });
   }
 }
 
