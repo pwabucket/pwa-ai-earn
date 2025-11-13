@@ -221,15 +221,14 @@ class Tracker {
     let page = 1;
 
     while (true) {
+      const params = new URLSearchParams({
+        ["tg_id"]: this.getTgId(),
+        ["page"]: page.toString(),
+        ["pageSize"]: pageSize.toString(),
+      });
+
       const { data } = await this.api
-        .get(
-          `/api/transactions?${new URLSearchParams({
-            ["tg_id"]: this.getTgId(),
-            ["page"]: page.toString(),
-            ["pageSize"]: pageSize.toString(),
-          }).toString()}
-        }`
-        )
+        .get("/api/transactions?" + params.toString())
         .then((res) => res.data.data);
 
       results.push(...data.list);
