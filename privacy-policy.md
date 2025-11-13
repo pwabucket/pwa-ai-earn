@@ -19,7 +19,7 @@ If you choose to use the **Google Drive backup** feature:
 ## Open Source
 
 Tracker is open-source. You can audit or contribute to the code here:  
- [https://github.com/pwabucket/pwa-ai-earn](https://github.com/pwabucket/pwa-ai-earn)
+ [https://github.com/pwabucket/pwa-tracker](https://github.com/pwabucket/pwa-tracker)
 
 ## Your Privacy Matters
 
