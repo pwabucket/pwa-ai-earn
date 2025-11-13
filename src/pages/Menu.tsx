@@ -101,7 +101,7 @@ export default function Menu() {
                 className="size-10 rounded-full object-cover shrink-0"
               />
               <div className="flex flex-col pr-2 min-w-0">
-                <span className="font-medium truncate">{`${
+                <span className="font-medium truncate text-pink-300">{`${
                   user["first_name"]
                 } ${user["last_name"] || ""}`}</span>
                 <span className="text-sm text-neutral-400 truncate">
