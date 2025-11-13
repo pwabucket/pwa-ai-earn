@@ -83,7 +83,7 @@ export default function Menu() {
             alt={import.meta.env.VITE_APP_NAME}
             className="size-20 rounded-full object-cover"
           />
-          <h1 className="text-pink-500 font-bold text-center">
+          <h1 className="text-pink-500 font-bold text-center font-display">
             {import.meta.env.VITE_APP_NAME}
           </h1>
           <p className="text-neutral-400 text-center">

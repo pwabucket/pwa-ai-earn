@@ -10,11 +10,14 @@
 @import "@fontsource/jetbrains-mono/500";
 @import "@fontsource/jetbrains-mono/600";
 
+@import "@fontsource/major-mono-display/400.css";
+
 @theme {
   --font-sans: Inter, ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji",
     "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, "SF Mono",
     Consolas, "Liberation Mono", Menlo, monospace;
+  --font-display: "Major Mono Display", ui-monospace, SFMono-Regular, "SF Mono";
 }
 
 @layer base {
