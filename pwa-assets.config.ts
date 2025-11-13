@@ -20,5 +20,5 @@ export default defineConfig({
       resizeOptions,
     },
   },
-  images: ["public/icon.png"],
+  images: ["public/icon.svg"],
 });

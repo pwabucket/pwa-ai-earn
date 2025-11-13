@@ -81,11 +81,8 @@ export default function Menu() {
           <img
             src="/icon.png"
             alt={import.meta.env.VITE_APP_NAME}
-            className="size-20 rounded-full object-cover"
+            className="size-24 rounded-full object-cover"
           />
-          <h1 className="text-pink-500 font-bold text-center font-display">
-            {import.meta.env.VITE_APP_NAME}
-          </h1>
           <p className="text-neutral-400 text-center">
             {import.meta.env.VITE_APP_DESCRIPTION}
           </p>
