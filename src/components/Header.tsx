@@ -71,7 +71,10 @@ export default function Header({
           )}
         </div>
         <h3
-          className={cn("font-bold grow min-w-0 truncate", "text-neutral-100")}
+          className={cn(
+            "font-bold grow min-w-0 truncate",
+            "text-lg text-neutral-100"
+          )}
         >
           {formatHeaderDate(selectedDate)}
         </h3>
