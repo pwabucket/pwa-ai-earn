@@ -31,6 +31,7 @@ export default function Modal({
           <Dialog.Content
             ref={contentRef}
             onInteractOutside={(ev) => ev.preventDefault()}
+            onOpenAutoFocus={(ev) => ev.preventDefault()}
             className={cn(
               "bg-neutral-900 text-white rounded-2xl p-6",
               "w-full max-w-md shadow-2xl border border-neutral-800",

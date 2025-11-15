@@ -1,5 +1,7 @@
 import clsx, { type ClassValue } from "clsx";
+import toast from "react-hot-toast";
 import { twMerge } from "tailwind-merge";
+import copy from "copy-to-clipboard";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -58,4 +60,9 @@ export function getInitDataUnsafe(initData: string) {
   }
 
   return data;
+}
+
+export function copyToClipboard(content: string) {
+  copy(content);
+  toast.success("Copied to clipboard!");
 }
