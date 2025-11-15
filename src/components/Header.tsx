@@ -55,16 +55,19 @@ export default function Header({
     <HeaderContainer>
       <div className={cn("flex items-center justify-between gap-3")}>
         <div className="flex items-center gap-1">
-          <HeaderButton as={Link} to="/menu">
+          <HeaderButton as={Link} to="/menu" title="Open Menu">
             <LuMenu className="size-5" />
           </HeaderButton>
 
           {url && (
             <>
-              <HeaderButton onClick={onWebviewClick}>
+              <HeaderButton onClick={onWebviewClick} title="Open webview">
                 <LuGlobe className="size-5" />
               </HeaderButton>
-              <HeaderButton onClick={onRefreshClick}>
+              <HeaderButton
+                onClick={onRefreshClick}
+                title="Refresh transactions"
+              >
                 <MdRefresh className="size-5" />
               </HeaderButton>
             </>
@@ -75,6 +78,7 @@ export default function Header({
             "font-bold grow min-w-0 truncate",
             "text-lg text-neutral-100"
           )}
+          title={formatHeaderDate(selectedDate)}
         >
           {formatHeaderDate(selectedDate)}
         </h3>
@@ -85,7 +89,11 @@ export default function Header({
             onDateChange={onSelectDate}
           />
 
-          <HeaderButton onClick={onCalendarClick} aria-label="Open calendar">
+          <HeaderButton
+            onClick={onCalendarClick}
+            aria-label="Open calendar"
+            title="Open calendar"
+          >
             <LuCalendar className="size-5" />
           </HeaderButton>
         </div>

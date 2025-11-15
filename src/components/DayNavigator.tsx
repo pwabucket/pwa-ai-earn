@@ -17,10 +17,10 @@ export const DayNavigator = ({
 
   return (
     <>
-      <HeaderButton onClick={() => navigateDay(-1)}>
+      <HeaderButton onClick={() => navigateDay(-1)} title="Previous day">
         <LuChevronLeft className="size-5" />
       </HeaderButton>
-      <HeaderButton onClick={() => navigateDay(1)}>
+      <HeaderButton onClick={() => navigateDay(1)} title="Next day">
         <LuChevronRight className="size-5" />
       </HeaderButton>
     </>
