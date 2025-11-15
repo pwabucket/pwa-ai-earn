@@ -10,6 +10,7 @@ import { HeaderButton } from "./HeaderButton";
 import { cn } from "../lib/utils";
 import { formatHeaderDate } from "../utils/dateUtils";
 import useAppStore from "../store/useAppStore";
+import { MdRefresh } from "react-icons/md";
 
 const HeaderContainer = ({ children }: { children: React.ReactNode }) => (
   <header
@@ -40,11 +41,13 @@ export default function Header({
   onSelectDate,
   onCalendarClick,
   onWebviewClick,
+  onRefreshClick,
 }: {
   selectedDate: Date;
   onSelectDate: (date: Date) => void;
   onCalendarClick: () => void;
   onWebviewClick: () => void;
+  onRefreshClick: () => void;
 }) {
   const url = useAppStore((state) => state.url);
 
@@ -57,9 +60,14 @@ export default function Header({
           </HeaderButton>
 
           {url && (
-            <HeaderButton onClick={onWebviewClick}>
-              <LuGlobe className="size-5" />
-            </HeaderButton>
+            <>
+              <HeaderButton onClick={onWebviewClick}>
+                <LuGlobe className="size-5" />
+              </HeaderButton>
+              <HeaderButton onClick={onRefreshClick}>
+                <MdRefresh className="size-5" />
+              </HeaderButton>
+            </>
           )}
         </div>
         <h3
