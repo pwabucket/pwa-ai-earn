@@ -11,6 +11,7 @@ import { Reorder, useDragControls } from "motion/react";
 import { MdEditNote } from "react-icons/md";
 import AccountEditForm from "./AccountEditForm";
 import { Button } from "./Button";
+import toast from "react-hot-toast";
 
 const AccountItem = ({
   account,
@@ -117,6 +118,8 @@ export default function AccountsDialog({ onClose }: { onClose: () => void }) {
     addAccount(newAccount);
     setActiveAccountId(newAccount.id);
     onClose();
+
+    toast.success("Account added successfully");
   };
 
   /* Handle Edit Submit */
@@ -124,6 +127,8 @@ export default function AccountsDialog({ onClose }: { onClose: () => void }) {
     if (accountToEdit) {
       updateAccount(accountToEdit.id, data);
       setAccountToEdit(null);
+
+      toast.success("Account updated successfully");
     }
   };
 
@@ -141,6 +146,8 @@ export default function AccountsDialog({ onClose }: { onClose: () => void }) {
           setActiveAccountId(remainingAccounts[0].id);
         }
       }
+
+      toast.success("Account deleted successfully");
     }
   };
 
