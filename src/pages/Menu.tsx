@@ -23,6 +23,7 @@ import { cn } from "../lib/utils";
 import useLocationToggle from "../hooks/useLocationToggle";
 import URLModal from "../components/URLModal";
 import { useUser } from "../hooks/useUser";
+import useActiveAccount from "../hooks/useActiveAccount";
 
 const MenuButton: DynamicComponent<"button"> = ({ as, ...props }) => {
   const Component = as || "button";
@@ -42,10 +43,11 @@ const MenuButton: DynamicComponent<"button"> = ({ as, ...props }) => {
 export default function Menu() {
   const [showURLModal, setShowURLModal] = useLocationToggle("menu-url-modal");
   const { googleApi, googleDriveBackup } = useAppContext();
-  const url = useAppStore((state) => state.url);
 
-  const setInvestments = useAppStore((state) => state.setInvestments);
-  const setWithdrawals = useAppStore((state) => state.setWithdrawals);
+  const account = useActiveAccount();
+  const url = account.url;
+
+  const setTransactions = useAppStore((state) => state.setTransactions);
 
   /** Google Drive Backup Prompt */
   const { show, setShow, value, resolve, prompt } = usePrompt<
@@ -54,8 +56,7 @@ export default function Menu() {
   >();
 
   const resetTracker = () => {
-    setInvestments([]);
-    setWithdrawals([]);
+    setTransactions(account.id, []);
     toast.success("Tracker reset successfully!");
   };
 

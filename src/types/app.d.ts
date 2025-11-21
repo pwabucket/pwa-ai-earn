@@ -1,3 +1,18 @@
+export interface Transaction {
+  id: string;
+  amount: number;
+  date: Date;
+  type: "investment" | "withdrawal" | "exchange";
+  isSimulated?: boolean;
+}
+
+export interface Account {
+  id: string;
+  title: string;
+  url?: string;
+  transactions: Transaction[];
+}
+
 export interface Investment {
   id: string;
   amount: number;
@@ -22,7 +37,6 @@ export type GoogleDriveBackupFile = gapi.client.drive.File;
 export interface GoogleDriveBackupContent {
   updatedAt: number;
   data: {
-    investments: Investment[];
-    withdrawals: Withdrawal[];
+    accounts: Account[];
   };
 }

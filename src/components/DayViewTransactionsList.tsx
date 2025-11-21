@@ -1,17 +1,14 @@
 import { DayViewTransactionItem } from "./DayViewTransactionItem";
-import type { Investment, Withdrawal } from "../types/app";
 import type { useTodayTransactions } from "../hooks/useTodayTransactions";
 
 export const DayViewTransactionsList = ({
   title,
   transactions,
-  onRemoveInvestment,
-  onRemoveWithdrawal,
+  onRemoveTransaction,
 }: {
   title: string;
   transactions: ReturnType<typeof useTodayTransactions>;
-  onRemoveInvestment: (id: string) => void;
-  onRemoveWithdrawal: (id: string) => void;
+  onRemoveTransaction: (id: string) => void;
 }) => (
   <div className="flex flex-col gap-2 p-4 rounded-xl bg-neutral-800">
     <h1 className="font-bold">{title}</h1>
@@ -20,14 +17,14 @@ export const DayViewTransactionsList = ({
         <DayViewTransactionItem
           key={index}
           amount={transaction.amount}
-          type={transaction.type as "investment" | "earnings" | "withdrawal"}
-          onRemove={() => {
-            if (transaction.type === "investment") {
-              onRemoveInvestment((transaction as Investment).id);
-            } else {
-              onRemoveWithdrawal((transaction as Withdrawal).id);
-            }
-          }}
+          type={
+            transaction.type as
+              | "earnings"
+              | "investment"
+              | "withdrawal"
+              | "exchange"
+          }
+          onRemove={() => onRemoveTransaction(transaction.id)}
         />
       ))
     ) : (

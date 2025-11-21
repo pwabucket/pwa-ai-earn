@@ -1,13 +1,13 @@
 import { useQuery } from "@tanstack/react-query";
 
-import useAppContext from "./useAppContext";
+import type { Account } from "../types/app";
+import { Tracker } from "../lib/Tracker";
 
-export default function useTransactionsQuery() {
-  const { enabled, tracker } = useAppContext().tracker!;
-
+export default function useTransactionsQuery(account: Account) {
   return useQuery({
-    enabled,
-    queryKey: ["transactions"],
-    queryFn: () => tracker!.getTransactions(),
+    enabled: Boolean(account.url),
+    queryKey: ["transactions", account.id],
+    queryFn: () => new Tracker(account.url!).getTransactions(),
+    refetchInterval: 60_000,
   });
 }

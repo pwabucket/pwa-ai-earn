@@ -9,8 +9,8 @@ import { DayNavigator } from "./DayNavigator";
 import { HeaderButton } from "./HeaderButton";
 import { cn } from "../lib/utils";
 import { formatHeaderDate } from "../utils/dateUtils";
-import useAppStore from "../store/useAppStore";
 import { MdRefresh } from "react-icons/md";
+import useActiveAccount from "../hooks/useActiveAccount";
 
 const HeaderContainer = ({ children }: { children: React.ReactNode }) => (
   <header
@@ -49,7 +49,8 @@ export default function Header({
   onWebviewClick: () => void;
   onRefreshClick: () => void;
 }) {
-  const url = useAppStore((state) => state.url);
+  const account = useActiveAccount();
+  const url = account.url;
 
   return (
     <HeaderContainer>

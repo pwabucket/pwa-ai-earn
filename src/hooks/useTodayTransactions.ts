@@ -1,37 +1,33 @@
 import { useMemo } from "react";
 
-import type { Investment, Withdrawal } from "../types/app";
+import type { Transaction } from "../types/app";
+import InvestmentEngine from "../lib/InvestmentEngine";
 
 export const useTodayTransactions = (
   selectedDate: Date,
-  investments: Investment[],
-  withdrawals: Withdrawal[],
+  transactions: Transaction[],
   todaysProfit: number
 ) => {
   return useMemo(() => {
+    const todayTransactions = transactions.filter(
+      (transaction) =>
+        new Date(transaction.date).toDateString() ===
+        selectedDate.toDateString()
+    );
+
+    const { investments, withdrawals, exchanges } =
+      InvestmentEngine.filterTransactions(todayTransactions);
+
     return [
       {
+        id: "todays-earnings",
         type: "earnings",
         amount: todaysProfit,
         date: selectedDate,
       },
-      ...withdrawals
-        .filter(
-          (withdrawal) =>
-            new Date(withdrawal.date).toDateString() ===
-            selectedDate.toDateString()
-        )
-        .map((withdrawal) => ({ ...withdrawal, type: "withdrawal" })),
-      ...investments
-        .filter(
-          (investment) =>
-            new Date(investment.date).toDateString() ===
-            selectedDate.toDateString()
-        )
-        .map((investment) => ({
-          ...investment,
-          type: "investment",
-        })),
+      ...withdrawals,
+      ...exchanges,
+      ...investments,
     ];
-  }, [selectedDate, investments, withdrawals, todaysProfit]);
+  }, [selectedDate, transactions, todaysProfit]);
 };

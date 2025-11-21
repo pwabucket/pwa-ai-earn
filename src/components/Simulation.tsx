@@ -9,7 +9,6 @@ import Currency from "./Currency";
 import InvestmentEngine from "../lib/InvestmentEngine";
 import Modal from "./Modal";
 import Timeline from "./Timeline";
-import useAppStore from "../store/useAppStore";
 import useLocationToggle from "../hooks/useLocationToggle";
 import { ActiveInvestments } from "./ActiveInvestments";
 import { DayNavigator } from "./DayNavigator";
@@ -17,6 +16,7 @@ import { HeaderButton } from "./HeaderButton";
 import { TabTriggerButton } from "./TabTriggerButton";
 import { cn } from "../lib/utils";
 import { formatDate } from "../utils/dateUtils";
+import useActiveAccount from "../hooks/useActiveAccount";
 
 const ResultInfo = ({
   label,
@@ -42,17 +42,15 @@ const SimulationResult = ({
   onChangeTargetDate: (date: Date) => void;
   onClose: () => void;
 }) => {
-  const investments = useAppStore((state) => state.investments);
-  const withdrawals = useAppStore((state) => state.withdrawals);
+  const { transactions } = useActiveAccount();
 
   const result = useMemo(() => {
     return InvestmentEngine.simulateInvestments(
       selectedDate,
       targetDate,
-      investments,
-      withdrawals
+      transactions
     );
-  }, [selectedDate, targetDate, investments, withdrawals]);
+  }, [selectedDate, targetDate, transactions]);
 
   return (
     <Modal onOpenChange={onClose}>

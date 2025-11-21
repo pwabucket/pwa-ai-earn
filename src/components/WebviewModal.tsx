@@ -1,15 +1,16 @@
 import Modal from "./Modal";
-import useAppStore from "../store/useAppStore";
 import { useUser } from "../hooks/useUser";
 import { Dialog } from "radix-ui";
 import { LuX } from "react-icons/lu";
+import useActiveAccount from "../hooks/useActiveAccount";
 
 export default function WebviewModal({
   onOpenChange,
 }: {
   onOpenChange: (open: boolean) => void;
 }) {
-  const url = useAppStore((state) => state.url);
+  const account = useActiveAccount();
+  const url = account.url;
   const user = useUser();
 
   return (

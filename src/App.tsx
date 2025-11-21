@@ -8,10 +8,8 @@ import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
 import useGoogleApi from "./hooks/useGoogleApi";
 import useGoogleDriveBackup from "./hooks/useGoogleDriveBackup";
-import { useTracker } from "./hooks/useTracker";
 
 function App() {
-  const tracker = useTracker();
   const googleApi = useGoogleApi();
   const googleDriveBackup = useGoogleDriveBackup(googleApi);
 
@@ -21,7 +19,6 @@ function App() {
         value={{
           googleApi,
           googleDriveBackup,
-          tracker,
         }}
       >
         <div className="min-h-dvh flex flex-col bg-neutral-900 text-white">

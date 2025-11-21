@@ -28,10 +28,9 @@ export default function useGoogleDriveBackup(
   const { authorized, requestAccessToken } = googleApi;
   const restoredFromCloudRef = useRef(true);
 
-  const investments = useAppStore((state) => state.investments);
-  const withdrawals = useAppStore((state) => state.withdrawals);
-  const setInvestments = useAppStore((state) => state.setInvestments);
-  const setWithdrawals = useAppStore((state) => state.setWithdrawals);
+  const accounts = useAppStore((state) => state.accounts);
+  const setAccounts = useAppStore((state) => state.setAccounts);
+
   const googleDriveBackupFile = useAppStore(
     (state) => state.googleDriveBackupFile
   );
@@ -78,8 +77,7 @@ export default function useGoogleDriveBackup(
     const content = {
       updatedAt: Date.now(),
       data: {
-        investments,
-        withdrawals,
+        accounts,
       },
     };
     const file = await mutateAsync(content);
@@ -88,8 +86,7 @@ export default function useGoogleDriveBackup(
     updateBackupFile(file);
   }, [
     /** Deps */
-    investments,
-    withdrawals,
+    accounts,
     mutateAsync,
     updateBackupFile,
   ]);
@@ -99,12 +96,13 @@ export default function useGoogleDriveBackup(
     async (content: GoogleDriveBackupContent) => {
       const { data } = content;
 
-      setInvestments(data.investments);
-      setWithdrawals(data.withdrawals);
+      if (data.accounts) {
+        setAccounts(data.accounts);
+      }
 
       restoredFromCloudRef.current = true;
     },
-    [setInvestments, setWithdrawals]
+    [setAccounts]
   );
 
   /** Restore Backup */

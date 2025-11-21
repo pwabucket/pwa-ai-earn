@@ -21,6 +21,7 @@ import { cn } from "../lib/utils";
 import { formatDate } from "../utils/dateUtils";
 import { useInvestmentCalculations } from "../hooks/useInvestmentCalculations";
 import { useTodayTransactions } from "../hooks/useTodayTransactions";
+import useActiveAccount from "../hooks/useActiveAccount";
 
 const ActionButton = ({
   variant = "primary",
@@ -306,23 +307,16 @@ export default function DayView({
   onSelectDate: (date: Date) => void;
 }) {
   // Store state
-  const investments = useAppStore((state) => state.investments);
-  const withdrawals = useAppStore((state) => state.withdrawals);
-  const addInvestment = useAppStore((state) => state.addInvestment);
-  const addWithdrawal = useAppStore((state) => state.addWithdrawal);
-  const removeInvestment = useAppStore((state) => state.removeInvestment);
-  const removeWithdrawal = useAppStore((state) => state.removeWithdrawal);
+  const account = useActiveAccount();
+  const transactions = account.transactions;
+  const addTransaction = useAppStore((state) => state.addTransaction);
+  const removeTransaction = useAppStore((state) => state.removeTransaction);
 
   // Calculations
-  const result = useInvestmentCalculations(
-    selectedDate,
-    investments,
-    withdrawals
-  );
+  const result = useInvestmentCalculations(selectedDate, transactions);
   const todayTransactions = useTodayTransactions(
     selectedDate,
-    investments,
-    withdrawals,
+    transactions,
     result.currentState.todaysProfit
   );
   const endDate = useInvestmentEndDate(selectedDate);
@@ -335,36 +329,46 @@ export default function DayView({
 
   // Event handlers
   const reinvest = (amount: string | number) => {
-    addWithdrawal({
+    addTransaction(account.id, {
       id: crypto.randomUUID(),
       date: selectedDate,
-      amount: parseFloat(amount.toString()),
+      amount: -parseFloat(amount.toString()),
+      type: "exchange",
     });
-    addInvestment({
+  };
+
+  const removeAccountTransaction = (transactionId: string) => {
+    removeTransaction(account.id, transactionId);
+  };
+
+  const addInvestmentTransaction = (amount: number) => {
+    addTransaction(account.id, {
       id: crypto.randomUUID(),
       date: selectedDate,
-      amount: parseFloat(amount.toString()),
+      amount: amount,
+      type: "investment",
+    });
+  };
+
+  const addWithdrawalTransaction = (amount: number) => {
+    addTransaction(account.id, {
+      id: crypto.randomUUID(),
+      date: selectedDate,
+      amount: -amount,
+      type: "withdrawal",
     });
   };
 
   const handleInvest = () => {
     if (parseFloat(investmentAmount.toString()) >= 1) {
-      addInvestment({
-        id: crypto.randomUUID(),
-        date: selectedDate,
-        amount: parseFloat(investmentAmount.toString()),
-      });
+      addInvestmentTransaction(parseFloat(investmentAmount.toString()));
       setInvestmentAmount("");
     }
   };
 
   const handleWithdraw = () => {
     if (withdrawalAmount) {
-      addWithdrawal({
-        id: crypto.randomUUID(),
-        date: selectedDate,
-        amount: parseFloat(withdrawalAmount.toString()),
-      });
+      addWithdrawalTransaction(parseFloat(withdrawalAmount.toString()));
       setWithdrawalAmount("");
     }
   };
@@ -426,8 +430,7 @@ export default function DayView({
       <DayViewTransactionsList
         title="Today's transactions"
         transactions={todayTransactions}
-        onRemoveInvestment={removeInvestment}
-        onRemoveWithdrawal={removeWithdrawal}
+        onRemoveTransaction={removeAccountTransaction}
       />
 
       {/* Active Investments */}

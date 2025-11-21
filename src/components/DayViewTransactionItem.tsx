@@ -12,20 +12,23 @@ export const DayViewTransactionItem = ({
   onRemove,
 }: {
   amount: number;
-  type: "investment" | "earnings" | "withdrawal";
+  type: "earnings" | "investment" | "withdrawal" | "exchange";
   onRemove: () => void;
 }) => (
   <div className="flex items-center justify-between">
     <div>
       <div className="text-xs text-neutral-400">
-        {type === "investment"
-          ? "Investment"
-          : type === "earnings"
-          ? "Earnings"
-          : "Withdraw"}
+        {type.charAt(0).toUpperCase() + type.slice(1)}
       </div>
       <div
-        className={type === "withdrawal" ? "text-red-500" : "text-green-500"}
+        className={
+          {
+            earnings: "text-green-400",
+            investment: "text-blue-400",
+            withdrawal: "text-red-400",
+            exchange: "text-yellow-400",
+          }[type]
+        }
       >
         <Currency prefix={type === "withdrawal" ? "-" : "+"} value={amount} />
       </div>

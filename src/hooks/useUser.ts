@@ -1,9 +1,10 @@
 import { useMemo } from "react";
 import { extractTgWebAppData } from "../lib/utils";
-import useAppStore from "../store/useAppStore";
+import useActiveAccount from "./useActiveAccount";
 
 export const useUser = () => {
-  const url = useAppStore((state) => state.url);
+  const account = useActiveAccount();
+  const url = account.url;
   return useMemo(() => {
     try {
       return url ? extractTgWebAppData(url).initDataUnsafe.user : null;

@@ -6,8 +6,8 @@ import Modal from "./Modal";
 import { DAY_NAMES, MONTH_NAMES } from "../constants/calendar";
 import { cn } from "../lib/utils";
 import { generateCalendarDays } from "../utils/dateUtils";
-import useAppStore from "../store/useAppStore";
 import { startOfDay } from "date-fns";
+import useActiveAccount from "../hooks/useActiveAccount";
 
 export default function CalendarModal({
   selectedDate,
@@ -22,21 +22,17 @@ export default function CalendarModal({
     selectedDate ? new Date(selectedDate) : new Date()
   );
 
-  const investments = useAppStore((state) => state.investments);
-  const withdrawals = useAppStore((state) => state.withdrawals);
+  const account = useActiveAccount();
+  const transactions = account.transactions;
 
   const activityDates = useMemo(() => {
     const datesSet = new Set<number>();
-    investments.forEach((inv) => {
-      const dateTime = startOfDay(inv.date).getTime();
-      datesSet.add(dateTime);
-    });
-    withdrawals.forEach((withd) => {
-      const dateTime = startOfDay(withd.date).getTime();
+    transactions.forEach((tx) => {
+      const dateTime = startOfDay(tx.date).getTime();
       datesSet.add(dateTime);
     });
     return datesSet;
-  }, [investments, withdrawals]);
+  }, [transactions]);
 
   // Generate calendar days
   const calendarDays = useMemo(() => {
