@@ -22,12 +22,12 @@ export interface AppSlice {
 }
 
 export const createAppSlice: StateCreator<AppSlice> = (set) => ({
-  activeAccountId: "default-account",
+  activeAccountId: "default",
   setActiveAccountId: (accountId) => set({ activeAccountId: accountId }),
 
   accounts: [
     {
-      id: "default-account",
+      id: "default",
       title: "Account 1",
       transactions: [],
     },
