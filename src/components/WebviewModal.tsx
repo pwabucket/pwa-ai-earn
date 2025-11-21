@@ -6,6 +6,7 @@ import useActiveAccount from "../hooks/useActiveAccount";
 import { HeaderButton } from "./HeaderButton";
 import useAppStore from "../store/useAppStore";
 import { AccountAvatar } from "./AccountAvatar";
+import { cn } from "../lib/utils";
 
 export default function WebviewModal({
   onOpenChange,
@@ -78,6 +79,7 @@ export default function WebviewModal({
         </div>
 
         <div className="flex items-center gap-1 shrink-0">
+          {/* Navigation buttons */}
           {accounts.length > 1 && (
             <>
               <HeaderButton
@@ -94,6 +96,8 @@ export default function WebviewModal({
               </HeaderButton>
             </>
           )}
+
+          {/* Close button */}
           <Dialog.Close asChild>
             <HeaderButton>
               <LuX className="size-5" />
@@ -101,6 +105,8 @@ export default function WebviewModal({
           </Dialog.Close>
         </div>
       </div>
+
+      {/* Iframe */}
       {url ? (
         <iframe
           key={account.id}
@@ -109,7 +115,12 @@ export default function WebviewModal({
           referrerPolicy="no-referrer"
         />
       ) : (
-        <div className="grow flex items-center justify-center bg-neutral-800/50 text-neutral-400">
+        <div
+          className={cn(
+            "grow flex items-center justify-center",
+            "bg-neutral-800/50 text-neutral-400"
+          )}
+        >
           No URL set for this account.
         </div>
       )}
