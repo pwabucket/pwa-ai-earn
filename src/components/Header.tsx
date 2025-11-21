@@ -55,7 +55,7 @@ export default function Header({
   return (
     <HeaderContainer>
       <div className={cn("flex items-center justify-between gap-3")}>
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-1 shrink-0">
           <HeaderButton as={Link} to="/menu" title="Open Menu">
             <LuMenu className="size-5" />
           </HeaderButton>
@@ -84,7 +84,7 @@ export default function Header({
           {formatHeaderDate(selectedDate)}
         </h3>
 
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-1 shrink-0">
           <DayNavigator
             selectedDate={selectedDate}
             onDateChange={onSelectDate}
