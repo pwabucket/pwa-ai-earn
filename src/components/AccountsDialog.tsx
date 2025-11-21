@@ -5,7 +5,7 @@ import useAppStore from "../store/useAppStore";
 import type { Account } from "../types/app";
 import { useMemo, useState } from "react";
 import { AccountAvatar } from "./AccountAvatar";
-import { LuArrowLeft, LuUserPlus } from "react-icons/lu";
+import { LuArrowLeft, LuUserPlus, LuX } from "react-icons/lu";
 import { HeaderButton } from "./HeaderButton";
 import { Reorder, useDragControls } from "motion/react";
 import { MdEditNote } from "react-icons/md";
@@ -178,12 +178,20 @@ export default function AccountsDialog({ onClose }: { onClose: () => void }) {
         </div>
 
         {!accountToEdit && (
-          <HeaderButton
-            className="text-neutral-400 hover:text-white transition-colors"
-            onClick={handleAddAccount}
-          >
-            <LuUserPlus className="size-6" />
-          </HeaderButton>
+          <div className="flex items-center gap-1 shrink-0">
+            <HeaderButton
+              className="text-neutral-400 hover:text-white transition-colors"
+              onClick={handleAddAccount}
+            >
+              <LuUserPlus className="size-6" />
+            </HeaderButton>
+            {/* Close button */}
+            <Dialog.Close asChild>
+              <HeaderButton>
+                <LuX className="size-5" />
+              </HeaderButton>
+            </Dialog.Close>
+          </div>
         )}
       </div>
 

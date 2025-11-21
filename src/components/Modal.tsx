@@ -26,7 +26,7 @@ export default function Modal({
         <Dialog.Overlay
           ref={overlayRef}
           className={cn(
-            "fixed inset-0 bg-black/60 z-40 overflow-y-auto grid place-items-center py-10",
+            "fixed inset-0 bg-black/60 z-40 overflow-y-auto flex items-center justify-center py-10",
             overlayClassName
           )}
         >
@@ -37,8 +37,8 @@ export default function Modal({
             }
             onOpenAutoFocus={(ev) => ev.preventDefault()}
             className={cn(
-              "bg-neutral-900 text-white rounded-2xl p-6",
-              "w-full max-w-md shadow-2xl border border-neutral-800",
+              "bg-neutral-900 text-white rounded-2xl p-6 overflow-x-hidden",
+              "w-full max-w-md shadow-2xl border border-neutral-800 my-auto",
               contentClassName
             )}
           >
