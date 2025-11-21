@@ -332,7 +332,7 @@ export default function DayView({
     addTransaction(account.id, {
       id: crypto.randomUUID(),
       date: selectedDate,
-      amount: -parseFloat(amount.toString()),
+      amount: parseFloat(amount.toString()),
       type: "exchange",
     });
   };
