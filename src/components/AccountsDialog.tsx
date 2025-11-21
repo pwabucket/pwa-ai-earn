@@ -153,7 +153,7 @@ export default function AccountsDialog({ onClose }: { onClose: () => void }) {
   };
 
   return (
-    <Modal onOpenChange={onClose}>
+    <Modal onOpenChange={onClose} preventCloseOnOutsideClick={false}>
       <div className="flex gap-4 items-start">
         {accountToEdit && (
           <HeaderButton

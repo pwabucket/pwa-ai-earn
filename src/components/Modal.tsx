@@ -7,10 +7,12 @@ export interface ModalProps extends Dialog.DialogProps {
   contentRef?: React.RefObject<HTMLDivElement>;
   overlayClassName?: string;
   contentClassName?: string;
+  preventCloseOnOutsideClick?: boolean;
 }
 
 export default function Modal({
   open = true,
+  preventCloseOnOutsideClick = true,
   onOpenChange,
   children,
   overlayClassName,
@@ -30,7 +32,9 @@ export default function Modal({
         >
           <Dialog.Content
             ref={contentRef}
-            onInteractOutside={(ev) => ev.preventDefault()}
+            onInteractOutside={(ev) =>
+              preventCloseOnOutsideClick && ev.preventDefault()
+            }
             onOpenAutoFocus={(ev) => ev.preventDefault()}
             className={cn(
               "bg-neutral-900 text-white rounded-2xl p-6",
