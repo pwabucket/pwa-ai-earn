@@ -48,7 +48,7 @@ const AccountItem = ({
         )}
       >
         <div
-          className="size-10 shrink-0"
+          className="size-10 shrink-0 cursor-pointer"
           onPointerDown={(event) => dragControls.start(event)}
         >
           {user ? (
@@ -56,6 +56,7 @@ const AccountItem = ({
               src={user["photo_url"]}
               alt={user["first_name"]}
               className="size-full rounded-full object-cover shrink-0"
+              draggable={false}
             />
           ) : (
             <AccountAvatar account={account} className="size-full" />
