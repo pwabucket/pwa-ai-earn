@@ -18,7 +18,7 @@ export default function Footer() {
       <div className="bg-neutral-900 border-t border-neutral-800 fixed bottom-0 inset-x-0 h-16 flex items-center z-10">
         <PageContainer className="flex justify-center">
           <button
-            className="flex gap-2 items-center text-left cursor-pointer"
+            className="flex gap-2 items-center text-left cursor-pointer w-full"
             onClick={() => toggleAccountsDialog(true)}
           >
             <div className="size-10 shrink-0">
