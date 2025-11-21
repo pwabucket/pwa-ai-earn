@@ -28,7 +28,7 @@ export const createAppSlice: StateCreator<AppSlice> = (set) => ({
   accounts: [
     {
       id: "default-account",
-      title: "Default Account",
+      title: "Account 1",
       transactions: [],
     },
   ],
