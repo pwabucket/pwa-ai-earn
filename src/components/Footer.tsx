@@ -33,7 +33,9 @@ export default function Footer() {
               )}
             </div>
             <div className="flex flex-col text-sm grow min-w-0">
-              <h1 className="font-bold text-pink-500">{activeAccount.title}</h1>
+              <h1 className="font-bold text-pink-500 truncate">
+                {activeAccount.title}
+              </h1>
               {user ? (
                 <>
                   <p className="text-neutral-400 truncate">
