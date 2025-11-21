@@ -67,15 +67,17 @@ const AccountItem = ({
         <Dialog.Close
           className={cn(
             "text-left cursor-pointer",
-            "flex flex-col text-sm grow min-w-0",
+            "flex flex-col gap-1 text-sm grow min-w-0",
             "justify-center"
           )}
           onClick={() => setActiveAccountId(account.id)}
         >
-          <h1 className="font-bold text-pink-500">{account.title}</h1>
+          <h1 className="font-bold text-pink-500 truncate leading-none">
+            {account.title}
+          </h1>
           {user ? (
             <>
-              <p className="text-neutral-400 truncate">
+              <p className="text-neutral-400 truncate leading-none">
                 {user["first_name"]} {user["last_name"]}
               </p>
             </>

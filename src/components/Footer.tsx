@@ -5,6 +5,7 @@ import { LuChevronsUpDown } from "react-icons/lu";
 import { AccountAvatar } from "./AccountAvatar";
 import AccountsDialog from "./AccountsDialog";
 import useLocationToggle from "../hooks/useLocationToggle";
+import { cn } from "../lib/utils";
 
 export default function Footer() {
   const activeAccount = useActiveAccount();
@@ -14,13 +15,20 @@ export default function Footer() {
     useLocationToggle("accounts-dialog");
 
   return (
-    <div className="h-16">
-      <div className="bg-neutral-900 border-t border-neutral-800 fixed bottom-0 inset-x-0 h-16 flex items-center z-10">
-        <PageContainer className="flex justify-center">
+    <div className="h-14">
+      <div
+        className={cn(
+          "flex items-center h-14",
+          "bg-neutral-900 border-t border-neutral-800",
+          "fixed bottom-0 inset-x-0 z-10"
+        )}
+      >
+        <PageContainer className="flex justify-center py-0">
           <button
-            className="flex gap-2 items-center text-left cursor-pointer w-full"
+            className="flex gap-2 items-center justify-center text-left cursor-pointer w-full max-w-56"
             onClick={() => toggleAccountsDialog(true)}
           >
+            <span className="size-5 shrink-0" />
             <div className="size-10 shrink-0">
               {user ? (
                 <img
@@ -32,13 +40,13 @@ export default function Footer() {
                 <AccountAvatar account={activeAccount} className="size-full" />
               )}
             </div>
-            <div className="flex flex-col text-sm grow min-w-0">
-              <h1 className="font-bold text-pink-500 truncate">
+            <div className="flex flex-col text-sm grow min-w-0 gap-1">
+              <h1 className="font-bold text-pink-500 truncate leading-none">
                 {activeAccount.title}
               </h1>
               {user ? (
                 <>
-                  <p className="text-neutral-400 truncate">
+                  <p className="text-neutral-400 truncate leading-none">
                     {user["first_name"]} {user["last_name"]}
                   </p>
                 </>
