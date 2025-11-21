@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import Currency from "./Currency";
 import InvestmentEngine from "../lib/InvestmentEngine";
 import Radius from "./Radius";
-import type { Investment } from "../types/app";
+import type { Transaction } from "../types/app";
 import { formatDate } from "../utils/dateUtils";
 
 export const ActiveInvestments = ({
@@ -12,7 +12,7 @@ export const ActiveInvestments = ({
 }: {
   selectedDate: Date;
   onSelectDate: (date: Date) => void;
-  investments: Investment[];
+  investments: Transaction[];
 }) => {
   const list = useMemo(
     () =>
@@ -59,7 +59,7 @@ export const InvestmentItem = ({
   investment,
   onSelectDate,
 }: {
-  investment: Investment & {
+  investment: Transaction & {
     duration: number;
     startDate: Date;
     endDate: Date;
