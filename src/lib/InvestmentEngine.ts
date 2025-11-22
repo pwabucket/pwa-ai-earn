@@ -390,6 +390,15 @@ export default class InvestmentEngine {
     const initialState = this.calculateTp(selectedDate, simulatedTransactions);
     const timeline = [];
 
+    let dayIndex = 0;
+    let availableBalance = initialState.totalBalance;
+    let totalInvested = initialState.totalInvested;
+
+    const simulationDays = this.getDaysDifference(
+      startOfDay(selectedDate),
+      startOfDay(targetDate)
+    );
+
     const createInvestment = (date: Date, amount: number) => {
       simulatedTransactions.push({
         id: `sim_exchange_${date.getTime()}`,
@@ -402,16 +411,28 @@ export default class InvestmentEngine {
       availableBalance = 0;
     };
 
-    const simulationDays = this.getDaysDifference(
-      startOfDay(selectedDate),
-      startOfDay(targetDate)
-    );
-    let dayIndex = 0;
-    let availableBalance = initialState.totalBalance;
-    let totalInvested = initialState.totalInvested;
-
+    /* Initial Investment on selected date */
     if (availableBalance >= this.MINIMUM_INVESTMENT_AMOUNT) {
       createInvestment(selectedDate, availableBalance);
+
+      const currentActiveInvestments = this.getActiveInvestments(
+        simulatedTransactions,
+        selectedDate,
+        false
+      );
+      const activeInvestments = this.sumTransactions(currentActiveInvestments);
+
+      timeline.push({
+        index: dayIndex,
+        date: startOfDay(selectedDate),
+        compound: true,
+        profitDayIndex: 0,
+        balanceExchanged: availableBalance,
+        totalInvested,
+        activeInvestments,
+        availableBalance,
+        currentDailyProfit: initialState.currentDailyProfit,
+      });
     }
 
     const currentDate = startOfDay(selectedDate);
@@ -438,7 +459,7 @@ export default class InvestmentEngine {
         availableBalance += dailyProfit;
       }
 
-      if (availableBalance >= 1) {
+      if (availableBalance >= this.MINIMUM_INVESTMENT_AMOUNT) {
         balanceExchanged = availableBalance;
         createInvestment(currentDate, balanceExchanged);
       }
