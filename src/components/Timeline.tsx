@@ -52,7 +52,7 @@ export default function Timeline({ timeline }: { timeline: TimelineDay[] }) {
               </div>
 
               <div className="flex flex-col gap-2 shrink-0 text-right">
-                <span className="text-sm text-green-400">
+                <span className="text-sm text-lime-400">
                   <Currency value={day.currentDailyProfit} prefix="+" />
                 </span>
                 <span className="text-sm text-green-400">
