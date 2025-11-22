@@ -26,12 +26,33 @@ export default function CalendarModal({
   const transactions = account.transactions;
 
   const activityDates = useMemo(() => {
-    const datesSet = new Set<number>();
+    const datesMap = new Map<
+      number,
+      {
+        investments: number;
+        withdrawals: number;
+        exchanges: number;
+      }
+    >();
     transactions.forEach((tx) => {
       const dateTime = startOfDay(tx.date).getTime();
-      datesSet.add(dateTime);
+      if (!datesMap.has(dateTime)) {
+        datesMap.set(dateTime, {
+          investments: 0,
+          withdrawals: 0,
+          exchanges: 0,
+        });
+      }
+      const dateEntry = datesMap.get(dateTime)!;
+      if (tx.type === "investment") {
+        dateEntry.investments += 1;
+      } else if (tx.type === "withdrawal") {
+        dateEntry.withdrawals += 1;
+      } else if (tx.type === "exchange") {
+        dateEntry.exchanges += 1;
+      }
     });
-    return datesSet;
+    return datesMap;
   }, [transactions]);
 
   // Generate calendar days
@@ -61,7 +82,7 @@ export default function CalendarModal({
         {/* Previous month button */}
         <button
           onClick={() => navigateMonth(-1)}
-          className="p-2 hover:bg-neutral-800 rounded-lg transition-colors"
+          className="p-2 hover:bg-neutral-800 rounded-lg transition-colors cursor-pointer"
         >
           <FiChevronLeft className="w-5 h-5 text-pink-400" />
         </button>
@@ -125,11 +146,16 @@ export default function CalendarModal({
             {day.date.getDate()}
 
             {/* Activity indicator */}
-            {day.hasActivity && (
+            {day.activity && (
               <span
                 className={cn(
-                  "absolute bottom-2 size-1.5 rounded-full bg-pink-500/30",
-                  "left-1/2 transform -translate-x-1/2"
+                  "absolute bottom-2 size-1.5 rounded-full opacity-30",
+                  "left-1/2 transform -translate-x-1/2",
+                  {
+                    "bg-red-400": day.activity.withdrawals > 0,
+                    "bg-yellow-400": day.activity.exchanges > 0,
+                    "bg-blue-400": day.activity.investments > 0,
+                  }
                 )}
               />
             )}

@@ -20,7 +20,10 @@ export function startOfDay(date: SingleDateConstructorArg): Date {
 export function generateCalendarDays(
   currentMonth: SingleDateConstructorArg,
   selectedDate: SingleDateConstructorArg | null = null,
-  activityDates: Set<number> = new Set<number>()
+  activityDates: Map<
+    number,
+    { investments: number; withdrawals: number; exchanges: number }
+  > = new Map()
 ) {
   const normalizedMonth = startOfDay(currentMonth);
   const year = normalizedMonth.getFullYear();
@@ -45,7 +48,7 @@ export function generateCalendarDays(
         normalizedSelected &&
         dayDate.getTime() === normalizedSelected.getTime(),
 
-      hasActivity: activityDates.has(dayDate.getTime()),
+      activity: activityDates.get(dayDate.getTime()),
     });
     currentDate.setDate(currentDate.getDate() + 1);
   }
