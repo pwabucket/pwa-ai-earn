@@ -10,17 +10,12 @@ import {
 import Currency from "./Currency";
 import Radius from "./Radius";
 import { formatDate } from "../utils/dateUtils";
+import { cn } from "../lib/utils";
+import type InvestmentEngine from "../lib/InvestmentEngine";
 
-interface TimelineDay {
-  index: number;
-  date: Date;
-  compound: boolean;
-  availableBalance: number;
-  totalInvested: number;
-  activeInvestments: number;
-  balanceExchanged: number;
-  currentDailyProfit: number;
-}
+type TimelineDay = ReturnType<
+  (typeof InvestmentEngine)["simulateInvestments"]
+>["timeline"][number];
 
 export default function Timeline({ timeline }: { timeline: TimelineDay[] }) {
   return (
@@ -34,13 +29,28 @@ export default function Timeline({ timeline }: { timeline: TimelineDay[] }) {
               key={index}
               className="flex gap-3 p-3 bg-neutral-800 rounded-xl"
             >
-              <Radius
-                max={timeline.length}
-                position={day.index}
-                className={
-                  day.compound ? "stroke-pink-500" : "stroke-green-500"
-                }
-              />
+              <div className="shrink-0 flex flex-col items-center gap-1">
+                <Radius
+                  max={timeline.length}
+                  position={day.index}
+                  className={
+                    day.compound ? "stroke-pink-500" : "stroke-green-500"
+                  }
+                />
+
+                {/* Profit day index */}
+                {!day.compound && (
+                  <span
+                    className={cn(
+                      "text-xs font-bold border-t-3 border-green-400 ",
+                      "flex items-center justify-center size-6",
+                      "text-green-400"
+                    )}
+                  >
+                    {day.profitDayIndex}
+                  </span>
+                )}
+              </div>
               <div className="flex flex-col gap-1 grow min-w-0">
                 <h4 className="text-sm text-pink-500 font-bold">
                   {formatDate(day.date)}

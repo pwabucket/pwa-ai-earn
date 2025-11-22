@@ -454,6 +454,7 @@ export default class InvestmentEngine {
         index: ++dayIndex,
         date: startOfDay(currentDate),
         compound: true,
+        profitDayIndex: 0,
         balanceExchanged,
         totalInvested,
         activeInvestments,
@@ -464,6 +465,8 @@ export default class InvestmentEngine {
       currentDate.setDate(currentDate.getDate() + 1);
       startOfDay(currentDate);
     }
+
+    let profitDayIndex = 0;
 
     while (true) {
       const profitGeneratingInvestments = this.getActiveInvestments(
@@ -492,6 +495,7 @@ export default class InvestmentEngine {
         index: ++dayIndex,
         date: startOfDay(currentDate),
         compound: false,
+        profitDayIndex: ++profitDayIndex,
         availableBalance,
         totalInvested,
         activeInvestments: totalActiveAmount,
