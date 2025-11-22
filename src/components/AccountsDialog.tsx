@@ -3,7 +3,7 @@ import Modal from "./Modal";
 import { cn, extractTgWebAppData } from "../lib/utils";
 import useAppStore from "../store/useAppStore";
 import type { Account } from "../types/app";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo } from "react";
 import { AccountAvatar } from "./AccountAvatar";
 import { LuArrowLeft, LuUserPlus, LuX } from "react-icons/lu";
 import { HeaderButton } from "./HeaderButton";
@@ -12,6 +12,7 @@ import { MdEditNote } from "react-icons/md";
 import AccountEditForm from "./AccountEditForm";
 import { Button } from "./Button";
 import toast from "react-hot-toast";
+import { useLocation, useNavigate } from "react-router";
 
 const AccountItem = ({
   account,
@@ -100,8 +101,6 @@ const AccountItem = ({
 };
 
 export default function AccountsDialog({ onClose }: { onClose: () => void }) {
-  const [accountToEdit, setAccountToEdit] = useState<Account | null>(null);
-
   const activeAccountId = useAppStore((state) => state.activeAccountId);
   const setActiveAccountId = useAppStore((state) => state.setActiveAccountId);
 
@@ -110,6 +109,32 @@ export default function AccountsDialog({ onClose }: { onClose: () => void }) {
   const setAccounts = useAppStore((state) => state.setAccounts);
   const updateAccount = useAppStore((state) => state.updateAccount);
   const removeAccount = useAppStore((state) => state.removeAccount);
+
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  /* Account To Edit */
+  const accountToEditId = location.state?.accountToEditId as string | undefined;
+  const accountToEdit = useMemo(
+    () => accounts.find((acc) => acc.id === accountToEditId) || null,
+    [accountToEditId, accounts]
+  );
+
+  /* Set Account To Edit */
+  const setAccountToEdit = useCallback(
+    (account: Account | null) => {
+      if (account) {
+        navigate(location, {
+          state: { ...location.state, accountToEditId: account.id },
+        });
+      } else {
+        const newState = location.state || {};
+        delete newState.accountToEditId;
+        navigate(location, { state: newState, replace: true });
+      }
+    },
+    [location, navigate]
+  );
 
   /* Handle Add Account */
   const handleAddAccount = useCallback(() => {
@@ -135,7 +160,7 @@ export default function AccountsDialog({ onClose }: { onClose: () => void }) {
         toast.success("Account updated successfully");
       }
     },
-    [accountToEdit, updateAccount]
+    [accountToEdit, updateAccount, setAccountToEdit]
   );
 
   /* Handle Delete Account */
@@ -161,6 +186,7 @@ export default function AccountsDialog({ onClose }: { onClose: () => void }) {
     accounts,
     removeAccount,
     setActiveAccountId,
+    setAccountToEdit,
   ]);
 
   return (
