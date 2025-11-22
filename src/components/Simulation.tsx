@@ -81,7 +81,7 @@ const SimulationResult = ({
         {/* Withdrawable Amount */}
         <ResultInfo label={"Withdrawable Amount"}>
           <Currency
-            className="text-green-500"
+            className="text-green-400"
             value={result.totalWithdrawableAfterExpiry}
           />
         </ResultInfo>
@@ -89,7 +89,7 @@ const SimulationResult = ({
         {/* Amount Invested */}
         <ResultInfo label={"Amount Invested"}>
           <Currency
-            className="text-green-500"
+            className="text-blue-400"
             value={result.finalState.totalInvested}
           />
         </ResultInfo>
@@ -103,7 +103,7 @@ const SimulationResult = ({
 
         {/* Simulation Days */}
         <ResultInfo label={"Simulation Days"}>
-          <span className="text-pink-500">{result.simulationDays} days</span>
+          <span className="text-teal-400">{result.simulationDays} days</span>
         </ResultInfo>
 
         <Tabs.Root
