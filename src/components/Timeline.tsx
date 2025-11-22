@@ -1,4 +1,11 @@
 import { Virtuoso } from "react-virtuoso";
+import {
+  LuTrendingUp,
+  LuWallet,
+  LuRepeat,
+  LuCoins,
+  LuBanknote,
+} from "react-icons/lu";
 
 import Currency from "./Currency";
 import Radius from "./Radius";
@@ -11,7 +18,7 @@ interface TimelineDay {
   availableBalance: number;
   totalInvested: number;
   activeInvestments: number;
-  balanceReinvested: number;
+  balanceExchanged: number;
   currentDailyProfit: number;
 }
 
@@ -22,10 +29,10 @@ export default function Timeline({ timeline }: { timeline: TimelineDay[] }) {
         style={{ height: "400px" }}
         data={timeline}
         itemContent={(index, day) => (
-          <div className="pb-2">
+          <div className="pb-2 px-1">
             <div
               key={index}
-              className="flex gap-4 p-4 bg-neutral-800 rounded-xl"
+              className="flex gap-3 p-3 bg-neutral-800 rounded-xl"
             >
               <Radius
                 max={timeline.length}
@@ -39,24 +46,29 @@ export default function Timeline({ timeline }: { timeline: TimelineDay[] }) {
                   {formatDate(day.date)}
                 </h4>
                 <div className="flex flex-col gap-1">
-                  <span className="text-sm text-purple-400">
+                  <span className="text-sm text-purple-400 flex items-center gap-1">
+                    <LuCoins className="size-4 shrink-0" />
                     TP: <Currency value={day.activeInvestments} />
                   </span>
-                  <span className="text-sm text-blue-400">
+                  <span className="text-sm text-blue-400 flex items-center gap-1">
+                    <LuWallet className="size-4 shrink-0" />
                     Invested: <Currency value={day.totalInvested} />
                   </span>
-                  <span className="text-sm text-yellow-400">
-                    Reinvested: <Currency value={day.balanceReinvested} />
+                  <span className="text-sm text-yellow-400 flex items-center gap-1">
+                    <LuRepeat className="size-4 shrink-0" />
+                    Exchanged: <Currency value={day.balanceExchanged} />
                   </span>
                 </div>
               </div>
 
-              <div className="flex flex-col gap-2 shrink-0 text-right">
-                <span className="text-sm text-lime-400">
+              <div className="flex flex-col gap-1 shrink-0 text-right">
+                <span className="text-sm text-lime-400 flex items-center justify-end gap-1">
                   <Currency value={day.currentDailyProfit} prefix="+" />
+                  <LuTrendingUp className="size-4 shrink-0" />
                 </span>
-                <span className="text-sm text-green-400">
+                <span className="text-sm text-green-400 flex items-center justify-end gap-1">
                   <Currency value={day.availableBalance} />
+                  <LuBanknote className="size-4 shrink-0" />
                 </span>
               </div>
             </div>

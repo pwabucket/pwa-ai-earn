@@ -430,7 +430,7 @@ export default class InvestmentEngine {
       );
 
       let dailyProfit = 0;
-      let balanceReinvested = 0;
+      let balanceExchanged = 0;
 
       if (totalActiveAmount > 0) {
         const dailyRate = this.getPercentage(totalActiveAmount);
@@ -439,8 +439,8 @@ export default class InvestmentEngine {
       }
 
       if (availableBalance >= 1) {
-        balanceReinvested = availableBalance;
-        createInvestment(currentDate, balanceReinvested);
+        balanceExchanged = availableBalance;
+        createInvestment(currentDate, balanceExchanged);
       }
 
       const currentActiveInvestments = this.getActiveInvestments(
@@ -454,7 +454,7 @@ export default class InvestmentEngine {
         index: ++dayIndex,
         date: startOfDay(currentDate),
         compound: true,
-        balanceReinvested,
+        balanceExchanged,
         totalInvested,
         activeInvestments,
         availableBalance,
@@ -495,7 +495,7 @@ export default class InvestmentEngine {
         availableBalance,
         totalInvested,
         activeInvestments: totalActiveAmount,
-        balanceReinvested: 0,
+        balanceExchanged: 0,
         currentDailyProfit: dailyProfit,
       });
 
