@@ -3,7 +3,7 @@ import Modal from "./Modal";
 import { cn, extractTgWebAppData } from "../lib/utils";
 import useAppStore from "../store/useAppStore";
 import type { Account } from "../types/app";
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { AccountAvatar } from "./AccountAvatar";
 import { LuArrowLeft, LuUserPlus, LuX } from "react-icons/lu";
 import { HeaderButton } from "./HeaderButton";
@@ -112,7 +112,7 @@ export default function AccountsDialog({ onClose }: { onClose: () => void }) {
   const removeAccount = useAppStore((state) => state.removeAccount);
 
   /* Handle Add Account */
-  const handleAddAccount = () => {
+  const handleAddAccount = useCallback(() => {
     const newAccount: Account = {
       id: crypto.randomUUID(),
       title: `Account ${accounts.length + 1}`,
@@ -123,20 +123,23 @@ export default function AccountsDialog({ onClose }: { onClose: () => void }) {
     onClose();
 
     toast.success("Account added successfully");
-  };
+  }, [addAccount, accounts.length, onClose, setActiveAccountId]);
 
   /* Handle Edit Submit */
-  const handleEditSubmit = (data: Partial<Account>) => {
-    if (accountToEdit) {
-      updateAccount(accountToEdit.id, data);
-      setAccountToEdit(null);
+  const handleEditSubmit = useCallback(
+    (data: Partial<Account>) => {
+      if (accountToEdit) {
+        updateAccount(accountToEdit.id, data);
+        setAccountToEdit(null);
 
-      toast.success("Account updated successfully");
-    }
-  };
+        toast.success("Account updated successfully");
+      }
+    },
+    [accountToEdit, updateAccount]
+  );
 
   /* Handle Delete Account */
-  const handleDeleteAccount = () => {
+  const handleDeleteAccount = useCallback(() => {
     if (accountToEdit) {
       removeAccount(accountToEdit.id);
       setAccountToEdit(null);
@@ -152,7 +155,13 @@ export default function AccountsDialog({ onClose }: { onClose: () => void }) {
 
       toast.success("Account deleted successfully");
     }
-  };
+  }, [
+    accountToEdit,
+    activeAccountId,
+    accounts,
+    removeAccount,
+    setActiveAccountId,
+  ]);
 
   return (
     <Modal onOpenChange={onClose} preventCloseOnOutsideClick={false}>

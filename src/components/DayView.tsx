@@ -5,7 +5,7 @@ import {
   LuTrendingUp,
 } from "react-icons/lu";
 import { Tabs } from "radix-ui";
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 
 import Currency from "./Currency";
 import InvestmentEngine from "../lib/InvestmentEngine";
@@ -306,13 +306,13 @@ export default function DayView({
   selectedDate: Date;
   onSelectDate: (date: Date) => void;
 }) {
-  // Store state
+  /* Store state */
   const account = useActiveAccount();
   const transactions = account.transactions;
   const addTransaction = useAppStore((state) => state.addTransaction);
   const removeTransaction = useAppStore((state) => state.removeTransaction);
 
-  // Calculations
+  /* Calculations */
   const result = useInvestmentCalculations(selectedDate, transactions);
   const todayTransactions = useTodayTransactions(
     selectedDate,
@@ -321,68 +321,85 @@ export default function DayView({
   );
   const endDate = useInvestmentEndDate(selectedDate);
 
-  // Local state
+  /* Local state */
   const [investmentAmount, setInvestmentAmount] = useState<string | number>("");
-  const [withdrawalAmount, setWithdrawalAmount] = useState<string | number>(
-    result.currentState.totalBalance.toFixed(4)
+  const [withdrawalAmount, setWithdrawalAmount] = useState<string | number>("");
+
+  /* Handle Re-Investment */
+  const reinvest = useCallback(
+    (amount: string | number) => {
+      addTransaction(account.id, {
+        id: crypto.randomUUID(),
+        date: selectedDate,
+        amount: parseFloat(amount.toString()),
+        type: "exchange",
+      });
+    },
+    [addTransaction, account.id, selectedDate]
   );
 
-  // Event handlers
-  const reinvest = (amount: string | number) => {
-    addTransaction(account.id, {
-      id: crypto.randomUUID(),
-      date: selectedDate,
-      amount: parseFloat(amount.toString()),
-      type: "exchange",
-    });
-  };
+  /* Handle Remove Transaction */
+  const removeAccountTransaction = useCallback(
+    (transactionId: string) => {
+      removeTransaction(account.id, transactionId);
+    },
+    [removeTransaction, account.id]
+  );
 
-  const removeAccountTransaction = (transactionId: string) => {
-    removeTransaction(account.id, transactionId);
-  };
+  /* Handle Investment Transaction */
+  const addInvestmentTransaction = useCallback(
+    (amount: number) => {
+      addTransaction(account.id, {
+        id: crypto.randomUUID(),
+        date: selectedDate,
+        amount: amount,
+        type: "investment",
+      });
+    },
+    [addTransaction, account.id, selectedDate]
+  );
 
-  const addInvestmentTransaction = (amount: number) => {
-    addTransaction(account.id, {
-      id: crypto.randomUUID(),
-      date: selectedDate,
-      amount: amount,
-      type: "investment",
-    });
-  };
+  /* Handle Withdrawal Transaction */
+  const addWithdrawalTransaction = useCallback(
+    (amount: number) => {
+      addTransaction(account.id, {
+        id: crypto.randomUUID(),
+        date: selectedDate,
+        amount: -amount,
+        type: "withdrawal",
+      });
+    },
+    [addTransaction, account.id, selectedDate]
+  );
 
-  const addWithdrawalTransaction = (amount: number) => {
-    addTransaction(account.id, {
-      id: crypto.randomUUID(),
-      date: selectedDate,
-      amount: -amount,
-      type: "withdrawal",
-    });
-  };
-
-  const handleInvest = () => {
+  /* Handle Invest */
+  const handleInvest = useCallback(() => {
     if (parseFloat(investmentAmount.toString()) >= 1) {
       addInvestmentTransaction(parseFloat(investmentAmount.toString()));
       setInvestmentAmount("");
     }
-  };
+  }, [addInvestmentTransaction, investmentAmount]);
 
-  const handleWithdraw = () => {
+  /* Handle Withdraw */
+  const handleWithdraw = useCallback(() => {
     if (withdrawalAmount) {
       addWithdrawalTransaction(parseFloat(withdrawalAmount.toString()));
       setWithdrawalAmount("");
     }
-  };
+  }, [addWithdrawalTransaction, withdrawalAmount]);
 
-  const handleReInvest = () => {
+  /* Handle Re-Invest */
+  const handleReInvest = useCallback(() => {
     if (withdrawalAmount) {
       reinvest(withdrawalAmount);
       setWithdrawalAmount("");
     }
-  };
+  }, [reinvest, withdrawalAmount]);
 
-  const handleMaxWithdrawal = () => {
+  /* Handle Max Withdrawal */
+  const handleMaxWithdrawal = useCallback(() => {
     setWithdrawalAmount(result.currentState.totalBalance.toFixed(4));
-  };
+  }, [result.currentState.totalBalance]);
 
   return (
     <PageContainer className="flex flex-col gap-4 px-2 py-4">

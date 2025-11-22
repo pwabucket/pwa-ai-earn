@@ -1,6 +1,6 @@
 import { Dialog } from "radix-ui";
 import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 
 import Modal from "./Modal";
 import { DAY_NAMES, MONTH_NAMES } from "../constants/calendar";
@@ -39,17 +39,20 @@ export default function CalendarModal({
     return generateCalendarDays(currentMonth, selectedDate, activityDates);
   }, [currentMonth, selectedDate, activityDates]);
 
-  const navigateMonth = (direction: number) => {
+  const navigateMonth = useCallback((direction: number) => {
     setCurrentMonth((prev) => {
       const newDate = new Date(prev);
       newDate.setMonth(newDate.getMonth() + direction);
       return newDate;
     });
-  };
+  }, []);
 
-  const handleDateSelect = (date: Date) => {
-    onSelectDate(date);
-  };
+  const handleDateSelect = useCallback(
+    (date: Date) => {
+      onSelectDate(date);
+    },
+    [onSelectDate]
+  );
 
   return (
     <Modal onOpenChange={onClose}>

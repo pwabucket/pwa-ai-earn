@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useCallback, useMemo } from "react";
 
 import { DAY_NAMES } from "../constants/calendar";
 import { cn } from "../lib/utils";
@@ -16,9 +16,12 @@ export default function WeeklyCalendar({
     return generateWeekDates(selectedDate, DAY_NAMES);
   }, [selectedDate]);
 
-  const handleDateSelect = (date: Date) => {
-    onSelectDate(date);
-  };
+  const handleDateSelect = useCallback(
+    (date: Date) => {
+      onSelectDate(date);
+    },
+    [onSelectDate]
+  );
 
   return (
     <div className="overflow-x-auto">

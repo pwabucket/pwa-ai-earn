@@ -1,6 +1,7 @@
 import { LuChevronLeft, LuChevronRight } from "react-icons/lu";
 
 import { HeaderButton } from "./HeaderButton";
+import { useCallback } from "react";
 
 export const DayNavigator = ({
   selectedDate,
@@ -9,11 +10,14 @@ export const DayNavigator = ({
   selectedDate: Date;
   onDateChange: (date: Date) => void;
 }) => {
-  const navigateDay = (direction: number) => {
-    const currentDate = new Date(selectedDate);
-    currentDate.setDate(currentDate.getDate() + direction);
-    onDateChange(currentDate);
-  };
+  const navigateDay = useCallback(
+    (direction: number) => {
+      const currentDate = new Date(selectedDate);
+      currentDate.setDate(currentDate.getDate() + direction);
+      onDateChange(currentDate);
+    },
+    [onDateChange, selectedDate]
+  );
 
   return (
     <>

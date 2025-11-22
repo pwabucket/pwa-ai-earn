@@ -8,6 +8,7 @@ import { Label } from "./Label";
 import { FormFieldError } from "./FormFieldError";
 import { cn, copyToClipboard } from "../lib/utils";
 import { MdDelete, MdOutlineContentCopy, MdWarning } from "react-icons/md";
+import { useCallback } from "react";
 
 /** Account Form Data */
 interface AccountFormData {
@@ -44,12 +45,15 @@ export default function AccountEditForm({
     },
   });
 
-  const handleFormSubmit = (data: AccountFormData) => {
-    onSubmit(data);
-  };
-  const handleDelete = () => {
+  const handleFormSubmit = useCallback(
+    (data: AccountFormData) => {
+      onSubmit(data);
+    },
+    [onSubmit]
+  );
+  const handleDelete = useCallback(() => {
     onDelete();
-  };
+  }, [onDelete]);
 
   return (
     <FormProvider {...form}>

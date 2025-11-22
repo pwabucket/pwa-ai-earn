@@ -7,6 +7,7 @@ import { HeaderButton } from "./HeaderButton";
 import useAppStore from "../store/useAppStore";
 import { AccountAvatar } from "./AccountAvatar";
 import { cn } from "../lib/utils";
+import { useCallback } from "react";
 
 export default function WebviewModal({
   onOpenChange,
@@ -20,23 +21,26 @@ export default function WebviewModal({
   const url = account.url;
   const user = useUser();
 
-  const navigateToNextAccount = (direction: 1 | -1) => {
-    if (accounts.length <= 1) return;
+  const navigateToNextAccount = useCallback(
+    (direction: 1 | -1) => {
+      if (accounts.length <= 1) return;
 
-    const currentIndex = accounts.findIndex(
-      (acc) => acc.id === activeAccountId
-    );
-    let newIndex = currentIndex + direction;
+      const currentIndex = accounts.findIndex(
+        (acc) => acc.id === activeAccountId
+      );
+      let newIndex = currentIndex + direction;
 
-    if (newIndex < 0) {
-      newIndex = accounts.length - 1;
-    } else if (newIndex >= accounts.length) {
-      newIndex = 0;
-    }
+      if (newIndex < 0) {
+        newIndex = accounts.length - 1;
+      } else if (newIndex >= accounts.length) {
+        newIndex = 0;
+      }
 
-    const newAccount = accounts[newIndex];
-    setActiveAccountId(newAccount.id);
-  };
+      const newAccount = accounts[newIndex];
+      setActiveAccountId(newAccount.id);
+    },
+    [accounts, activeAccountId, setActiveAccountId]
+  );
 
   return (
     <Modal
