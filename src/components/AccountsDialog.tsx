@@ -197,7 +197,7 @@ export default function AccountsDialog({ onClose }: { onClose: () => void }) {
             className="text-neutral-400 hover:text-white transition-colors"
             onClick={() => setAccountToEdit(null)}
           >
-            <LuArrowLeft className="size-6" />
+            <LuArrowLeft className="size-5" />
           </HeaderButton>
         )}
 
@@ -218,7 +218,7 @@ export default function AccountsDialog({ onClose }: { onClose: () => void }) {
               className="text-neutral-400 hover:text-white transition-colors"
               onClick={handleAddAccount}
             >
-              <LuUserPlus className="size-6" />
+              <LuUserPlus className="size-5" />
             </HeaderButton>
             {/* Close button */}
             <Dialog.Close asChild>
