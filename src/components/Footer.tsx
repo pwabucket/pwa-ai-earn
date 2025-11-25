@@ -1,16 +1,10 @@
-import useActiveAccount from "../hooks/useActiveAccount";
-import { useUser } from "../hooks/useUser";
 import PageContainer from "./PageContainer";
-import { LuChevronsUpDown } from "react-icons/lu";
-import { AccountAvatar } from "./AccountAvatar";
 import AccountsDialog from "./AccountsDialog";
 import useLocationToggle from "../hooks/useLocationToggle";
 import { cn } from "../lib/utils";
+import AccountSwitcherButton from "./AccountSwitcherButton";
 
 export default function Footer() {
-  const activeAccount = useActiveAccount();
-  const user = useUser();
-
   const [showAccountsDialog, toggleAccountsDialog] =
     useLocationToggle("accounts-dialog");
 
@@ -24,37 +18,10 @@ export default function Footer() {
         )}
       >
         <PageContainer className="flex justify-center py-0">
-          <button
-            className="flex gap-2 items-center justify-center text-left cursor-pointer w-full max-w-56"
+          <AccountSwitcherButton
             onClick={() => toggleAccountsDialog(true)}
-          >
-            <span className="size-5 shrink-0" />
-            <div className="size-10 shrink-0">
-              {user ? (
-                <img
-                  src={user["photo_url"]}
-                  alt={user["first_name"]}
-                  className="size-full rounded-full object-cover shrink-0"
-                />
-              ) : (
-                <AccountAvatar account={activeAccount} className="size-full" />
-              )}
-            </div>
-            <div className="flex flex-col text-sm grow min-w-0 gap-1">
-              <h1 className="font-bold text-pink-500 truncate leading-none">
-                {activeAccount.title}
-              </h1>
-              {user ? (
-                <>
-                  <p className="text-neutral-400 truncate leading-none">
-                    {user["first_name"]} {user["last_name"]}
-                  </p>
-                </>
-              ) : null}
-            </div>
-
-            <LuChevronsUpDown className="size-5 text-neutral-400 shrink-0" />
-          </button>
+            className="before:size-5 before:shrink-0"
+          />
 
           {showAccountsDialog && (
             <AccountsDialog onClose={() => toggleAccountsDialog(false)} />

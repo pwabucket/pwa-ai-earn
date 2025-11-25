@@ -23,9 +23,10 @@ import { SecondaryHeader } from "../components/Header";
 import { cn } from "../lib/utils";
 import useLocationToggle from "../hooks/useLocationToggle";
 import URLModal from "../components/URLModal";
-import { useUser } from "../hooks/useUser";
 import useActiveAccount from "../hooks/useActiveAccount";
 import LabelToggle from "../components/LabelToggle";
+import AccountsDialog from "../components/AccountsDialog";
+import AccountSwitcherButton from "../components/AccountSwitcherButton";
 
 const MenuButton: DynamicComponent<"button"> = ({ as, ...props }) => {
   const Component = as || "button";
@@ -43,6 +44,8 @@ const MenuButton: DynamicComponent<"button"> = ({ as, ...props }) => {
 };
 
 export default function Menu() {
+  const [showAccountsDialog, toggleAccountsDialog] =
+    useLocationToggle("accounts-dialog");
   const [showURLModal, setShowURLModal] = useLocationToggle("menu-url-modal");
   const { googleApi, googleDriveBackup } = useAppContext();
 
@@ -78,10 +81,11 @@ export default function Menu() {
     googleDriveBackup!.authorize({ prompt });
   };
 
-  const user = useUser();
-
   return (
     <>
+      {showAccountsDialog && (
+        <AccountsDialog onClose={() => toggleAccountsDialog(false)} />
+      )}
       <SecondaryHeader title="Menu" />
       <PageContainer className="flex flex-col gap-2">
         <div className="flex p-4 flex-col items-center gap-1">
@@ -97,23 +101,10 @@ export default function Menu() {
             v{import.meta.env.PACKAGE_VERSION}
           </p>
 
-          {user && (
-            <div className="flex items-center gap-2 bg-neutral-800 rounded-full mx-auto max-w-5/6 p-2">
-              <img
-                src={user["photo_url"]}
-                alt={user["first_name"]}
-                className="size-10 rounded-full object-cover shrink-0"
-              />
-              <div className="flex flex-col pr-2 min-w-0">
-                <span className="font-medium truncate text-pink-300">{`${
-                  user["first_name"]
-                } ${user["last_name"] || ""}`}</span>
-                <span className="text-sm text-neutral-400 truncate">
-                  @{user["username"] || "Telegram User"}
-                </span>
-              </div>
-            </div>
-          )}
+          <AccountSwitcherButton
+            onClick={() => toggleAccountsDialog(true)}
+            className={cn("bg-neutral-800 rounded-full mx-auto  p-2")}
+          />
         </div>
 
         <GoogleProfile />
