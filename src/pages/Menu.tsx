@@ -6,6 +6,7 @@ import {
   LuFileText,
   LuGithub,
   LuLink,
+  LuRadio,
   LuRotateCcw,
   LuShield,
 } from "react-icons/lu";
@@ -24,6 +25,7 @@ import useLocationToggle from "../hooks/useLocationToggle";
 import URLModal from "../components/URLModal";
 import { useUser } from "../hooks/useUser";
 import useActiveAccount from "../hooks/useActiveAccount";
+import LabelToggle from "../components/LabelToggle";
 
 const MenuButton: DynamicComponent<"button"> = ({ as, ...props }) => {
   const Component = as || "button";
@@ -47,6 +49,10 @@ export default function Menu() {
   const account = useActiveAccount();
   const url = account.url;
 
+  const enableLiveUpdates = useAppStore((state) => state.enableLiveUpdates);
+  const setEnableLiveUpdates = useAppStore(
+    (state) => state.setEnableLiveUpdates
+  );
   const setTransactions = useAppStore((state) => state.setTransactions);
 
   /** Google Drive Backup Prompt */
@@ -127,11 +133,22 @@ export default function Menu() {
 
         <hr className="border-neutral-700" />
 
+        {/* URL button */}
         <MenuButton onClick={() => setShowURLModal(true)}>
           <LuLink className="size-5" />
           <span className="grow">Set URL</span>
           {url && <LuCheck className="text-green-500 text-xs" />}
         </MenuButton>
+
+        {/* Enable live updates */}
+        <LabelToggle
+          disabled={!url}
+          checked={enableLiveUpdates}
+          onChange={(ev) => setEnableLiveUpdates(ev.target.checked)}
+        >
+          <LuRadio className="size-5" />
+          Enable Live Updates
+        </LabelToggle>
 
         {showURLModal && <URLModal onOpenChange={setShowURLModal} />}
 

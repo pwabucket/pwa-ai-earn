@@ -5,6 +5,7 @@ import type { Transaction } from "../types/app";
 import useTransactionsQuery from "./useTransactionsQuery";
 
 export const useTracker = () => {
+  const enableLiveUpdates = useAppStore((state) => state.enableLiveUpdates);
   const setTransactions = useAppStore((state) => state.setTransactions);
   const account = useActiveAccount();
 
@@ -13,7 +14,9 @@ export const useTracker = () => {
 
   const refresh = transactionsQuery.refetch;
 
+  /*  Effect to update transactions when data changes */
   useEffect(() => {
+    if (!enableLiveUpdates) return;
     if (data) {
       console.log("Transactions data:", data);
 
@@ -56,7 +59,7 @@ export const useTracker = () => {
       /*  Update the transactions in the store */
       setTransactions(account.id, updatedTransactions);
     }
-  }, [data, setTransactions, account.id]);
+  }, [enableLiveUpdates, data, setTransactions, account.id]);
 
   return { refresh };
 };

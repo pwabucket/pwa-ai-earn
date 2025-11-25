@@ -5,6 +5,9 @@ export interface AppSlice {
   activeAccountId: string | null;
   setActiveAccountId: (accountId: string | null) => void;
 
+  enableLiveUpdates: boolean;
+  setEnableLiveUpdates: (enabled: boolean) => void;
+
   accounts: Account[];
   setAccounts: (accounts: Account[]) => void;
   addAccount: (account: Account) => void;
@@ -24,6 +27,9 @@ export interface AppSlice {
 export const createAppSlice: StateCreator<AppSlice> = (set) => ({
   activeAccountId: "default",
   setActiveAccountId: (accountId) => set({ activeAccountId: accountId }),
+
+  enableLiveUpdates: true,
+  setEnableLiveUpdates: (enabled) => set({ enableLiveUpdates: enabled }),
 
   accounts: [
     {
