@@ -52,10 +52,7 @@ export default function Menu() {
   const account = useActiveAccount();
   const url = account.url;
 
-  const enableLiveUpdates = useAppStore((state) => state.enableLiveUpdates);
-  const setEnableLiveUpdates = useAppStore(
-    (state) => state.setEnableLiveUpdates
-  );
+  const updateAccount = useAppStore((state) => state.updateAccount);
   const setTransactions = useAppStore((state) => state.setTransactions);
 
   /** Google Drive Backup Prompt */
@@ -134,8 +131,10 @@ export default function Menu() {
         {/* Enable live updates */}
         <LabelToggle
           disabled={!url}
-          checked={enableLiveUpdates}
-          onChange={(ev) => setEnableLiveUpdates(ev.target.checked)}
+          checked={account.enableLiveUpdates ?? true}
+          onChange={(ev) =>
+            updateAccount(account.id, { enableLiveUpdates: ev.target.checked })
+          }
         >
           <LuRadio className="size-5" />
           Enable Live Updates

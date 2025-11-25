@@ -141,7 +141,9 @@ export default function AccountsDialog({ onClose }: { onClose: () => void }) {
     const newAccount: Account = {
       id: crypto.randomUUID(),
       title: `Account ${accounts.length + 1}`,
+      enableLiveUpdates: true,
       transactions: [],
+      url: "",
     };
     addAccount(newAccount);
     setActiveAccountId(newAccount.id);

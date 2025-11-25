@@ -10,6 +10,7 @@ export interface Account {
   id: string;
   title: string;
   url?: string;
+  enableLiveUpdates?: boolean;
   transactions: Transaction[];
 }
 

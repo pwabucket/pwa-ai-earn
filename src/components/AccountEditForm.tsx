@@ -9,17 +9,21 @@ import { FormFieldError } from "./FormFieldError";
 import { cn, copyToClipboard } from "../lib/utils";
 import { MdDelete, MdOutlineContentCopy, MdWarning } from "react-icons/md";
 import { useCallback } from "react";
+import LabelToggle from "./LabelToggle";
+import { LuRadio } from "react-icons/lu";
 
 /** Account Form Data */
 interface AccountFormData {
   title: string;
   url?: string;
+  enableLiveUpdates: boolean;
 }
 /** Account Form Schema */
 const AccountFormSchema = yup
   .object({
     title: yup.string().required().label("Title"),
     url: yup.string().url().label("URL"),
+    enableLiveUpdates: yup.boolean().required().label("Enable Live Updates"),
   })
   .required();
 
@@ -42,6 +46,7 @@ export default function AccountEditForm({
     defaultValues: {
       title: account?.title || "",
       url: account?.url || "",
+      enableLiveUpdates: account?.enableLiveUpdates ?? true,
     },
   });
 
@@ -105,6 +110,20 @@ export default function AccountEditForm({
                 </button>
               </div>
 
+              <FormFieldError message={fieldState.error?.message} />
+            </>
+          )}
+        />
+
+        {/* URL */}
+        <Controller
+          name="enableLiveUpdates"
+          render={({ field, fieldState }) => (
+            <>
+              <LabelToggle checked={field.value} onChange={field.onChange}>
+                <LuRadio className="size-5" />
+                Enable Live Updates
+              </LabelToggle>
               <FormFieldError message={fieldState.error?.message} />
             </>
           )}
