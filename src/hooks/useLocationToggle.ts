@@ -8,7 +8,7 @@ export default function useLocationToggle(
   const location = useLocation();
   const show = location.state?.[key] === true;
 
-  /** Toggle Address Picker */
+  /** Toggle Location State */
   const toggle = useCallback(
     (status: boolean) => {
       if (status) {
