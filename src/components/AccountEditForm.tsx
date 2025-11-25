@@ -115,7 +115,7 @@ export default function AccountEditForm({
           )}
         />
 
-        {/* URL */}
+        {/* Enable Live Updates */}
         <Controller
           name="enableLiveUpdates"
           render={({ field, fieldState }) => (
