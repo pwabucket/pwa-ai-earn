@@ -128,9 +128,7 @@ export default function AccountsDialog({ onClose }: { onClose: () => void }) {
           state: { ...location.state, accountToEditId: account.id },
         });
       } else {
-        const newState = location.state || {};
-        delete newState.accountToEditId;
-        navigate(location, { state: newState, replace: true });
+        navigate(-1);
       }
     },
     [location, navigate]
