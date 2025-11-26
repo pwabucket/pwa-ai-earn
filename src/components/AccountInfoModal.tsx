@@ -20,7 +20,9 @@ export default function AccountInfoModal({
           <AccountInfo account={account} />
         ) : (
           <div
-            className={"grow flex items-center justify-center text-neutral-400"}
+            className={
+              "flex items-center justify-center text-neutral-400 text-sm"
+            }
           >
             No URL set for this account.
           </div>

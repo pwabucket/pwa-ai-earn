@@ -9,6 +9,7 @@ import {
   LuRadio,
   LuRotateCcw,
   LuShield,
+  LuUpload,
   LuUser,
 } from "react-icons/lu";
 
@@ -30,6 +31,7 @@ import AccountsDialog from "../components/AccountsDialog";
 import AccountSwitcherButton from "../components/AccountSwitcherButton";
 import { createAndDownloadBackup } from "../lib/backup";
 import AccountInfoModal from "../components/AccountInfoModal";
+import RestoreDialog from "../components/RestoreDialog";
 
 const MenuButton: DynamicComponent<"button"> = ({ as, ...props }) => {
   const Component = as || "button";
@@ -46,6 +48,21 @@ const MenuButton: DynamicComponent<"button"> = ({ as, ...props }) => {
   );
 };
 
+const MenuSection = ({
+  title,
+  children,
+}: {
+  title: string;
+  children: React.ReactNode;
+}) => {
+  return (
+    <div className="flex flex-col gap-2 py-1">
+      <h2 className="text-neutral-400 font-bold text-sm px-4">{title}</h2>
+      <div className="flex flex-col gap-2">{children}</div>
+    </div>
+  );
+};
+
 export default function Menu() {
   const [showAccountsDialog, toggleAccountsDialog] =
     useLocationToggle("accounts-dialog");
@@ -53,6 +70,10 @@ export default function Menu() {
   const [showAccountInfoModal, setShowAccountInfoModal] = useLocationToggle(
     "menu-account-info-modal"
   );
+  const [showRestoreDialog, setShowRestoreDialog] = useLocationToggle(
+    "menu-restore-dialog"
+  );
+
   const { googleApi, googleDriveBackup } = useAppContext();
 
   const account = useActiveAccount();
@@ -125,73 +146,87 @@ export default function Menu() {
             : "Connect Google Drive"}
         </MenuButton>
 
-        <hr className="border-neutral-700" />
+        <MenuSection title="Account Settings">
+          {/* URL button */}
+          <MenuButton onClick={() => setShowURLModal(true)}>
+            <LuLink className="size-5" />
+            <span className="grow">Set URL</span>
+            {url && <LuCheck className="text-green-500 text-xs" />}
+          </MenuButton>
 
-        {/* URL button */}
-        <MenuButton onClick={() => setShowURLModal(true)}>
-          <LuLink className="size-5" />
-          <span className="grow">Set URL</span>
-          {url && <LuCheck className="text-green-500 text-xs" />}
-        </MenuButton>
+          {/* URL Modal */}
+          {showURLModal && <URLModal onOpenChange={setShowURLModal} />}
 
-        {/* URL Modal */}
-        {showURLModal && <URLModal onOpenChange={setShowURLModal} />}
+          {/* Enable live updates */}
+          <LabelToggle
+            disabled={!url}
+            checked={account.enableLiveUpdates ?? true}
+            onChange={(ev) =>
+              updateAccount(account.id, {
+                enableLiveUpdates: ev.target.checked,
+              })
+            }
+          >
+            <LuRadio className="size-5" />
+            Enable Live Updates
+          </LabelToggle>
 
-        {/* Enable live updates */}
-        <LabelToggle
-          disabled={!url}
-          checked={account.enableLiveUpdates ?? true}
-          onChange={(ev) =>
-            updateAccount(account.id, { enableLiveUpdates: ev.target.checked })
-          }
-        >
-          <LuRadio className="size-5" />
-          Enable Live Updates
-        </LabelToggle>
+          {/* Account Info button */}
+          <MenuButton onClick={() => setShowAccountInfoModal(true)}>
+            <LuUser className="size-5" />
+            Account Info
+          </MenuButton>
 
-        {/* Account Info button */}
-        <MenuButton onClick={() => setShowAccountInfoModal(true)}>
-          <LuUser className="size-5" />
-          Account Info
-        </MenuButton>
-
-        {/* Account Info Modal */}
-        {showAccountInfoModal && (
-          <AccountInfoModal onOpenChange={setShowAccountInfoModal} />
-        )}
+          {/* Account Info Modal */}
+          {showAccountInfoModal && (
+            <AccountInfoModal onOpenChange={setShowAccountInfoModal} />
+          )}
+        </MenuSection>
 
         {/* Data section */}
-        <hr className="border-neutral-700" />
-        <MenuButton onClick={createAndDownloadBackup}>
-          <LuDatabaseBackup className="size-5" />
-          Backup Data
-        </MenuButton>
+        <MenuSection title="Data Management">
+          <MenuButton onClick={createAndDownloadBackup}>
+            <LuDatabaseBackup className="size-5" />
+            Backup Data
+          </MenuButton>
 
-        <MenuButton onClick={resetTracker}>
-          <LuRotateCcw className="size-5" />
-          Reset Tracker
-        </MenuButton>
+          <MenuButton onClick={() => setShowRestoreDialog(true)}>
+            <LuUpload className="size-5" />
+            Restore Data
+          </MenuButton>
 
-        <hr className="border-neutral-700" />
+          {/* Restore Dialog */}
+          {showRestoreDialog && (
+            <RestoreDialog onClose={() => setShowRestoreDialog(false)} />
+          )}
 
-        <MenuButton as={Link} to="/privacy-policy">
-          <LuShield className="size-5" />
-          Privacy Policy
-        </MenuButton>
+          <MenuButton onClick={resetTracker}>
+            <LuRotateCcw className="size-5" />
+            Reset Tracker
+          </MenuButton>
+        </MenuSection>
 
-        <MenuButton as={Link} to="/terms-of-service">
-          <LuFileText className="size-5" />
-          Terms of Service
-        </MenuButton>
+        {/* Legal and Source Codes section */}
+        <MenuSection title="Legal & Source Code">
+          <MenuButton as={Link} to="/privacy-policy">
+            <LuShield className="size-5" />
+            Privacy Policy
+          </MenuButton>
 
-        <MenuButton
-          as={Link}
-          to={import.meta.env.VITE_APP_REPOSITORY}
-          target="_blank"
-        >
-          <LuGithub className="size-5" />
-          Repository
-        </MenuButton>
+          <MenuButton as={Link} to="/terms-of-service">
+            <LuFileText className="size-5" />
+            Terms of Service
+          </MenuButton>
+
+          <MenuButton
+            as={Link}
+            to={import.meta.env.VITE_APP_REPOSITORY}
+            target="_blank"
+          >
+            <LuGithub className="size-5" />
+            Repository
+          </MenuButton>
+        </MenuSection>
       </PageContainer>
 
       {/* Google Backup Prompt */}
