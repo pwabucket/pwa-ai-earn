@@ -10,13 +10,11 @@ export default function AccountInfoModal({
 }) {
   const account = useActiveAccount();
   return (
-    <Modal
-      onOpenChange={onOpenChange}
-      contentClassName="p-0 h-full max-h-[768px] overflow-hidden gap-0 flex flex-col"
-    >
-      <div className="p-4 shrink-0">
-        <AccountModalHeader />
-      </div>
+    <Modal onOpenChange={onOpenChange} fullHeight={true}>
+      {/* Header */}
+      <AccountModalHeader />
+
+      {/* Account Info */}
       <div className="grow min-w-0 min-h-0 overflow-auto">
         {account.url ? (
           <AccountInfo account={account} />

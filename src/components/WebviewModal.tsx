@@ -12,14 +12,9 @@ export default function WebviewModal({
   const url = account.url;
 
   return (
-    <Modal
-      onOpenChange={onOpenChange}
-      overlayClassName="p-4"
-      contentClassName="p-0 h-full max-h-[768px] overflow-hidden gap-0 flex flex-col"
-    >
-      <div className="p-4 shrink-0">
-        <AccountModalHeader />
-      </div>
+    <Modal onOpenChange={onOpenChange} fullHeight={true} overlayClassName="p-4">
+      {/* Header */}
+      <AccountModalHeader />
 
       {/* Iframe */}
       {url ? (

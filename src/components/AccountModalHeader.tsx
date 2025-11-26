@@ -42,7 +42,7 @@ export default function AccountModalHeader() {
         Modal for {account.title}
       </Dialog.Description>
 
-      <div className="flex gap-4 items-center">
+      <div className="p-4 flex gap-4 items-center shrink-0">
         <div className="grow min-w-0 flex items-center gap-2">
           {user ? (
             <img

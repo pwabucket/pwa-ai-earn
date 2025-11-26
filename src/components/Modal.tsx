@@ -8,6 +8,7 @@ export interface ModalProps extends Dialog.DialogProps {
   overlayClassName?: string;
   contentClassName?: string;
   preventCloseOnOutsideClick?: boolean;
+  fullHeight?: boolean;
 }
 
 export default function Modal({
@@ -19,6 +20,7 @@ export default function Modal({
   contentClassName,
   overlayRef,
   contentRef,
+  fullHeight,
 }: ModalProps) {
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
@@ -37,8 +39,10 @@ export default function Modal({
             }
             onOpenAutoFocus={(ev) => ev.preventDefault()}
             className={cn(
-              "bg-neutral-900 text-white rounded-2xl p-6 overflow-x-hidden",
+              "bg-neutral-900 text-white rounded-2xl overflow-hidden",
               "w-full max-w-md shadow-2xl border border-neutral-800 my-auto",
+              "flex flex-col",
+              fullHeight ? "h-full max-h-[768px]" : "p-6",
               contentClassName
             )}
           >
