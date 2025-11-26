@@ -1,7 +1,8 @@
-import { useCallback } from "react";
+import { useCallback, useId } from "react";
 import { useMemo } from "react";
 import { useRef } from "react";
 import { useState } from "react";
+import useLocationToggle from "./useLocationToggle";
 
 interface PromptRef<T = unknown> {
   resolve: ((value: T | PromiseLike<T>) => void) | null;
@@ -18,8 +19,9 @@ export default function usePrompt<T = unknown, R = unknown>() {
     reject: null,
   });
 
+  const id = useId();
   const [value, setValue] = useState<T | null>(null);
-  const [show, setShow] = useState(false);
+  const [show, setShow] = useLocationToggle(`prompt-${id}`);
 
   const prompt: PromptCallback<T, R> = useCallback(
     (value = null) =>
@@ -31,7 +33,7 @@ export default function usePrompt<T = unknown, R = unknown>() {
         setValue(value);
         setShow(true);
       }),
-    []
+    [setShow]
   );
 
   const resolve = useCallback((value: R) => ref.current.resolve?.(value), []);
