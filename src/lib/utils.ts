@@ -2,10 +2,14 @@ import clsx, { type ClassValue } from "clsx";
 import toast from "react-hot-toast";
 import { twMerge } from "tailwind-merge";
 import copy from "copy-to-clipboard";
+import { format } from "date-fns";
 
+/** Class Names Merge Utility */
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
+
+/** Format Currency */
 export const formatCurrency = (amount: number, prefix = "") => {
   const formatted = Intl.NumberFormat("en-US", {
     style: "currency",
@@ -62,7 +66,51 @@ export function getInitDataUnsafe(initData: string) {
   return data;
 }
 
+/** Copy to Clipboard with Toast Notification */
 export function copyToClipboard(content: string) {
   copy(content);
   toast.success("Copied to clipboard!");
+}
+
+/** Generate Wallet Address Link */
+export function walletAddressLink(address: string) {
+  return `https://bscscan.com/address/${address}`;
+}
+
+/** Generate Transaction Hash Link */
+export function transactionHashLink(txHash: string) {
+  return `https://bscscan.com/tx/${txHash}`;
+}
+
+export function truncateDecimals(value: number, decimals: number = 8): string {
+  /* Convert to string with extra precision to avoid scientific notation */
+  const str = value.toFixed(Math.max(decimals + 5, 20));
+
+  /* Find decimal point position */
+  const dotIndex = str.indexOf(".");
+
+  /* If no decimal point or decimals is 0, return integer part only */
+  if (dotIndex === -1 || decimals === 0) {
+    return Math.trunc(value).toString();
+  }
+
+  /* Slice string to desired decimal places (pure truncation, no rounding) */
+  return str.slice(0, dotIndex + decimals + 1);
+}
+
+export function downloadFile(content: Blob | File, filename: string) {
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(content);
+  link.download = filename;
+  link.click();
+  URL.revokeObjectURL(link.href);
+}
+
+export function downloadJsonFile(id: string, data: unknown) {
+  const timestamp = format(new Date(), "yyyy-MM-dd_HH-mm-ss");
+  const jsonBlob = new Blob([JSON.stringify(data, null, 2)], {
+    type: "application/json",
+  });
+
+  return downloadFile(jsonBlob, `tracker-${id}-${timestamp}.json`);
 }

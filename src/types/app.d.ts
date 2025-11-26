@@ -27,3 +27,11 @@ export interface GoogleDriveBackupContent {
     accounts: Account[];
   };
 }
+
+export interface BackupData {
+  version: string;
+  timestamp: string;
+  data: {
+    accounts: Account[];
+  };
+}

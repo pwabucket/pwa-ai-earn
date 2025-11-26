@@ -9,6 +9,7 @@ import {
   LuRadio,
   LuRotateCcw,
   LuShield,
+  LuUser,
 } from "react-icons/lu";
 
 import GoogleBackupPrompt from "../components/GoogleBackupPrompt";
@@ -27,6 +28,8 @@ import useActiveAccount from "../hooks/useActiveAccount";
 import LabelToggle from "../components/LabelToggle";
 import AccountsDialog from "../components/AccountsDialog";
 import AccountSwitcherButton from "../components/AccountSwitcherButton";
+import { createAndDownloadBackup } from "../lib/backup";
+import AccountInfoModal from "../components/AccountInfoModal";
 
 const MenuButton: DynamicComponent<"button"> = ({ as, ...props }) => {
   const Component = as || "button";
@@ -47,6 +50,9 @@ export default function Menu() {
   const [showAccountsDialog, toggleAccountsDialog] =
     useLocationToggle("accounts-dialog");
   const [showURLModal, setShowURLModal] = useLocationToggle("menu-url-modal");
+  const [showAccountInfoModal, setShowAccountInfoModal] = useLocationToggle(
+    "menu-account-info-modal"
+  );
   const { googleApi, googleDriveBackup } = useAppContext();
 
   const account = useActiveAccount();
@@ -128,6 +134,9 @@ export default function Menu() {
           {url && <LuCheck className="text-green-500 text-xs" />}
         </MenuButton>
 
+        {/* URL Modal */}
+        {showURLModal && <URLModal onOpenChange={setShowURLModal} />}
+
         {/* Enable live updates */}
         <LabelToggle
           disabled={!url}
@@ -140,7 +149,23 @@ export default function Menu() {
           Enable Live Updates
         </LabelToggle>
 
-        {showURLModal && <URLModal onOpenChange={setShowURLModal} />}
+        {/* Account Info button */}
+        <MenuButton onClick={() => setShowAccountInfoModal(true)}>
+          <LuUser className="size-5" />
+          Account Info
+        </MenuButton>
+
+        {/* Account Info Modal */}
+        {showAccountInfoModal && (
+          <AccountInfoModal onOpenChange={setShowAccountInfoModal} />
+        )}
+
+        {/* Data section */}
+        <hr className="border-neutral-700" />
+        <MenuButton onClick={createAndDownloadBackup}>
+          <LuDatabaseBackup className="size-5" />
+          Backup Data
+        </MenuButton>
 
         <MenuButton onClick={resetTracker}>
           <LuRotateCcw className="size-5" />
