@@ -69,9 +69,9 @@ const AccountInfo = ({ account }: { account: Account }) => {
   const statusQuery = useQuery({
     queryKey: ["account-status", account.id],
     queryFn: async () => {
-      const packer = new Tracker(account.url!);
-      await packer.initialize();
-      const status = await packer.validate();
+      const tracker = new Tracker(account.url!);
+      await tracker.initialize();
+      const status = await tracker.validate();
       return status;
     },
   });

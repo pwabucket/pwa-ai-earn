@@ -82,6 +82,12 @@ export default function Menu() {
   const updateAccount = useAppStore((state) => state.updateAccount);
   const setTransactions = useAppStore((state) => state.setTransactions);
 
+  /** Create Backup */
+  const createBackup = () => {
+    createAndDownloadBackup();
+    toast.success("Backup created and downloaded successfully!");
+  };
+
   /** Google Drive Backup Prompt */
   const { show, setShow, value, resolve, prompt } = usePrompt<
     GoogleDriveBackupFile,
@@ -185,7 +191,7 @@ export default function Menu() {
 
         {/* Data section */}
         <MenuSection title="Data Management">
-          <MenuButton onClick={createAndDownloadBackup}>
+          <MenuButton onClick={createBackup}>
             <LuDatabaseBackup className="size-5" />
             Backup Data
           </MenuButton>
