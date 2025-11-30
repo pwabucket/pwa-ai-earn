@@ -1,5 +1,7 @@
+import { differenceInDays } from "date-fns";
 import type { Transaction } from "../types/app";
 import { startOfDay } from "../utils/dateUtils";
+import Decimal from "decimal.js";
 
 export default class InvestmentEngine {
   static INVESTMENT_DURATION = 20 as const;
@@ -12,11 +14,11 @@ export default class InvestmentEngine {
    */
   static getPercentage(amount: number): number {
     if (amount >= 300) {
-      return 6.5 / 100;
+      return new Decimal(6.5).dividedBy(100).toNumber();
     } else if (amount >= 20) {
-      return 6 / 100;
+      return new Decimal(6).dividedBy(100).toNumber();
     } else {
-      return 5.5 / 100;
+      return new Decimal(5.5).dividedBy(100).toNumber();
     }
   }
 
@@ -38,8 +40,7 @@ export default class InvestmentEngine {
   static getDaysDifference(startDate: Date, endDate: Date): number {
     const start = startOfDay(startDate);
     const end = startOfDay(endDate);
-    const diffTime = end.getTime() - start.getTime();
-    return Math.floor(diffTime / (1000 * 60 * 60 * 24));
+    return differenceInDays(end, start);
   }
 
   /**
@@ -133,10 +134,12 @@ export default class InvestmentEngine {
    * @returns Total sum of transaction amounts
    */
   static sumTransactions(transactions: Transaction[]) {
-    return transactions.reduce(
-      (sum, transaction) => sum + transaction.amount,
-      0
-    );
+    return transactions
+      .reduce(
+        (sum, transaction) => sum.plus(transaction.amount),
+        new Decimal(0)
+      )
+      .toNumber();
   }
 
   /**
@@ -146,7 +149,7 @@ export default class InvestmentEngine {
    * @returns The calculated profit.
    */
   static calculateProfit(amount: number, rate: number): number {
-    return this.floatAmount(amount * rate);
+    return this.floatAmount(new Decimal(amount).times(rate).toNumber());
   }
 
   static filterTransactions(transactions: Transaction[]) {
@@ -371,7 +374,7 @@ export default class InvestmentEngine {
    * @returns The floated amount
    */
   static floatAmount(amount: number) {
-    return parseFloat(amount.toFixed(4));
+    return new Decimal(amount).toDecimalPlaces(4).toNumber();
   }
 
   /**
