@@ -365,7 +365,7 @@ export default function DayView({
       addTransaction(account.id, {
         id: crypto.randomUUID(),
         date: selectedDate,
-        amount: -amount,
+        amount: amount,
         type: "withdrawal",
       });
     },
