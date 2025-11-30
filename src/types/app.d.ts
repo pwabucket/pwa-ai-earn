@@ -1,6 +1,8 @@
+import type Decimal from "decimal.js";
+
 export interface Transaction {
   id: string;
-  amount: number;
+  amount: Decimal.Value;
   date: Date;
   type: "investment" | "withdrawal" | "exchange" | "earnings";
   pinned?: boolean;

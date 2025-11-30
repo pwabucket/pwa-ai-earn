@@ -22,6 +22,7 @@ import { formatDate } from "../utils/dateUtils";
 import { useInvestmentCalculations } from "../hooks/useInvestmentCalculations";
 import { useTodayTransactions } from "../hooks/useTodayTransactions";
 import useActiveAccount from "../hooks/useActiveAccount";
+import { Decimal } from "decimal.js";
 
 const ActionButton = ({
   variant = "primary",
@@ -47,7 +48,7 @@ const MetricCard = ({
   valueColor = "text-green-500",
 }: {
   title: string;
-  value: number;
+  value: Decimal.Value;
   valueColor?: string;
 }) => (
   <div className="flex flex-col items-center bg-neutral-800 rounded-xl py-4">
@@ -130,7 +131,7 @@ const MainMetrics = ({
         value={result.currentState.currentDailyProfit}
       />{" "}
       <span className="text-green-500 font-bold">
-        (+{(result.currentState.currentDailyRate * 100).toFixed(2)}%)
+        (+{result.currentState.currentDailyRate.times(100).toFixed(2)}%)
       </span>
     </h2>
 
@@ -334,11 +335,11 @@ export default function DayView({
 
   /* Handle Re-Investment */
   const reinvest = useCallback(
-    (amount: string | number) => {
+    (amount: Decimal.Value) => {
       addTransaction(account.id, {
         id: crypto.randomUUID(),
         date: selectedDate,
-        amount: parseFloat(amount.toString()),
+        amount: new Decimal(amount),
         type: "exchange",
       });
     },

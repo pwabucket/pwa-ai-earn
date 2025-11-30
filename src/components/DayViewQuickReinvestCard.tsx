@@ -3,16 +3,17 @@ import { LuRefreshCw } from "react-icons/lu";
 import Currency from "./Currency";
 import { cn } from "../lib/utils";
 import { memo } from "react";
+import Decimal from "decimal.js";
 
 export const DayViewQuickReinvestCard = memo(
   ({
     totalBalance,
     onReinvest,
   }: {
-    totalBalance: number;
-    onReinvest: (amount: string | number) => void;
+    totalBalance: Decimal.Value;
+    onReinvest: (amount: Decimal.Value) => void;
   }) => {
-    if (totalBalance < 1) return null;
+    if (new Decimal(totalBalance).lessThan(1)) return null;
 
     return (
       <div className="flex flex-col items-start gap-2 p-4 bg-neutral-800 rounded-xl">
@@ -26,7 +27,7 @@ export const DayViewQuickReinvestCard = memo(
             "px-4 py-2 rounded-xl text-sm font-bold cursor-pointer",
             "flex items-center gap-2"
           )}
-          onClick={() => onReinvest(totalBalance)}
+          onClick={() => onReinvest(new Decimal(totalBalance))}
         >
           <LuRefreshCw className="size-4" />
           Quick Reinvest

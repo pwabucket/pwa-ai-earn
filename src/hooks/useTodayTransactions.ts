@@ -2,11 +2,12 @@ import { useMemo } from "react";
 
 import type { Transaction } from "../types/app";
 import InvestmentEngine from "../lib/InvestmentEngine";
+import type { Decimal } from "decimal.js";
 
 export const useTodayTransactions = (
   selectedDate: Date,
   transactions: Transaction[],
-  todaysProfit: number
+  todaysProfit: Decimal.Value
 ) => {
   return useMemo((): Transaction[] => {
     const todayTransactions = transactions.filter(

@@ -12,13 +12,13 @@ export default class InvestmentEngine {
    * @param amount - Total investment amount
    * @returns Daily percentage rate as decimal
    */
-  static getPercentage(amount: number): number {
-    if (amount >= 300) {
-      return new Decimal(6.5).dividedBy(100).toNumber();
-    } else if (amount >= 20) {
-      return new Decimal(6).dividedBy(100).toNumber();
+  static getPercentage(amount: Decimal.Value) {
+    if (new Decimal(amount).greaterThanOrEqualTo(300)) {
+      return new Decimal(6.5).dividedBy(100);
+    } else if (new Decimal(amount).greaterThanOrEqualTo(20)) {
+      return new Decimal(6).dividedBy(100);
     } else {
-      return new Decimal(5.5).dividedBy(100).toNumber();
+      return new Decimal(5.5).dividedBy(100);
     }
   }
 
@@ -134,12 +134,10 @@ export default class InvestmentEngine {
    * @returns Total sum of transaction amounts
    */
   static sumTransactions(transactions: Transaction[]) {
-    return transactions
-      .reduce(
-        (sum, transaction) => sum.plus(transaction.amount),
-        new Decimal(0)
-      )
-      .toNumber();
+    return transactions.reduce(
+      (sum, transaction) => sum.plus(new Decimal(transaction.amount)),
+      new Decimal(0)
+    );
   }
 
   /**
@@ -148,8 +146,8 @@ export default class InvestmentEngine {
    * @param rate - The profit rate.
    * @returns The calculated profit.
    */
-  static calculateProfit(amount: number, rate: number): number {
-    return this.floatAmount(new Decimal(amount).times(rate).toNumber());
+  static calculateProfit(amount: Decimal.Value, rate: Decimal.Value) {
+    return this.floatAmount(new Decimal(amount).times(new Decimal(rate)));
   }
 
   static filterTransactions(transactions: Transaction[]) {
@@ -161,13 +159,13 @@ export default class InvestmentEngine {
   }
 
   static getDayMap(transactions: Transaction[]) {
-    const results = new Map<number, number>();
+    const results = new Map<number, Decimal>();
     transactions.forEach((t) => {
       const dateKey = this.getDateKey(startOfDay(t.date));
       if (!results.has(dateKey)) {
-        results.set(dateKey, 0);
+        results.set(dateKey, new Decimal(0));
       }
-      results.set(dateKey, results.get(dateKey)! + t.amount);
+      results.set(dateKey, results.get(dateKey)!.plus(new Decimal(t.amount)));
     });
     return results;
   }
@@ -193,15 +191,15 @@ export default class InvestmentEngine {
 
     if (priorInvestments.length === 0) {
       return {
-        totalBalance: 0,
-        totalProfits: 0,
-        totalInvested: 0,
-        totalKept: 0,
-        totalWithdrawn: 0,
-        activeInvestments: 0,
-        currentDailyProfit: 0,
-        currentDailyRate: 0,
-        todaysProfit: 0,
+        totalBalance: new Decimal(0),
+        totalProfits: new Decimal(0),
+        totalInvested: new Decimal(0),
+        totalKept: new Decimal(0),
+        totalWithdrawn: new Decimal(0),
+        activeInvestments: new Decimal(0),
+        currentDailyProfit: new Decimal(0),
+        currentDailyRate: new Decimal(0),
+        todaysProfit: new Decimal(0),
         currentActiveInvestments: [],
       };
     }
@@ -211,9 +209,9 @@ export default class InvestmentEngine {
     );
     const endDate = startOfDay(normalizedSelectedDate);
 
-    let availableBalance = 0;
-    let totalProfits = 0;
-    let totalKept = 0;
+    let availableBalance = new Decimal(0);
+    let totalProfits = new Decimal(0);
+    let totalKept = new Decimal(0);
     const totalInvested = this.sumTransactions(priorInvestments);
     const totalWithdrawn = this.sumTransactions(priorWithdrawals);
     const totalExchanged = this.sumTransactions(priorExchanges);
@@ -236,25 +234,30 @@ export default class InvestmentEngine {
         profitGeneratingInvestments
       );
 
-      let dailyProfit = 0;
-      if (totalActiveAmount > 0) {
+      let dailyProfit = new Decimal(0);
+      if (totalActiveAmount.greaterThan(0)) {
         const dailyRate = this.getPercentage(totalActiveAmount);
         dailyProfit = this.calculateProfit(totalActiveAmount, dailyRate);
-        totalProfits += dailyProfit;
-        availableBalance += dailyProfit;
+        totalProfits = totalProfits.plus(dailyProfit);
+        availableBalance = availableBalance.plus(dailyProfit);
       }
 
-      const todayInvestments = investmentsByDate.get(currentDateKey) || 0;
-      const todayWithdrawals = withdrawalsByDate.get(currentDateKey) || 0;
-      const todayExchanges = exchangesByDate.get(currentDateKey) || 0;
+      const todayInvestments =
+        investmentsByDate.get(currentDateKey) || new Decimal(0);
+      const todayWithdrawals =
+        withdrawalsByDate.get(currentDateKey) || new Decimal(0);
+      const todayExchanges =
+        exchangesByDate.get(currentDateKey) || new Decimal(0);
 
-      totalKept += Math.max(0, todayWithdrawals - todayInvestments);
+      totalKept = totalKept.plus(
+        Decimal.max(new Decimal(0), todayWithdrawals.minus(todayInvestments))
+      );
 
-      availableBalance -= todayExchanges;
-      availableBalance -= todayWithdrawals;
+      availableBalance = availableBalance.minus(todayExchanges);
+      availableBalance = availableBalance.minus(todayWithdrawals);
 
-      if (availableBalance < 0) {
-        availableBalance = 0;
+      if (availableBalance.lessThan(0)) {
+        availableBalance = new Decimal(0);
       }
 
       currentDate.setDate(currentDate.getDate() + 1);
@@ -268,8 +271,9 @@ export default class InvestmentEngine {
     );
     const totalActiveAmount = this.sumTransactions(currentActiveInvestments);
 
-    const currentDailyRate =
-      totalActiveAmount > 0 ? this.getPercentage(totalActiveAmount) : 0;
+    const currentDailyRate = totalActiveAmount.greaterThan(0)
+      ? this.getPercentage(totalActiveAmount)
+      : new Decimal(0);
     const currentDailyProfit = this.calculateProfit(
       totalActiveAmount,
       currentDailyRate
@@ -283,8 +287,9 @@ export default class InvestmentEngine {
     const todaysProfitAmount = this.sumTransactions(
       todaysProfitGeneratingInvestments
     );
-    const todaysProfitRate =
-      todaysProfitAmount > 0 ? this.getPercentage(todaysProfitAmount) : 0;
+    const todaysProfitRate = todaysProfitAmount.greaterThan(0)
+      ? this.getPercentage(todaysProfitAmount)
+      : 0;
     const todaysProfit = this.calculateProfit(
       todaysProfitAmount,
       todaysProfitRate
@@ -373,8 +378,8 @@ export default class InvestmentEngine {
    * @param amount - The amount to float
    * @returns The floated amount
    */
-  static floatAmount(amount: number) {
-    return new Decimal(amount).toDecimalPlaces(4).toNumber();
+  static floatAmount(amount: Decimal.Value) {
+    return new Decimal(amount).toDecimalPlaces(4);
   }
 
   /**
@@ -402,7 +407,7 @@ export default class InvestmentEngine {
       startOfDay(targetDate)
     );
 
-    const createInvestment = (date: Date, amount: number) => {
+    const createInvestment = (date: Date, amount: Decimal.Value) => {
       simulatedTransactions.push({
         id: `sim_exchange_${date.getTime()}`,
         date: startOfDay(date),
@@ -410,12 +415,12 @@ export default class InvestmentEngine {
         isSimulated: true,
         type: "exchange",
       });
-      totalInvested += amount;
-      availableBalance = 0;
+      totalInvested = totalInvested.plus(new Decimal(amount));
+      availableBalance = new Decimal(0);
     };
 
     /* Initial Investment on selected date */
-    if (availableBalance >= this.MINIMUM_INVESTMENT_AMOUNT) {
+    if (availableBalance.greaterThanOrEqualTo(this.MINIMUM_INVESTMENT_AMOUNT)) {
       createInvestment(selectedDate, availableBalance);
 
       const currentActiveInvestments = this.getActiveInvestments(
@@ -453,16 +458,18 @@ export default class InvestmentEngine {
         profitGeneratingInvestments
       );
 
-      let dailyProfit = 0;
-      let balanceExchanged = 0;
+      let dailyProfit = new Decimal(0);
+      let balanceExchanged = new Decimal(0);
 
-      if (totalActiveAmount > 0) {
+      if (totalActiveAmount.greaterThan(0)) {
         const dailyRate = this.getPercentage(totalActiveAmount);
         dailyProfit = this.calculateProfit(totalActiveAmount, dailyRate);
-        availableBalance += dailyProfit;
+        availableBalance = availableBalance.plus(dailyProfit);
       }
 
-      if (availableBalance >= this.MINIMUM_INVESTMENT_AMOUNT) {
+      if (
+        availableBalance.greaterThanOrEqualTo(this.MINIMUM_INVESTMENT_AMOUNT)
+      ) {
         balanceExchanged = availableBalance;
         createInvestment(currentDate, balanceExchanged);
       }
@@ -507,12 +514,12 @@ export default class InvestmentEngine {
         profitGeneratingInvestments
       );
 
-      let dailyProfit = 0;
+      let dailyProfit = new Decimal(0);
 
-      if (totalActiveAmount > 0) {
+      if (totalActiveAmount.greaterThan(0)) {
         const dailyRate = this.getPercentage(totalActiveAmount);
         dailyProfit = this.calculateProfit(totalActiveAmount, dailyRate);
-        availableBalance += dailyProfit;
+        availableBalance = availableBalance.plus(dailyProfit);
       }
 
       timeline.push({
@@ -523,7 +530,7 @@ export default class InvestmentEngine {
         availableBalance,
         totalInvested,
         activeInvestments: totalActiveAmount,
-        balanceExchanged: 0,
+        balanceExchanged: new Decimal(0),
         currentDailyProfit: dailyProfit,
       });
 
@@ -542,12 +549,12 @@ export default class InvestmentEngine {
       timeline,
       simulationDays,
       simulatedTransactions,
-      totalGrowth: finalState.totalInvested - initialState.totalInvested,
+      totalGrowth: finalState.totalInvested.minus(initialState.totalInvested),
       allInvestmentsExpireDate,
       expiredState,
       totalWithdrawableAfterExpiry: expiredState.totalBalance,
       finalTotalProfits: expiredState.totalProfits,
-      totalReturn: expiredState.totalBalance + expiredState.totalWithdrawn,
+      totalReturn: expiredState.totalBalance.plus(expiredState.totalWithdrawn),
     };
   }
 }

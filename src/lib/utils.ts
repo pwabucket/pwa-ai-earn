@@ -3,6 +3,7 @@ import toast from "react-hot-toast";
 import { twMerge } from "tailwind-merge";
 import copy from "copy-to-clipboard";
 import { format } from "date-fns";
+import Decimal from "decimal.js";
 
 /** Class Names Merge Utility */
 export function cn(...inputs: ClassValue[]) {
@@ -10,13 +11,13 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 /** Format Currency */
-export const formatCurrency = (amount: number, prefix = "") => {
+export const formatCurrency = (amount: Decimal.Value, prefix = "") => {
   const formatted = Intl.NumberFormat("en-US", {
     style: "currency",
     currency: "USD",
     minimumFractionDigits: 2,
     maximumFractionDigits: 4,
-  }).format(amount);
+  }).format(new Decimal(amount).toDecimalPlaces(4).toNumber());
 
   return prefix ? `${prefix}${formatted}` : formatted;
 };
