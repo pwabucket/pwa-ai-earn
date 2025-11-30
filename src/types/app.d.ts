@@ -2,7 +2,8 @@ export interface Transaction {
   id: string;
   amount: number;
   date: Date;
-  type: "investment" | "withdrawal" | "exchange";
+  type: "investment" | "withdrawal" | "exchange" | "earnings";
+  pinned?: boolean;
   isSimulated?: boolean;
 }
 

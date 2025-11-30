@@ -317,6 +317,7 @@ export default function DayView({
   const transactions = account.transactions;
   const addTransaction = useAppStore((state) => state.addTransaction);
   const removeTransaction = useAppStore((state) => state.removeTransaction);
+  const updateTransaction = useAppStore((state) => state.updateTransaction);
 
   /* Calculations */
   const result = useInvestmentCalculations(selectedDate, transactions);
@@ -350,6 +351,14 @@ export default function DayView({
       removeTransaction(account.id, transactionId);
     },
     [removeTransaction, account.id]
+  );
+
+  /* Handle Pin Transaction */
+  const pinAccountTransaction = useCallback(
+    (transactionId: string, pinned: boolean) => {
+      updateTransaction(account.id, transactionId, { pinned });
+    },
+    [updateTransaction, account.id]
   );
 
   /* Handle Investment Transaction */
@@ -453,6 +462,7 @@ export default function DayView({
       <DayViewTransactionsList
         title="Today's transactions"
         transactions={todayTransactions}
+        onPinTransaction={pinAccountTransaction}
         onRemoveTransaction={removeAccountTransaction}
       />
 

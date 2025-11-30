@@ -1,15 +1,17 @@
 import { DayViewTransactionItem } from "./DayViewTransactionItem";
-import type { useTodayTransactions } from "../hooks/useTodayTransactions";
 import { memo } from "react";
+import type { Transaction } from "../types/app";
 
 export const DayViewTransactionsList = memo(
   ({
     title,
     transactions,
+    onPinTransaction,
     onRemoveTransaction,
   }: {
     title: string;
-    transactions: ReturnType<typeof useTodayTransactions>;
+    transactions: Transaction[];
+    onPinTransaction: (id: string, pinned: boolean) => void;
     onRemoveTransaction: (id: string) => void;
   }) => (
     <div className="flex flex-col gap-2 p-4 rounded-xl bg-neutral-800">
@@ -18,14 +20,8 @@ export const DayViewTransactionsList = memo(
         transactions.map((transaction, index) => (
           <DayViewTransactionItem
             key={index}
-            amount={transaction.amount}
-            type={
-              transaction.type as
-                | "earnings"
-                | "investment"
-                | "withdrawal"
-                | "exchange"
-            }
+            transaction={transaction}
+            onPin={() => onPinTransaction(transaction.id, !transaction.pinned)}
             onRemove={() => onRemoveTransaction(transaction.id)}
           />
         ))

@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import useAppStore from "../store/useAppStore";
 import useActiveAccount from "./useActiveAccount";
 import type { Transaction } from "../types/app";
@@ -7,6 +7,14 @@ import useTransactionsQuery from "./useTransactionsQuery";
 export const useTracker = () => {
   const setTransactions = useAppStore((state) => state.setTransactions);
   const account = useActiveAccount();
+  const pinnedTransactions = useMemo(
+    () => account.transactions.filter((transaction) => transaction.pinned),
+    [account.transactions]
+  );
+
+  /* Ref to keep track of pinned transactions */
+  const pinnedTransactionsRef = useRef(pinnedTransactions);
+  pinnedTransactionsRef.current = pinnedTransactions;
 
   const transactionsQuery = useTransactionsQuery(account);
   const data = transactionsQuery.data;
@@ -19,7 +27,10 @@ export const useTracker = () => {
     if (data) {
       console.log("Transactions data:", data);
 
-      const updatedTransactions: Transaction[] = [];
+      /*  Start with pinned transactions to retain their state */
+      const updatedTransactions: Transaction[] = [
+        ...pinnedTransactionsRef.current,
+      ];
 
       for (const item of data) {
         switch (item.type) {

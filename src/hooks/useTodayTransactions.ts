@@ -8,7 +8,7 @@ export const useTodayTransactions = (
   transactions: Transaction[],
   todaysProfit: number
 ) => {
-  return useMemo(() => {
+  return useMemo((): Transaction[] => {
     const todayTransactions = transactions.filter(
       (transaction) =>
         new Date(transaction.date).toDateString() ===

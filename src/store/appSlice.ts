@@ -16,7 +16,7 @@ export interface AppSlice {
   updateTransaction: (
     accountId: string,
     transactionId: string,
-    updatedTransaction: Transaction
+    updatedTransaction: Partial<Transaction>
   ) => void;
   removeTransaction: (accountId: string, transactionId: string) => void;
 }
