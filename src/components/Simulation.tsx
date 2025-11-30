@@ -141,7 +141,7 @@ const SimulationResult = ({
         <button
           onClick={fillTransactions}
           className={cn(
-            "p-2 bg-neutral-800 text-pink-500 font-bold",
+            "p-2 bg-neutral-800 text-purple-300 font-bold",
             "flex items-center justify-center gap-2",
             "cursor-pointer rounded-xl hover:bg-neutral-700"
           )}
