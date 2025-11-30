@@ -67,7 +67,13 @@ export const useTracker = () => {
       }
 
       /*  Update the transactions in the store */
-      setTransactions(account.id, updatedTransactions);
+      setTransactions(
+        account.id,
+        updatedTransactions.filter(
+          (item, index, list) =>
+            list.findIndex((t) => t.id === item.id) === index
+        )
+      );
     }
   }, [account.id, account.enableLiveUpdates, data, setTransactions]);
 
