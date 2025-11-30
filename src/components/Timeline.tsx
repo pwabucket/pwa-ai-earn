@@ -55,28 +55,50 @@ export default function Timeline({ timeline }: { timeline: TimelineDay[] }) {
                 <h4 className="text-sm text-pink-500 font-bold">
                   {formatDate(day.date)}
                 </h4>
-                <div className="flex flex-col gap-1">
-                  <span className="text-sm text-purple-400 flex items-center gap-1">
+                <div className="flex flex-col gap-1 font-bold">
+                  <span
+                    title="Total Active Investments"
+                    className="text-sm text-purple-400 flex items-center gap-1"
+                  >
                     <LuCoins className="size-4 shrink-0" />
                     TP: <Currency value={day.activeInvestments} />
                   </span>
-                  <span className="text-sm text-blue-400 flex items-center gap-1">
+
+                  {/* Total Invested */}
+                  <span
+                    title="Total Invested"
+                    className="text-sm text-blue-400 flex items-center gap-1"
+                  >
                     <LuWallet className="size-4 shrink-0" />
-                    Invested: <Currency value={day.totalInvested} />
+                    IN: <Currency value={day.totalInvested} />
                   </span>
-                  <span className="text-sm text-yellow-400 flex items-center gap-1">
+
+                  {/* Exchanged Amount */}
+                  <span
+                    title="Exchanged Amount"
+                    className="text-sm text-yellow-400 flex items-center gap-1"
+                  >
                     <LuRepeat className="size-4 shrink-0" />
-                    Exchanged: <Currency value={day.balanceExchanged} />
+                    EX: <Currency value={day.balanceExchanged} />
                   </span>
                 </div>
               </div>
 
-              <div className="flex flex-col gap-1 shrink-0 text-right">
-                <span className="text-sm text-lime-400 flex items-center justify-end gap-1">
+              <div className="flex flex-col gap-1 shrink-0 text-right font-bold">
+                {/* Daily Profit */}
+                <span
+                  title="Daily Profit"
+                  className="text-sm text-lime-400 flex items-center justify-end gap-1"
+                >
                   <Currency value={day.currentDailyProfit} prefix="+" />
                   <LuTrendingUp className="size-4 shrink-0" />
                 </span>
-                <span className="text-sm text-green-400 flex items-center justify-end gap-1">
+
+                {/* Available Balance */}
+                <span
+                  title="Available Balance"
+                  className="text-sm text-green-400 flex items-center justify-end gap-1"
+                >
                   <Currency value={day.availableBalance} />
                   <LuBanknote className="size-4 shrink-0" />
                 </span>
