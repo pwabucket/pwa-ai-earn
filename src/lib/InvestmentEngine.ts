@@ -538,6 +538,7 @@ export default class InvestmentEngine {
       finalState,
       timeline,
       simulationDays,
+      simulatedTransactions,
       totalGrowth: finalState.totalInvested - initialState.totalInvested,
       allInvestmentsExpireDate,
       expiredState,

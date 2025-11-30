@@ -1,7 +1,7 @@
 import { Dialog, Tabs } from "radix-ui";
-import { LuCalendar, LuPlay, LuX } from "react-icons/lu";
+import { LuCalendar, LuPlay, LuX, LuListPlus } from "react-icons/lu";
 import { startOfDay } from "date-fns";
-import { useMemo } from "react";
+import { useCallback, useMemo } from "react";
 import { useState } from "react";
 
 import CalendarModal from "./CalendarModal";
@@ -17,6 +17,9 @@ import { TabTriggerButton } from "./TabTriggerButton";
 import { cn } from "../lib/utils";
 import { formatDate } from "../utils/dateUtils";
 import useActiveAccount from "../hooks/useActiveAccount";
+import useAppStore from "../store/useAppStore";
+import toast from "react-hot-toast";
+import type { Transaction } from "../types/app";
 
 const ResultInfo = ({
   label,
@@ -36,13 +39,17 @@ const SimulationResult = ({
   targetDate,
   onChangeTargetDate,
   onClose,
+  onSelectDate,
 }: {
   selectedDate: Date;
   targetDate: Date;
   onChangeTargetDate: (date: Date) => void;
   onClose: () => void;
+  onSelectDate: (date: Date) => void;
 }) => {
-  const { transactions } = useActiveAccount();
+  const account = useActiveAccount();
+  const { transactions } = account;
+  const setTransactions = useAppStore((state) => state.setTransactions);
 
   const result = useMemo(() => {
     return InvestmentEngine.simulateInvestments(
@@ -51,6 +58,30 @@ const SimulationResult = ({
       transactions
     );
   }, [selectedDate, targetDate, transactions]);
+
+  const fillTransactions = useCallback(() => {
+    const newTransactions: Transaction[] = [
+      ...transactions,
+      ...result.simulatedTransactions.map((tx) => ({
+        id: crypto.randomUUID(),
+        type: tx.type,
+        amount: tx.amount,
+        date: tx.date,
+      })),
+    ];
+    setTransactions(account.id, newTransactions);
+    onSelectDate(targetDate);
+    onClose();
+    toast.success("Transactions filled successfully!");
+  }, [
+    account,
+    result,
+    transactions,
+    targetDate,
+    setTransactions,
+    onClose,
+    onSelectDate,
+  ]);
 
   return (
     <Modal onOpenChange={onClose}>
@@ -106,6 +137,19 @@ const SimulationResult = ({
           <span className="text-teal-400">{result.simulationDays} days</span>
         </ResultInfo>
 
+        {/* Fill Transactions */}
+        <button
+          onClick={fillTransactions}
+          className={cn(
+            "p-2 bg-neutral-800 text-pink-500 font-bold",
+            "flex items-center justify-center gap-2",
+            "cursor-pointer rounded-xl hover:bg-neutral-700"
+          )}
+        >
+          <LuListPlus className="size-5" />
+          Fill Transactions
+        </button>
+
         <Tabs.Root
           defaultValue="active-investments"
           className="flex flex-col gap-2"
@@ -134,7 +178,13 @@ const SimulationResult = ({
   );
 };
 
-export default function Simulation({ selectedDate }: { selectedDate: Date }) {
+export default function Simulation({
+  selectedDate,
+  onSelectDate,
+}: {
+  selectedDate: Date;
+  onSelectDate: (date: Date) => void;
+}) {
   const [targetDate, setTargetDate] = useState(() => startOfDay(selectedDate));
   const [showCalendar, toggleShowCalendar] = useLocationToggle(
     "simulation-calendar"
@@ -196,6 +246,7 @@ export default function Simulation({ selectedDate }: { selectedDate: Date }) {
         <SimulationResult
           selectedDate={selectedDate}
           targetDate={targetDate}
+          onSelectDate={onSelectDate}
           onChangeTargetDate={setTargetDate}
           onClose={() => toggleShowResults(false)}
         />

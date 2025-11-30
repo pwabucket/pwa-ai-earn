@@ -281,9 +281,15 @@ const WithdrawTab = ({
   </Tabs.Content>
 );
 
-const SimulateTab = ({ selectedDate }: { selectedDate: Date }) => (
+const SimulateTab = ({
+  selectedDate,
+  onSelectDate,
+}: {
+  selectedDate: Date;
+  onSelectDate: (date: Date) => void;
+}) => (
   <Tabs.Content value="simulate" className="flex flex-col gap-2">
-    <Simulation selectedDate={selectedDate} />
+    <Simulation selectedDate={selectedDate} onSelectDate={onSelectDate} />
   </Tabs.Content>
 );
 
@@ -440,7 +446,7 @@ export default function DayView({
           handleReInvest={handleReInvest}
         />
 
-        <SimulateTab selectedDate={selectedDate} />
+        <SimulateTab onSelectDate={onSelectDate} selectedDate={selectedDate} />
       </Tabs.Root>
 
       {/* Today's Transactions */}
