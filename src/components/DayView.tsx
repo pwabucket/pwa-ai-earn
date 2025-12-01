@@ -23,6 +23,7 @@ import { useInvestmentCalculations } from "../hooks/useInvestmentCalculations";
 import { useTodayTransactions } from "../hooks/useTodayTransactions";
 import useActiveAccount from "../hooks/useActiveAccount";
 import { Decimal } from "decimal.js";
+import type { Transaction } from "../types/app";
 
 const ActionButton = ({
   variant = "primary",
@@ -214,8 +215,8 @@ const InvestTab = ({
   endDate,
   onSelectDate,
 }: {
-  investmentAmount: string | number;
-  setInvestmentAmount: (amount: string | number) => void;
+  investmentAmount: string;
+  setInvestmentAmount: (amount: string) => void;
   handleInvest: () => void;
   endDate: Date;
   onSelectDate: (date: Date) => void;
@@ -251,8 +252,8 @@ const WithdrawTab = ({
   handleWithdraw,
   handleReInvest,
 }: {
-  withdrawalAmount: string | number;
-  setWithdrawalAmount: (amount: string | number) => void;
+  withdrawalAmount: string;
+  setWithdrawalAmount: (amount: string) => void;
   handleMaxWithdrawal: () => void;
   handleWithdraw: () => void;
   handleReInvest: () => void;
@@ -330,20 +331,26 @@ export default function DayView({
   const endDate = useInvestmentEndDate(selectedDate);
 
   /* Local state */
-  const [investmentAmount, setInvestmentAmount] = useState<string | number>("");
-  const [withdrawalAmount, setWithdrawalAmount] = useState<string | number>("");
+  const [investmentAmount, setInvestmentAmount] = useState<string>("");
+  const [withdrawalAmount, setWithdrawalAmount] = useState<string>("");
 
-  /* Handle Re-Investment */
-  const reinvest = useCallback(
-    (amount: Decimal.Value) => {
+  /* Handle Add Transaction */
+  const addAccountTransaction = useCallback(
+    (type: Transaction["type"], amount: Decimal.Value) => {
       addTransaction(account.id, {
         id: crypto.randomUUID(),
         date: selectedDate,
         amount: new Decimal(amount),
-        type: "exchange",
+        type,
       });
     },
-    [addTransaction, account.id, selectedDate]
+    [account.id, selectedDate, addTransaction]
+  );
+
+  /* Handle Re-Investment */
+  const reinvest = useCallback(
+    (amount: Decimal.Value) => addAccountTransaction("exchange", amount),
+    [addAccountTransaction]
   );
 
   /* Handle Remove Transaction */
@@ -364,34 +371,20 @@ export default function DayView({
 
   /* Handle Investment Transaction */
   const addInvestmentTransaction = useCallback(
-    (amount: number) => {
-      addTransaction(account.id, {
-        id: crypto.randomUUID(),
-        date: selectedDate,
-        amount: amount,
-        type: "investment",
-      });
-    },
-    [addTransaction, account.id, selectedDate]
+    (amount: Decimal.Value) => addAccountTransaction("investment", amount),
+    [addAccountTransaction]
   );
 
   /* Handle Withdrawal Transaction */
   const addWithdrawalTransaction = useCallback(
-    (amount: number) => {
-      addTransaction(account.id, {
-        id: crypto.randomUUID(),
-        date: selectedDate,
-        amount: amount,
-        type: "withdrawal",
-      });
-    },
-    [addTransaction, account.id, selectedDate]
+    (amount: Decimal.Value) => addAccountTransaction("withdrawal", amount),
+    [addAccountTransaction]
   );
 
   /* Handle Invest */
   const handleInvest = useCallback(() => {
-    if (parseFloat(investmentAmount.toString()) >= 1) {
-      addInvestmentTransaction(parseFloat(investmentAmount.toString()));
+    if (new Decimal(investmentAmount.toString()).greaterThanOrEqualTo(1)) {
+      addInvestmentTransaction(new Decimal(investmentAmount));
       setInvestmentAmount("");
     }
   }, [addInvestmentTransaction, investmentAmount]);
@@ -399,7 +392,7 @@ export default function DayView({
   /* Handle Withdraw */
   const handleWithdraw = useCallback(() => {
     if (withdrawalAmount) {
-      addWithdrawalTransaction(parseFloat(withdrawalAmount.toString()));
+      addWithdrawalTransaction(new Decimal(withdrawalAmount));
       setWithdrawalAmount("");
     }
   }, [addWithdrawalTransaction, withdrawalAmount]);

@@ -3,6 +3,7 @@ import useAppStore from "../store/useAppStore";
 import useActiveAccount from "./useActiveAccount";
 import type { Transaction } from "../types/app";
 import useTransactionsQuery from "./useTransactionsQuery";
+import Decimal from "decimal.js";
 
 export const useTracker = () => {
   const setTransactions = useAppStore((state) => state.setTransactions);
@@ -32,35 +33,32 @@ export const useTracker = () => {
         ...pinnedTransactionsRef.current,
       ];
 
+      const pushTransaction = (
+        type: Transaction["type"],
+        item: (typeof data)[number]
+      ) => {
+        updatedTransactions.push({
+          id: item.id.toString(),
+          date: new Date(item["create_time"]),
+          amount: new Decimal(item["tp"]),
+          type,
+        });
+      };
+
       for (const item of data) {
         switch (item.type) {
           case "Purchased TP": {
-            updatedTransactions.push({
-              id: item.id.toString(),
-              date: new Date(item["create_time"]),
-              amount: Number(item["tp"]),
-              type: "investment",
-            });
+            pushTransaction("investment", item);
             break;
           }
 
           case "Withdrawals": {
-            updatedTransactions.push({
-              id: item.id.toString(),
-              date: new Date(item["create_time"]),
-              amount: Number(item["tp"]),
-              type: "withdrawal",
-            });
+            pushTransaction("withdrawal", item);
             break;
           }
 
           case "Exchange": {
-            updatedTransactions.push({
-              id: item.id.toString(),
-              date: new Date(item["create_time"]),
-              amount: Number(item["tp"]),
-              type: "exchange",
-            });
+            pushTransaction("exchange", item);
             break;
           }
         }
