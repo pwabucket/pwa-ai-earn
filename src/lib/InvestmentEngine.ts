@@ -58,11 +58,10 @@ export default class InvestmentEngine {
     const investmentStart = startOfDay(investment.date);
     const daysSinceStart = this.getDaysDifference(investmentStart, currentDate);
 
-    if (profitOnly) {
-      return daysSinceStart >= 1 && daysSinceStart <= this.INVESTMENT_DURATION;
-    } else {
-      return daysSinceStart >= 0 && daysSinceStart <= this.INVESTMENT_DURATION;
-    }
+    return (
+      daysSinceStart >= (profitOnly ? 1 : 0) &&
+      daysSinceStart <= this.INVESTMENT_DURATION
+    );
   }
 
   /**
