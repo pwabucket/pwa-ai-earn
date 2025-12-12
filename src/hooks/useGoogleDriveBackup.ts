@@ -30,6 +30,7 @@ export default function useGoogleDriveBackup(
 
   const accounts = useAppStore((state) => state.accounts);
   const setAccounts = useAppStore((state) => state.setAccounts);
+  const setActiveAccountId = useAppStore((state) => state.setActiveAccountId);
 
   const googleDriveBackupFile = useAppStore(
     (state) => state.googleDriveBackupFile
@@ -98,11 +99,12 @@ export default function useGoogleDriveBackup(
 
       if (data.accounts) {
         setAccounts(data.accounts);
+        setActiveAccountId(data.accounts[0]?.id || null);
       }
 
       restoredFromCloudRef.current = true;
     },
-    [setAccounts]
+    [setAccounts, setActiveAccountId]
   );
 
   /** Restore Backup */
