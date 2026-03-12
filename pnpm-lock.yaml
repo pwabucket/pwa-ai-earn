@@ -21,8 +21,8 @@ importers:
         specifier: ^5.2.2
         version: 5.2.2(react-hook-form@7.71.2(react@19.2.4))
       '@pwabucket/pwa-router':
-        specifier: ^0.0.11
-        version: 0.0.11(react-router@7.13.1(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(react@19.2.4)
+        specifier: ^0.0.14
+        version: 0.0.14(react-router@7.13.1(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(react@19.2.4)
       '@tailwindcss/typography':
         specifier: ^0.5.19
         version: 0.5.19(tailwindcss@4.2.1)
@@ -1039,8 +1039,8 @@ packages:
   '@maxim_mazurok/gapi.client.drive-v3@0.1.20260305':
     resolution: {integrity: sha512-i5D44X8hazSANFGOwzs6ONwB70fV+dTCsrodsbcjx1Cz+4UVC/QLPtnH/suSe7McHZOkUcrOzzbW8d2NAjCRMA==}
 
-  '@pwabucket/pwa-router@0.0.11':
-    resolution: {integrity: sha512-wTFboDMJIJC3snkyoWYw97xja8yOhPhHvfTz2bB/xV3kPICBlJKvwQoxhvtORbRYqIpLMkIqkkN/8BDPQpwmvw==}
+  '@pwabucket/pwa-router@0.0.14':
+    resolution: {integrity: sha512-jNi4237OtY8Ph6adUUgIxr7+sRD7+0CXHyxFriiQp9NAsuVTt3mPmocqiK9RHwD6cBAMhZkwzpBZkrYEtTORGQ==}
     peerDependencies:
       react: ^18 || ^19
       react-router: ^7
@@ -5114,7 +5114,7 @@ snapshots:
       '@types/gapi.client': 1.0.8
       '@types/gapi.client.discovery-v1': 0.0.4
 
-  '@pwabucket/pwa-router@0.0.11(react-router@7.13.1(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(react@19.2.4)':
+  '@pwabucket/pwa-router@0.0.14(react-router@7.13.1(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(react@19.2.4)':
     dependencies:
       react: 19.2.4
       react-router: 7.13.1(react-dom@19.2.4(react@19.2.4))(react@19.2.4)

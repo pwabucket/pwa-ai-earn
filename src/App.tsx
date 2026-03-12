@@ -1,15 +1,17 @@
 import { Route, Routes } from "react-router";
-import { Toaster } from "react-hot-toast";
 
 import AppContext from "./contexts/AppContext";
 import Home from "./pages/Home";
 import Menu from "./pages/Menu";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
+import { Toaster } from "react-hot-toast";
 import useGoogleApi from "./hooks/useGoogleApi";
 import useGoogleDriveBackup from "./hooks/useGoogleDriveBackup";
+import { usePWARouting } from "@pwabucket/pwa-router";
 
 function App() {
+  const { resolvedLocation } = usePWARouting();
   const googleApi = useGoogleApi();
   const googleDriveBackup = useGoogleDriveBackup(googleApi);
 
@@ -22,7 +24,7 @@ function App() {
         }}
       >
         <div className="min-h-dvh flex flex-col bg-neutral-900 text-white">
-          <Routes>
+          <Routes location={resolvedLocation}>
             {/* Home */}
             <Route index element={<Home />} />
 
