@@ -1,5 +1,3 @@
-import toast from "react-hot-toast";
-import { Link } from "react-router";
 import {
   LuCheck,
   LuDatabaseBackup,
@@ -13,25 +11,27 @@ import {
   LuUser,
 } from "react-icons/lu";
 
+import AccountInfoModal from "../components/AccountInfoModal";
+import AccountSwitcherButton from "../components/AccountSwitcherButton";
+import AccountsDialog from "../components/AccountsDialog";
+import type { DynamicComponent } from "../types/types";
 import GoogleBackupPrompt from "../components/GoogleBackupPrompt";
+import type { GoogleDriveBackupFile } from "../types/app";
 import GoogleProfile from "../components/GoogleProfile";
+import LabelToggle from "../components/LabelToggle";
+import { Link } from "react-router";
 import PageContainer from "../components/PageContainer";
+import RestoreDialog from "../components/RestoreDialog";
+import { SecondaryHeader } from "../components/Header";
+import URLModal from "../components/URLModal";
+import { cn } from "../lib/utils";
+import { createAndDownloadBackup } from "../lib/backup";
+import toast from "react-hot-toast";
+import useActiveAccount from "../hooks/useActiveAccount";
 import useAppContext from "../hooks/useAppContext";
 import useAppStore from "../store/useAppStore";
+import { useLocationToggle } from "@pwabucket/pwa-router";
 import usePrompt from "../hooks/usePrompt";
-import type { DynamicComponent } from "../types/types";
-import type { GoogleDriveBackupFile } from "../types/app";
-import { SecondaryHeader } from "../components/Header";
-import { cn } from "../lib/utils";
-import useLocationToggle from "../hooks/useLocationToggle";
-import URLModal from "../components/URLModal";
-import useActiveAccount from "../hooks/useActiveAccount";
-import LabelToggle from "../components/LabelToggle";
-import AccountsDialog from "../components/AccountsDialog";
-import AccountSwitcherButton from "../components/AccountSwitcherButton";
-import { createAndDownloadBackup } from "../lib/backup";
-import AccountInfoModal from "../components/AccountInfoModal";
-import RestoreDialog from "../components/RestoreDialog";
 
 const MenuButton: DynamicComponent<"button"> = ({ as, ...props }) => {
   const Component = as || "button";
@@ -42,7 +42,7 @@ const MenuButton: DynamicComponent<"button"> = ({ as, ...props }) => {
         "px-4 py-2 text-sm font-medium cursor-pointer",
         "text-neutral-100 bg-neutral-800 rounded-xl hover:bg-neutral-700",
         "flex items-center gap-2 text-left",
-        props.className
+        props.className,
       )}
     />
   );
@@ -68,10 +68,10 @@ export default function Menu() {
     useLocationToggle("accounts-dialog");
   const [showURLModal, setShowURLModal] = useLocationToggle("menu-url-modal");
   const [showAccountInfoModal, setShowAccountInfoModal] = useLocationToggle(
-    "menu-account-info-modal"
+    "menu-account-info-modal",
   );
   const [showRestoreDialog, setShowRestoreDialog] = useLocationToggle(
-    "menu-restore-dialog"
+    "menu-restore-dialog",
   );
 
   const { googleApi, googleDriveBackup } = useAppContext();

@@ -1,21 +1,23 @@
-import { startOfDay } from "date-fns";
-import { useState } from "react";
-
 import CalendarModal from "../components/CalendarModal";
 import DayView from "../components/DayView";
-import Header from "../components/Header";
-import useLocationToggle from "../hooks/useLocationToggle";
-import WebviewModal from "../components/WebviewModal";
-import toast from "react-hot-toast";
 import Footer from "../components/Footer";
+import Header from "../components/Header";
+import WebviewModal from "../components/WebviewModal";
+import { startOfDay } from "date-fns";
+import toast from "react-hot-toast";
+import { useLocationToggle } from "@pwabucket/pwa-router";
+import { useState } from "react";
 import { useTracker } from "../hooks/useTracker";
 
 function Home() {
   const [selectedDate, setSelectedDate] = useState(() =>
-    startOfDay(new Date())
+    startOfDay(new Date()),
   );
   const [showCalendar, toggleShowCalendar] = useLocationToggle("calendar");
-  const [showWebview, setShowWebview] = useLocationToggle("show-webview");
+  const [showWebview, setShowWebview] = useLocationToggle(
+    "show-webview",
+    "webview",
+  );
 
   const { refresh } = useTracker();
 

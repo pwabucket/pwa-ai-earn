@@ -1,8 +1,8 @@
-import PageContainer from "./PageContainer";
-import AccountsDialog from "./AccountsDialog";
-import useLocationToggle from "../hooks/useLocationToggle";
-import { cn } from "../lib/utils";
 import AccountSwitcherButton from "./AccountSwitcherButton";
+import AccountsDialog from "./AccountsDialog";
+import PageContainer from "./PageContainer";
+import { cn } from "../lib/utils";
+import { useLocationToggle } from "@pwabucket/pwa-router";
 
 export default function Footer() {
   const [showAccountsDialog, toggleAccountsDialog] =
@@ -14,7 +14,7 @@ export default function Footer() {
         className={cn(
           "flex items-center h-14",
           "bg-neutral-900 border-t border-neutral-800",
-          "fixed bottom-0 inset-x-0 z-10"
+          "fixed bottom-0 inset-x-0 z-10",
         )}
       >
         <PageContainer className="flex justify-center py-0">

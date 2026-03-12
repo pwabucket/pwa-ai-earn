@@ -1,25 +1,25 @@
 import { Dialog, Tabs } from "radix-ui";
-import { LuCalendar, LuPlay, LuX, LuListPlus } from "react-icons/lu";
-import { startOfDay } from "date-fns";
+import { LuCalendar, LuListPlus, LuPlay, LuX } from "react-icons/lu";
 import { useCallback, useMemo } from "react";
-import { useState } from "react";
 
+import { ActiveInvestments } from "./ActiveInvestments";
 import CalendarModal from "./CalendarModal";
 import Currency from "./Currency";
-import InvestmentEngine from "../lib/InvestmentEngine";
-import Modal from "./Modal";
-import Timeline from "./Timeline";
-import useLocationToggle from "../hooks/useLocationToggle";
-import { ActiveInvestments } from "./ActiveInvestments";
 import { DayNavigator } from "./DayNavigator";
 import { HeaderButton } from "./HeaderButton";
+import InvestmentEngine from "../lib/InvestmentEngine";
+import Modal from "./Modal";
 import { TabTriggerButton } from "./TabTriggerButton";
+import Timeline from "./Timeline";
+import type { Transaction } from "../types/app";
 import { cn } from "../lib/utils";
 import { formatDate } from "../utils/dateUtils";
+import { startOfDay } from "date-fns";
+import toast from "react-hot-toast";
 import useActiveAccount from "../hooks/useActiveAccount";
 import useAppStore from "../store/useAppStore";
-import toast from "react-hot-toast";
-import type { Transaction } from "../types/app";
+import { useLocationToggle } from "@pwabucket/pwa-router";
+import { useState } from "react";
 
 const ResultInfo = ({
   label,
@@ -55,7 +55,7 @@ const SimulationResult = ({
     return InvestmentEngine.simulateInvestments(
       selectedDate,
       targetDate,
-      transactions
+      transactions,
     );
   }, [selectedDate, targetDate, transactions]);
 
@@ -143,7 +143,7 @@ const SimulationResult = ({
           className={cn(
             "p-2 bg-neutral-800 text-purple-300 font-bold",
             "flex items-center justify-center gap-2",
-            "cursor-pointer rounded-xl hover:bg-neutral-700"
+            "cursor-pointer rounded-xl hover:bg-neutral-700",
           )}
         >
           <LuListPlus className="size-5" />
@@ -187,7 +187,7 @@ export default function Simulation({
 }) {
   const [targetDate, setTargetDate] = useState(() => startOfDay(selectedDate));
   const [showCalendar, toggleShowCalendar] = useLocationToggle(
-    "simulation-calendar"
+    "simulation-calendar",
   );
 
   const [showResults, toggleShowResults] =
@@ -206,7 +206,7 @@ export default function Simulation({
           className={cn(
             "font-bold  text-sm cursor-pointer text-neutral-100",
             "p-2 rounded-xl bg-neutral-700 hover:bg-neutral-600",
-            "flex items-center justify-center gap-2"
+            "flex items-center justify-center gap-2",
           )}
         >
           <LuCalendar className="size-5" />
@@ -226,7 +226,7 @@ export default function Simulation({
           className={cn(
             "cursor-pointer font-bold text-purple-500 text-sm",
             "p-2 rounded-xl bg-neutral-700 hover:bg-neutral-600",
-            "flex items-center justify-center gap-2"
+            "flex items-center justify-center gap-2",
           )}
         >
           <LuPlay className="size-5" />

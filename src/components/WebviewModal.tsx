@@ -1,18 +1,18 @@
-import Modal from "./Modal";
-import useActiveAccount from "../hooks/useActiveAccount";
-import { cn } from "../lib/utils";
 import AccountModalHeader from "./AccountModalHeader";
+import Modal from "./Modal";
+import { cn } from "../lib/utils";
+import useActiveAccount from "../hooks/useActiveAccount";
+import { useLocationIndexUpdater } from "@pwabucket/pwa-router";
 
-export default function WebviewModal({
-  onOpenChange,
-}: {
-  onOpenChange: (open: boolean) => void;
-}) {
+const WebviewModalContent = () => {
   const account = useActiveAccount();
   const url = account.url;
 
+  /* Ensure that the webview modal is closed when navigating away */
+  useLocationIndexUpdater("webview");
+
   return (
-    <Modal onOpenChange={onOpenChange} fullHeight={true} overlayClassName="p-4">
+    <>
       {/* Header */}
       <AccountModalHeader />
 
@@ -28,12 +28,24 @@ export default function WebviewModal({
         <div
           className={cn(
             "grow flex items-center justify-center",
-            "bg-neutral-800/50 text-neutral-400"
+            "bg-neutral-800/50 text-neutral-400",
           )}
         >
           No URL set for this account.
         </div>
       )}
+    </>
+  );
+};
+
+export default function WebviewModal({
+  onOpenChange,
+}: {
+  onOpenChange: (open: boolean) => void;
+}) {
+  return (
+    <Modal onOpenChange={onOpenChange} fullHeight={true} overlayClassName="p-4">
+      <WebviewModalContent />
     </Modal>
   );
 }

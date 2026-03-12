@@ -1,8 +1,9 @@
 import { useCallback, useId } from "react";
+
+import { useLocationToggle } from "@pwabucket/pwa-router";
 import { useMemo } from "react";
 import { useRef } from "react";
 import { useState } from "react";
-import useLocationToggle from "./useLocationToggle";
 
 interface PromptRef<T = unknown> {
   resolve: ((value: T | PromiseLike<T>) => void) | null;
@@ -10,7 +11,7 @@ interface PromptRef<T = unknown> {
 }
 
 export type PromptCallback<T = unknown, R = unknown> = (
-  value?: T | null
+  value?: T | null,
 ) => Promise<R>;
 
 export default function usePrompt<T = unknown, R = unknown>() {
@@ -33,17 +34,17 @@ export default function usePrompt<T = unknown, R = unknown>() {
         setValue(value);
         setShow(true);
       }),
-    [setShow]
+    [setShow],
   );
 
   const resolve = useCallback((value: R) => ref.current.resolve?.(value), []);
   const reject = useCallback(
     (value: unknown) => ref.current.reject?.(value),
-    []
+    [],
   );
 
   return useMemo(
     () => ({ show, value, setShow, prompt, resolve, reject }),
-    [show, value, setShow, prompt, resolve, reject]
+    [show, value, setShow, prompt, resolve, reject],
   );
 }

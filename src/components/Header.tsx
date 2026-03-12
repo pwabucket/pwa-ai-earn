@@ -1,21 +1,21 @@
-import { Link } from "react-router";
 import { LuCalendar, LuGlobe, LuMenu } from "react-icons/lu";
-import { LuChevronLeft } from "react-icons/lu";
 
-import PageContainer from "./PageContainer";
-import WeeklyCalendar from "./WeeklyCalendar";
-import useNavigateBack from "../hooks/useNavigateBack";
 import { DayNavigator } from "./DayNavigator";
 import { HeaderButton } from "./HeaderButton";
+import { Link } from "react-router";
+import { LuChevronLeft } from "react-icons/lu";
+import { MdRefresh } from "react-icons/md";
+import PageContainer from "./PageContainer";
+import WeeklyCalendar from "./WeeklyCalendar";
 import { cn } from "../lib/utils";
 import { formatHeaderDate } from "../utils/dateUtils";
-import { MdRefresh } from "react-icons/md";
 import useActiveAccount from "../hooks/useActiveAccount";
+import { useNavigateBack } from "@pwabucket/pwa-router";
 
 const HeaderContainer = ({ children }: { children: React.ReactNode }) => (
   <header
     className={cn(
-      "sticky top-0 z-10 bg-neutral-900 border-b border-neutral-800"
+      "sticky top-0 z-10 bg-neutral-900 border-b border-neutral-800",
     )}
   >
     <PageContainer className="flex flex-col gap-2">{children}</PageContainer>
@@ -77,7 +77,7 @@ export default function Header({
         <h3
           className={cn(
             "font-bold grow min-w-0 truncate",
-            "text-lg text-neutral-100"
+            "text-lg text-neutral-100",
           )}
           title={formatHeaderDate(selectedDate)}
         >
