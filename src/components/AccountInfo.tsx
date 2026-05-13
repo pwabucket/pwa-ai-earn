@@ -12,7 +12,7 @@ import {
   MdOutlineOpenInNew,
 } from "react-icons/md";
 import { useQuery } from "@tanstack/react-query";
-import { Tracker } from "../lib/Tracker";
+import { useTrackerProvider } from "../hooks/useTrackerProvider";
 import { Collapsible } from "radix-ui";
 
 const InfoItem = ({
@@ -62,17 +62,17 @@ const InfoItem = ({
 };
 
 const AccountInfo = ({ account }: { account: Account }) => {
+  const { createProvider } = useTrackerProvider();
   const user = useMemo(() => {
     return extractTgWebAppData(account.url!)["initDataUnsafe"]["user"];
   }, [account.url]);
 
   const statusQuery = useQuery({
-    queryKey: ["account-status", account.id],
+    queryKey: ["account-status", account.id, account.provider],
     queryFn: async () => {
-      const tracker = new Tracker(account.url!);
-      await tracker.initialize();
-      const status = await tracker.validate();
-      return status;
+      const provider = createProvider(account.provider, account.url!);
+      await provider.initialize();
+      return provider.getAccountStatus();
     },
   });
 
@@ -96,7 +96,7 @@ const AccountInfo = ({ account }: { account: Account }) => {
     <div className="flex flex-col divide-y divide-neutral-800 text-sm">
       <InfoItem
         title="Account Status"
-        value={statusQuery.data ? statusQuery.data.data.status : "Loading..."}
+        value={statusQuery.data ? String(statusQuery.data.status) : "Loading..."}
         className="text-teal-300"
       />
       <InfoItem title="ID" value={`${user?.id}`} className="text-purple-300" />

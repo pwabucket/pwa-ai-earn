@@ -1,4 +1,5 @@
 import type Decimal from "decimal.js";
+import type { ProviderType } from "./tracker";
 
 export interface Transaction {
   id: string;
@@ -13,6 +14,7 @@ export interface Account {
   id: string;
   title: string;
   url?: string;
+  provider?: ProviderType;
   enableLiveUpdates?: boolean;
   transactions: Transaction[];
 }

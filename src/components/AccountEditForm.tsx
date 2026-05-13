@@ -1,4 +1,5 @@
 import type { Account } from "../types/app";
+import type { ProviderType } from "../types/tracker";
 import { Button } from "./Button";
 import { Controller, FormProvider, useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -11,11 +12,14 @@ import { MdDelete, MdOutlineContentCopy, MdWarning } from "react-icons/md";
 import { useCallback } from "react";
 import LabelToggle from "./LabelToggle";
 import { LuRadio } from "react-icons/lu";
+import { Select } from "./Select";
+import { DEFAULT_PROVIDER, PROVIDER_NAMES } from "../lib/providers";
 
 /** Account Form Data */
 interface AccountFormData {
   title: string;
   url?: string;
+  provider: ProviderType;
   enableLiveUpdates: boolean;
 }
 /** Account Form Schema */
@@ -23,6 +27,11 @@ const AccountFormSchema = yup
   .object({
     title: yup.string().required().label("Title"),
     url: yup.string().url().label("URL"),
+    provider: yup
+      .string()
+      .required()
+      .oneOf(Object.keys(PROVIDER_NAMES) as ProviderType[])
+      .label("Provider"),
     enableLiveUpdates: yup.boolean().required().label("Enable Live Updates"),
   })
   .required();
@@ -46,6 +55,7 @@ export default function AccountEditForm({
     defaultValues: {
       title: account?.title || "",
       url: account?.url || "",
+      provider: account?.provider || DEFAULT_PROVIDER,
       enableLiveUpdates: account?.enableLiveUpdates ?? true,
     },
   });
@@ -110,6 +120,24 @@ export default function AccountEditForm({
                 </button>
               </div>
 
+              <FormFieldError message={fieldState.error?.message} />
+            </>
+          )}
+        />
+
+        {/* Provider */}
+        <Controller
+          name="provider"
+          render={({ field, fieldState }) => (
+            <>
+              <Label htmlFor="provider">Provider</Label>
+              <Select {...field} id="provider">
+                {Object.entries(PROVIDER_NAMES).map(([key, name]) => (
+                  <Select.Option key={key} value={key}>
+                    {name}
+                  </Select.Option>
+                ))}
+              </Select>
               <FormFieldError message={fieldState.error?.message} />
             </>
           )}

@@ -13,6 +13,7 @@ import AccountEditForm from "./AccountEditForm";
 import { Button } from "./Button";
 import toast from "react-hot-toast";
 import { useLocation, useNavigate } from "react-router";
+import { DEFAULT_PROVIDER } from "../lib/providers";
 
 const AccountItem = ({
   account,
@@ -139,6 +140,7 @@ export default function AccountsDialog({ onClose }: { onClose: () => void }) {
     const newAccount: Account = {
       id: crypto.randomUUID(),
       title: `Account ${accounts.length + 1}`,
+      provider: DEFAULT_PROVIDER,
       enableLiveUpdates: true,
       transactions: [],
       url: "",

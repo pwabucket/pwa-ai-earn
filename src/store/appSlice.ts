@@ -29,6 +29,7 @@ export const createAppSlice: StateCreator<AppSlice> = (set) => ({
     {
       id: "default",
       title: "Account 1",
+      provider: "leonardo",
       enableLiveUpdates: true,
       transactions: [],
     },
