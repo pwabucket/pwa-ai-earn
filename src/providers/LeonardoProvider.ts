@@ -1,21 +1,8 @@
-import Decimal from "decimal.js";
-import type { Transaction } from "../types/app";
-import type {
-  AccountStatus,
-  TrackerProviderInstance,
-} from "../types/tracker";
+import type { AccountStatus, TrackerProviderInstance } from "../types/tracker";
 
 import { BaseTelegramProvider } from "./BaseTelegramProvider";
-
-interface RawTransaction {
-  id: number;
-  tg: number;
-  tp: string;
-  type: string;
-  create_time: string;
-  status: string;
-  hashId: string;
-}
+import Decimal from "decimal.js";
+import type { Transaction } from "../types/app";
 
 const TYPE_MAP: Record<string, Transaction["type"]> = {
   "Purchased TP": "investment",
@@ -35,6 +22,23 @@ class LeonardoProvider
 
     this.api.defaults.headers.common["Authorization"] =
       this.telegramWebApp.initData || "";
+  }
+
+  /**
+   * Daily profit rate tiers for the Leonardo platform.
+   * @param amount - Total active investment amount
+   * @returns Daily percentage rate as a decimal
+   */
+  static getPercentage(amount: Decimal.Value) {
+    if (new Decimal(amount).greaterThanOrEqualTo(3000)) {
+      return new Decimal(7).dividedBy(100);
+    } else if (new Decimal(amount).greaterThanOrEqualTo(300)) {
+      return new Decimal(6.5).dividedBy(100);
+    } else if (new Decimal(amount).greaterThanOrEqualTo(20)) {
+      return new Decimal(6).dividedBy(100);
+    } else {
+      return new Decimal(5.5).dividedBy(100);
+    }
   }
 
   async initialize() {
@@ -61,13 +65,14 @@ class LeonardoProvider
         const doc = parser.parseFromString(html, "text/html");
 
         const scriptTag = [...doc.scripts].find(
-          (s) => s.type === "module" && s.getAttribute("src")?.includes("index")
+          (s) =>
+            s.type === "module" && s.getAttribute("src")?.includes("index"),
         );
 
         if (scriptTag) {
           const scriptUrl = new URL(
             scriptTag.getAttribute("src") || "",
-            origin
+            origin,
           );
 
           const scriptContent = await this.api
@@ -75,7 +80,7 @@ class LeonardoProvider
             .then((res) => res.data);
 
           const customHeader = scriptContent.match(
-            /headers\.custom\s*=\s*["']([^"']+)["']/
+            /headers\.custom\s*=\s*["']([^"']+)["']/,
           );
 
           if (customHeader && customHeader[1]) {
@@ -121,8 +126,8 @@ class LeonardoProvider
     return result.data || {};
   }
 
-  async fetchTransactions(pageSize = 1000) {
-    const results: RawTransaction[] = [];
+  async fetchTransactions(pageSize = 1000): Promise<Record<string, unknown>[]> {
+    const results: Record<string, unknown>[] = [];
     let page = 1;
 
     while (true) {
@@ -152,14 +157,16 @@ class LeonardoProvider
     const raw = await this.fetchTransactions();
 
     return raw.flatMap((item): Transaction[] => {
-      const type = TYPE_MAP[item.type];
+      const typeName = String(item.type);
+      const type = TYPE_MAP[typeName];
       if (!type) return [];
       return [
         {
-          id: item.id.toString(),
-          date: new Date(item.create_time),
-          amount: new Decimal(item.tp),
+          id: String(item.id),
+          date: new Date(String(item.create_time)),
+          amount: new Decimal(item.tp as Decimal.Value),
           type,
+          title: typeName,
         },
       ];
     });

@@ -14,7 +14,7 @@ import { cn } from "../lib/utils";
 import type InvestmentEngine from "../lib/InvestmentEngine";
 
 type TimelineDay = ReturnType<
-  (typeof InvestmentEngine)["simulateInvestments"]
+  InvestmentEngine["simulateInvestments"]
 >["timeline"][number];
 
 export default function Timeline({ timeline }: { timeline: TimelineDay[] }) {

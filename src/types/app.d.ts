@@ -5,7 +5,11 @@ export interface Transaction {
   id: string;
   amount: Decimal.Value;
   date: Date;
-  type: "investment" | "withdrawal" | "exchange" | "earnings";
+  type: "investment" | "withdrawal" | "exchange" | "earnings" | "profit";
+  /** Original provider label, shown verbatim in the UI when present. */
+  title?: string;
+  /** Days this investment generates profit for. Falls back to the engine default. */
+  duration?: number;
   pinned?: boolean;
   isSimulated?: boolean;
 }

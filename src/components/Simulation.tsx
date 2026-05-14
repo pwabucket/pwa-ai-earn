@@ -7,7 +7,6 @@ import CalendarModal from "./CalendarModal";
 import Currency from "./Currency";
 import { DayNavigator } from "./DayNavigator";
 import { HeaderButton } from "./HeaderButton";
-import InvestmentEngine from "../lib/InvestmentEngine";
 import Modal from "./Modal";
 import { TabTriggerButton } from "./TabTriggerButton";
 import Timeline from "./Timeline";
@@ -18,6 +17,7 @@ import { startOfDay } from "date-fns";
 import toast from "react-hot-toast";
 import useActiveAccount from "../hooks/useActiveAccount";
 import useAppStore from "../store/useAppStore";
+import { useInvestmentEngine } from "../hooks/useInvestmentEngine";
 import { useLocationToggle } from "@pwabucket/pwa-router";
 import { useState } from "react";
 
@@ -50,14 +50,11 @@ const SimulationResult = ({
   const account = useActiveAccount();
   const { transactions } = account;
   const setTransactions = useAppStore((state) => state.setTransactions);
+  const engine = useInvestmentEngine();
 
   const result = useMemo(() => {
-    return InvestmentEngine.simulateInvestments(
-      selectedDate,
-      targetDate,
-      transactions,
-    );
-  }, [selectedDate, targetDate, transactions]);
+    return engine.simulateInvestments(selectedDate, targetDate, transactions);
+  }, [engine, selectedDate, targetDate, transactions]);
 
   const fillTransactions = useCallback(() => {
     const newTransactions: Transaction[] = [

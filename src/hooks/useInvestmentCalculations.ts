@@ -1,13 +1,15 @@
 import { useMemo } from "react";
 
-import InvestmentEngine from "../lib/InvestmentEngine";
 import type { Transaction } from "../types/app";
+import { useInvestmentEngine } from "./useInvestmentEngine";
 
 export const useInvestmentCalculations = (
   selectedDate: Date,
   transactions: Transaction[]
 ) => {
+  const engine = useInvestmentEngine();
+
   return useMemo(() => {
-    return InvestmentEngine.calculateInvestments(selectedDate, transactions);
-  }, [selectedDate, transactions]);
+    return engine.calculateInvestments(selectedDate, transactions);
+  }, [engine, selectedDate, transactions]);
 };

@@ -30,11 +30,14 @@ export const DayViewTransactionItem = memo(
     <div className="flex items-center justify-between gap-1">
       <div className="grow min-w-0">
         <div className="text-xs text-neutral-400">
-          {transaction.type.charAt(0).toUpperCase() + transaction.type.slice(1)}
+          {transaction.title ??
+            transaction.type.charAt(0).toUpperCase() +
+              transaction.type.slice(1)}
         </div>
         <div
           className={
             {
+              profit: "text-lime-400",
               earnings: "text-green-400",
               investment: "text-blue-400",
               withdrawal: "text-red-400",
@@ -48,7 +51,7 @@ export const DayViewTransactionItem = memo(
           />
         </div>
       </div>
-      {transaction.type !== "earnings" && (
+      {transaction.type !== "earnings" && transaction.type !== "profit" && (
         <>
           <DayViewTransactionButton
             onClick={onPin}

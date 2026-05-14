@@ -22,7 +22,13 @@ export function generateCalendarDays(
   selectedDate: SingleDateConstructorArg | null = null,
   activityDates: Map<
     number,
-    { investments: number; withdrawals: number; exchanges: number }
+    {
+      investments: number;
+      withdrawals: number;
+      exchanges: number;
+      earnings: number;
+      profit: boolean;
+    }
   > = new Map()
 ) {
   const normalizedMonth = startOfDay(currentMonth);

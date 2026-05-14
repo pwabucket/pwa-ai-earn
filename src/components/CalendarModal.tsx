@@ -8,6 +8,7 @@ import { cn } from "../lib/utils";
 import { generateCalendarDays } from "../utils/dateUtils";
 import { startOfDay } from "date-fns";
 import useActiveAccount from "../hooks/useActiveAccount";
+import { useInvestmentEngine } from "../hooks/useInvestmentEngine";
 
 export default function CalendarModal({
   selectedDate,
@@ -24,6 +25,7 @@ export default function CalendarModal({
 
   const account = useActiveAccount();
   const transactions = account.transactions;
+  const engine = useInvestmentEngine();
 
   const activityDates = useMemo(() => {
     const datesMap = new Map<
@@ -32,28 +34,52 @@ export default function CalendarModal({
         investments: number;
         withdrawals: number;
         exchanges: number;
+        earnings: number;
+        profit: boolean;
       }
     >();
-    transactions.forEach((tx) => {
-      const dateTime = startOfDay(tx.date).getTime();
+
+    const ensureEntry = (dateTime: number) => {
       if (!datesMap.has(dateTime)) {
         datesMap.set(dateTime, {
           investments: 0,
           withdrawals: 0,
           exchanges: 0,
+          earnings: 0,
+          profit: false,
         });
       }
-      const dateEntry = datesMap.get(dateTime)!;
+      return datesMap.get(dateTime)!;
+    };
+
+    transactions.forEach((tx) => {
+      const dateEntry = ensureEntry(startOfDay(tx.date).getTime());
       if (tx.type === "investment") {
         dateEntry.investments += 1;
       } else if (tx.type === "withdrawal") {
         dateEntry.withdrawals += 1;
       } else if (tx.type === "exchange") {
         dateEntry.exchanges += 1;
+      } else if (tx.type === "earnings") {
+        dateEntry.earnings += 1;
       }
     });
+
+    // Mark every day an investment earns compounding profit, so those days
+    // still get an indicator even without any transaction activity.
+    transactions
+      .filter((tx) => tx.type === "investment" || tx.type === "exchange")
+      .forEach((investment) => {
+        const duration = engine.getInvestmentDuration(investment);
+        const day = startOfDay(investment.date);
+        for (let offset = 1; offset <= duration; offset++) {
+          day.setDate(day.getDate() + 1);
+          ensureEntry(startOfDay(day).getTime()).profit = true;
+        }
+      });
+
     return datesMap;
-  }, [transactions]);
+  }, [engine, transactions]);
 
   // Generate calendar days
   const calendarDays = useMemo(() => {
@@ -152,9 +178,11 @@ export default function CalendarModal({
                   "absolute bottom-2 size-1.5 rounded-full opacity-30",
                   "left-1/2 transform -translate-x-1/2",
                   {
+                    "bg-lime-400": day.activity.profit,
                     "bg-red-400": day.activity.withdrawals > 0,
                     "bg-yellow-400": day.activity.exchanges > 0,
                     "bg-blue-400": day.activity.investments > 0,
+                    "bg-green-400": day.activity.earnings > 0,
                   }
                 )}
               />

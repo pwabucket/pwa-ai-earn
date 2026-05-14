@@ -1,9 +1,9 @@
 import { useMemo } from "react";
 import Currency from "./Currency";
-import InvestmentEngine from "../lib/InvestmentEngine";
 import Radius from "./Radius";
 import type { Transaction } from "../types/app";
 import { formatDate } from "../utils/dateUtils";
+import { useInvestmentEngine } from "../hooks/useInvestmentEngine";
 
 export const ActiveInvestments = ({
   selectedDate,
@@ -14,16 +14,16 @@ export const ActiveInvestments = ({
   onSelectDate: (date: Date) => void;
   investments: Transaction[];
 }) => {
+  const engine = useInvestmentEngine();
+
   const list = useMemo(
     () =>
       investments
         .map((investment) => {
           const startDate = new Date(investment.date);
-          const endDate = new Date(investment.date);
-          endDate.setDate(
-            endDate.getDate() + InvestmentEngine.INVESTMENT_DURATION
-          );
-          const duration = InvestmentEngine.getDaysDifference(
+          const endDate = engine.getInvestmentExpiryDate(investment);
+          const totalDuration = engine.getInvestmentDuration(investment);
+          const elapsedDays = engine.getDaysDifference(
             startDate,
             selectedDate
           );
@@ -32,11 +32,12 @@ export const ActiveInvestments = ({
             ...investment,
             startDate,
             endDate,
-            duration,
+            totalDuration,
+            elapsedDays,
           };
         })
-        .sort((a, b) => a.duration - b.duration),
-    [investments, selectedDate]
+        .sort((a, b) => a.elapsedDays - b.elapsedDays),
+    [engine, investments, selectedDate]
   );
   return (
     <div className="flex flex-col gap-2 p-4 rounded-xl bg-neutral-800">
@@ -62,14 +63,15 @@ export const InvestmentItem = ({
   onSelectDate,
 }: {
   investment: Transaction & {
-    duration: number;
+    totalDuration: number;
+    elapsedDays: number;
     startDate: Date;
     endDate: Date;
   };
   onSelectDate: (date: Date) => void;
 }) => {
-  const max = 20;
-  const progress = Math.min(investment.duration, max);
+  const max = investment.totalDuration;
+  const progress = Math.min(investment.elapsedDays, max);
 
   return (
     <>

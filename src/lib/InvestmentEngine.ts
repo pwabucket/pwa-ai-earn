@@ -1,25 +1,27 @@
 import { differenceInDays } from "date-fns";
 import type { Transaction } from "../types/app";
+import type { TrackerProvider } from "../types/tracker";
 import { startOfDay } from "../utils/dateUtils";
 import Decimal from "decimal.js";
 
 export default class InvestmentEngine {
-  static INVESTMENT_DURATION = 20 as const;
-  static MINIMUM_INVESTMENT_AMOUNT = 1 as const;
+  readonly INVESTMENT_DURATION = 20;
+  readonly MINIMUM_INVESTMENT_AMOUNT = 1;
+
+  private readonly provider: TrackerProvider;
+
+  constructor(provider: TrackerProvider) {
+    this.provider = provider;
+  }
 
   /**
-   * Gets daily percentage rate based on investment amount
-   * @param amount - Total investment amount
-   * @returns Daily percentage rate as decimal
+   * Gets the daily percentage rate for an active amount, delegating to the
+   * account's provider so rate tiers are not hardcoded into the engine.
+   * @param amount - Total active investment amount
+   * @returns Daily percentage rate as a decimal
    */
-  static getPercentage(amount: Decimal.Value) {
-    if (new Decimal(amount).greaterThanOrEqualTo(300)) {
-      return new Decimal(6.5).dividedBy(100);
-    } else if (new Decimal(amount).greaterThanOrEqualTo(20)) {
-      return new Decimal(6).dividedBy(100);
-    } else {
-      return new Decimal(5.5).dividedBy(100);
-    }
+  getPercentage(amount: Decimal.Value) {
+    return this.provider.getPercentage(amount);
   }
 
   /**
@@ -27,7 +29,7 @@ export default class InvestmentEngine {
    * @param date - Date to convert
    * @returns Date key
    */
-  static getDateKey(date: Date): number {
+  getDateKey(date: Date): number {
     return date.getTime();
   }
 
@@ -37,10 +39,30 @@ export default class InvestmentEngine {
    * @param endDate - End date
    * @returns Number of days between dates
    */
-  static getDaysDifference(startDate: Date, endDate: Date): number {
+  getDaysDifference(startDate: Date, endDate: Date): number {
     const start = startOfDay(startDate);
     const end = startOfDay(endDate);
     return differenceInDays(end, start);
+  }
+
+  /**
+   * Gets the active duration (in days) for an investment.
+   * @param investment - Investment object
+   * @returns Per-investment duration, or the engine default
+   */
+  getInvestmentDuration(investment: Transaction) {
+    return investment.duration ?? this.INVESTMENT_DURATION;
+  }
+
+  /**
+   * Gets the date an investment stops generating profit.
+   * @param investment - Investment object
+   * @returns Start of the investment's expiry date
+   */
+  getInvestmentExpiryDate(investment: Transaction) {
+    const expiry = startOfDay(investment.date);
+    expiry.setDate(expiry.getDate() + this.getInvestmentDuration(investment));
+    return startOfDay(expiry);
   }
 
   /**
@@ -50,7 +72,7 @@ export default class InvestmentEngine {
    * @param profitOnly - If true, only returns investments generating profits (day 1+)
    * @returns True if investment is active
    */
-  static isInvestmentActive(
+  isInvestmentActive(
     investment: Transaction,
     currentDate: Date,
     profitOnly = false
@@ -60,7 +82,7 @@ export default class InvestmentEngine {
 
     return (
       daysSinceStart >= (profitOnly ? 1 : 0) &&
-      daysSinceStart <= this.INVESTMENT_DURATION
+      daysSinceStart <= this.getInvestmentDuration(investment)
     );
   }
 
@@ -71,7 +93,7 @@ export default class InvestmentEngine {
    * @param profitOnly - If true, only returns profit-generating investments
    * @returns Array of active investments
    */
-  static getActiveInvestments(
+  getActiveInvestments(
     transactions: Transaction[],
     currentDate: Date,
     profitOnly = false
@@ -89,10 +111,7 @@ export default class InvestmentEngine {
    * @param withdrawals - Array of withdrawal objects
    * @returns Array of date groups sorted chronologically
    */
-  static groupEventsByDate(
-    investments: Transaction[],
-    withdrawals: Transaction[]
-  ) {
+  groupEventsByDate(investments: Transaction[], withdrawals: Transaction[]) {
     const eventGroups = new Map<
       number,
       { date: Date; investments: Transaction[]; withdrawals: Transaction[] }
@@ -132,7 +151,7 @@ export default class InvestmentEngine {
    * @param transactions - Array of transaction objects
    * @returns Total sum of transaction amounts
    */
-  static sumTransactions(transactions: Transaction[]) {
+  sumTransactions(transactions: Transaction[]) {
     return transactions.reduce(
       (sum, transaction) => sum.plus(new Decimal(transaction.amount)),
       new Decimal(0)
@@ -145,19 +164,20 @@ export default class InvestmentEngine {
    * @param rate - The profit rate.
    * @returns The calculated profit.
    */
-  static calculateProfit(amount: Decimal.Value, rate: Decimal.Value) {
+  calculateProfit(amount: Decimal.Value, rate: Decimal.Value) {
     return this.floatAmount(new Decimal(amount).times(new Decimal(rate)));
   }
 
-  static filterTransactions(transactions: Transaction[]) {
+  filterTransactions(transactions: Transaction[]) {
     return {
       investments: transactions.filter((t) => t.type === "investment"),
       withdrawals: transactions.filter((t) => t.type === "withdrawal"),
       exchanges: transactions.filter((t) => t.type === "exchange"),
+      earnings: transactions.filter((t) => t.type === "earnings"),
     };
   }
 
-  static getDayMap(transactions: Transaction[]) {
+  getDayMap(transactions: Transaction[]) {
     const results = new Map<number, Decimal>();
     transactions.forEach((t) => {
       const dateKey = this.getDateKey(startOfDay(t.date));
@@ -175,26 +195,28 @@ export default class InvestmentEngine {
    * @param transactions - Array of transaction objects
    * @returns Portfolio metrics including balance, profits, and active investments
    */
-  static calculateTp(selectedDate: Date, transactions: Transaction[]) {
+  calculateTp(selectedDate: Date, transactions: Transaction[]) {
     const normalizedSelectedDate = startOfDay(selectedDate);
     const priorTransactions = transactions.filter(
       (tx) => startOfDay(tx.date) <= normalizedSelectedDate
     );
 
-    const { investments, withdrawals, exchanges } =
+    const { investments, withdrawals, exchanges, earnings } =
       this.filterTransactions(priorTransactions);
 
     const priorInvestments = investments;
     const priorWithdrawals = withdrawals;
     const priorExchanges = exchanges;
+    const priorEarnings = earnings;
 
-    if (priorInvestments.length === 0) {
+    if (priorInvestments.length === 0 && priorEarnings.length === 0) {
       return {
         totalBalance: new Decimal(0),
         totalProfits: new Decimal(0),
         totalInvested: new Decimal(0),
         totalKept: new Decimal(0),
         totalWithdrawn: new Decimal(0),
+        totalEarnings: new Decimal(0),
         activeInvestments: new Decimal(0),
         currentDailyProfit: new Decimal(0),
         currentDailyRate: new Decimal(0),
@@ -214,10 +236,12 @@ export default class InvestmentEngine {
     const totalInvested = this.sumTransactions(priorInvestments);
     const totalWithdrawn = this.sumTransactions(priorWithdrawals);
     const totalExchanged = this.sumTransactions(priorExchanges);
+    const totalEarnings = this.sumTransactions(priorEarnings);
 
     const investmentsByDate = this.getDayMap(priorInvestments);
     const withdrawalsByDate = this.getDayMap(priorWithdrawals);
     const exchangesByDate = this.getDayMap(priorExchanges);
+    const earningsByDate = this.getDayMap(priorEarnings);
 
     const currentDate = startOfDay(earliestDate);
     while (currentDate <= endDate) {
@@ -247,6 +271,13 @@ export default class InvestmentEngine {
         withdrawalsByDate.get(currentDateKey) || new Decimal(0);
       const todayExchanges =
         exchangesByDate.get(currentDateKey) || new Decimal(0);
+      const todayEarnings =
+        earningsByDate.get(currentDateKey) || new Decimal(0);
+
+      if (todayEarnings.greaterThan(0)) {
+        totalProfits = totalProfits.plus(todayEarnings);
+        availableBalance = availableBalance.plus(todayEarnings);
+      }
 
       totalKept = totalKept.plus(
         Decimal.max(new Decimal(0), todayWithdrawals.minus(todayInvestments))
@@ -300,6 +331,7 @@ export default class InvestmentEngine {
       totalInvested,
       totalWithdrawn,
       totalExchanged,
+      totalEarnings,
       activeInvestments: totalActiveAmount,
       currentDailyProfit,
       currentDailyRate,
@@ -316,7 +348,7 @@ export default class InvestmentEngine {
    * @param onlyTarget - Should limit to the target date
    * @returns Object containing the expiration date and the result of the calculation
    */
-  static calculateExpiredState(
+  calculateExpiredState(
     targetDate: Date,
     transactions: Transaction[],
     onlyTarget = false
@@ -325,20 +357,24 @@ export default class InvestmentEngine {
       (t) => t.type === "investment" || t.type === "exchange"
     );
 
-    const latestInvestmentDate = onlyTarget
-      ? startOfDay(targetDate)
-      : startOfDay(
-          investments.length > 0
-            ? Math.max(
-                ...investments.map((inv) => startOfDay(inv.date).getTime())
-              )
-            : targetDate
-        );
+    let allInvestmentsExpireDate: Date;
 
-    const allInvestmentsExpireDate = startOfDay(latestInvestmentDate);
-    allInvestmentsExpireDate.setDate(
-      allInvestmentsExpireDate.getDate() + this.INVESTMENT_DURATION
-    );
+    if (!onlyTarget && investments.length > 0) {
+      // Latest expiry across investments, each honoring its own duration.
+      allInvestmentsExpireDate = startOfDay(
+        Math.max(
+          ...investments.map((inv) =>
+            this.getInvestmentExpiryDate(inv).getTime()
+          )
+        )
+      );
+    } else {
+      // Project a default-duration investment starting from the target date.
+      allInvestmentsExpireDate = startOfDay(targetDate);
+      allInvestmentsExpireDate.setDate(
+        allInvestmentsExpireDate.getDate() + this.INVESTMENT_DURATION
+      );
+    }
 
     return {
       date: allInvestmentsExpireDate,
@@ -352,7 +388,7 @@ export default class InvestmentEngine {
    * @param transactions - The list of transaction objects.
    * @returns The calculated state of transactions.
    */
-  static calculateInvestments(selectedDate: Date, transactions: Transaction[]) {
+  calculateInvestments(selectedDate: Date, transactions: Transaction[]) {
     const currentState = this.calculateTp(selectedDate, transactions);
 
     const { date: allInvestmentsExpireDate, result: expiredState } =
@@ -377,7 +413,7 @@ export default class InvestmentEngine {
    * @param amount - The amount to float
    * @returns The floated amount
    */
-  static floatAmount(amount: Decimal.Value) {
+  floatAmount(amount: Decimal.Value) {
     return new Decimal(amount).toDecimalPlaces(4);
   }
 
@@ -388,7 +424,7 @@ export default class InvestmentEngine {
    * @param transactions - Array of existing transaction objects
    * @returns Simulation results with timeline and final metrics
    */
-  static simulateInvestments(
+  simulateInvestments(
     selectedDate: Date,
     targetDate: Date,
     transactions: Transaction[]
@@ -419,7 +455,9 @@ export default class InvestmentEngine {
     };
 
     /* Initial Investment on selected date */
-    if (availableBalance.greaterThanOrEqualTo(this.MINIMUM_INVESTMENT_AMOUNT)) {
+    if (
+      availableBalance.greaterThanOrEqualTo(this.MINIMUM_INVESTMENT_AMOUNT)
+    ) {
       createInvestment(selectedDate, availableBalance);
 
       const currentActiveInvestments = this.getActiveInvestments(
