@@ -66,6 +66,23 @@ export default class InvestmentEngine {
   }
 
   /**
+   * Lists every day an investment generates compounding profit
+   * (day 1 through its duration).
+   * @param investment - Investment object
+   * @returns Array of start-of-day dates
+   */
+  getProfitDays(investment: Transaction): Date[] {
+    const duration = this.getInvestmentDuration(investment);
+    const days: Date[] = [];
+    const day = startOfDay(investment.date);
+    for (let offset = 1; offset <= duration; offset++) {
+      day.setDate(day.getDate() + 1);
+      days.push(startOfDay(day));
+    }
+    return days;
+  }
+
+  /**
    * Checks if an investment is active on a given date
    * @param investment - Investment object with date and amount
    * @param currentDate - Date to check

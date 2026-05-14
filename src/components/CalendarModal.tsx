@@ -63,20 +63,15 @@ export default function CalendarModal({
       } else if (tx.type === "earnings") {
         dateEntry.earnings += 1;
       }
-    });
 
-    // Mark every day an investment earns compounding profit, so those days
-    // still get an indicator even without any transaction activity.
-    transactions
-      .filter((tx) => tx.type === "investment" || tx.type === "exchange")
-      .forEach((investment) => {
-        const duration = engine.getInvestmentDuration(investment);
-        const day = startOfDay(investment.date);
-        for (let offset = 1; offset <= duration; offset++) {
-          day.setDate(day.getDate() + 1);
-          ensureEntry(startOfDay(day).getTime()).profit = true;
-        }
-      });
+      // Mark every day this investment earns compounding profit, so those
+      // days still get an indicator even without any transaction activity.
+      if (tx.type === "investment" || tx.type === "exchange") {
+        engine.getProfitDays(tx).forEach((day) => {
+          ensureEntry(day.getTime()).profit = true;
+        });
+      }
+    });
 
     return datesMap;
   }, [engine, transactions]);

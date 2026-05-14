@@ -76,7 +76,7 @@ export const InvestmentItem = ({
   return (
     <>
       <div className="flex items-center gap-2">
-        <Radius max={max} position={progress} />
+        <Radius max={max} position={progress} label={`${progress}/${max}`} />
 
         <div className="text-xs grow min-w-0">
           <p className="text-neutral-300 flex justify-between">
